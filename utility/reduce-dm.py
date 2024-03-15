@@ -1,13 +1,12 @@
 import json
 import csv
+import pandas as pd
 from pathlib import Path
 
 def get_data(file):
-    with open(file, mode ='r')as file:
-        csv_file = csv.DictReader(file)
-        data = list(csv_file)
-    if len(list(data[0].keys())) < 3:
-        print("I don't think the csv was read properly")
+    df = pd.read_csv(file, keep_default_na=False)
+    df.fillna('')
+    data = df.to_dict(orient='records')
     return data
 
 FULL_DM_DATA = Path.cwd() / "tmp" / "dm-full.csv"
