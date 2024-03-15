@@ -33,9 +33,9 @@ VS_DATA_FULL = Path.cwd() / "tmp" / "vs.xpt"
 assert VS_DATA_FULL.exists(), "VS_DATA_FULL not found"
 vs = get_xpt_data(VS_DATA_FULL)
 
-print("len(vs)",len(vs))
+print("full len(vs)",len(vs))
 vs_data = [x for x in vs if x['USUBJID'] in subjects and x['VSTEST'] in LABELS]
-print("len(vs_data)",len(vs_data))
+print("reduced len(vs_data)",len(vs_data))
 
 VS_DATA = Path.cwd() / "data" / "input" / "vs.json"
 with open(VS_DATA, 'w') as f:
