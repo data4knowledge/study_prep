@@ -134,12 +134,7 @@ output_variables = list(data[0].keys())
 OUTPUT_FILE = OUTPUT_PATH / "data_contracts.csv"
 print("Saving to",OUTPUT_FILE)
 with open(OUTPUT_FILE, 'w') as csv_file:
-    # creating a csv dict writer object
     writer = csv.DictWriter(csv_file, fieldnames=output_variables)
-
-    # writing headers (field names)
     writer.writeheader()
-
-    # writing data rows
     writer.writerows(data)
 print("Done")
