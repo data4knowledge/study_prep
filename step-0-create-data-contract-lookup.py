@@ -1,20 +1,12 @@
-import os
 import csv
+import json
+import pandas as pd
 from pathlib import Path
 # from neo4j import GraphDatabase
 # from d4kms_generic import ServiceEnvironment
 from d4kms_service import Neo4jConnection
 
 print("\033[H\033[J") # Clears terminal window in vs code
-
-def get_data(file):
-    with open(file, mode ='r')as file:
-        csv_file = csv.DictReader(file)
-        data = list(csv_file)
-    if len(list(data[0].keys())) < 3:
-        print("I don't think the csv was read properly")
-    return data
-
 
 def clean(txt: str):
     txt = txt.replace(".","/")
@@ -34,22 +26,27 @@ def get_bc_properties(db, bc_label, row):
     AND  bc.label = '{bc_label}'
     return bc.label as BC_LABEL, bcp.name as BCP_NAME, enc.label as ENCOUNTER_LABEL, dc.uri as DC_URI
     """
+    # JOHANNES KOLLA QUERY här
     # print('bcp query',query)
     results = db.query(query)
     # print('results',results)
     if results == None:
-        print("DataContract has errors in it",row['VISIT'],visit,bc_label,query)
+        print("DataContract has errors in it",row['VISIT'],visit,bc_label)
+        # print("Query",query)
         return []
     if results == []:
         print("DataContract query did not yield any results",row['VISIT'],visit,bc_label)
+        print("query",query)
         return []
     # print("contract query alright")
     return [result.data() for result in results]
 
 
-VS_DATA = Path.cwd() / "data" / "vs.csv"
+VS_DATA = Path.cwd() / "data" / "input" / "vs.json"
+print("Reading",VS_DATA)
 assert VS_DATA.exists(), "VS_DATA not found"
-vs_data = get_data(VS_DATA)
+with open(VS_DATA) as f:
+    vs_data = json.load(f)
 
 OUTPUT_PATH = Path.cwd() / "data" / "output"
 assert OUTPUT_PATH.exists(), "OUTPUT_PATH not found"
@@ -65,6 +62,9 @@ DATA_LABELS_TO_BC_LABELS = {
     "Albumin": "Albumin Measurement",
     "Creatinine": "Creatinine Measurement",
     "Alkaline Phosphatase": "Alkaline Phosphatase Measurement",
+    "Diastolic Blood Pressure": "Diastolic Blood Pressure",
+    "Systolic Blood Pressure": "Systolic Blood Pressure",
+    "Pulse Rate": "Pulse Rate",
     "ALP": "",
     "ALT": "",
     "K": "",
@@ -93,29 +93,42 @@ DATA_VISITS_TO_ENCOUNTER_LABELS = {
 # 'AMBUL ECG REMOVAL': 'CHECK'
 
 # unique_labels_visits = [tuple({"VSTEST":row['VSTEST'],"VISIT":row['VISIT']}) for row in vs_data]
-strs = set()
+unique_test_visit = set()
 unique_labels_visits = []
 for row in vs_data:
-    x = f"{clean(row['VSTEST'])}{clean(row['VISIT'])}"
-    if x not in strs:
-        strs.add(x)
+    test_visit = f"{clean(row['VSTEST'])}{clean(row['VISIT'])}"
+    if test_visit not in unique_test_visit:
+        unique_test_visit.add(test_visit)
         unique_labels_visits.append({"VSTEST":row['VSTEST'],"VISIT":row['VISIT']})
     # unique_labels_visits = [{"VSTEST":row['VSTEST'],"VISIT":row['VISIT']} for row in vs_data]
 
+print("Connecting to Neo4j...",end="")
 db = Neo4jConnection()
+print("connected")
 
 # Add vs data to the graph
 # add_vs(db, vs_data, subjects)
 print("Looping VS")
 all_data = []
+good = []
+bad = []
 # rows = [row for row in vs_data]
 # for row in rows:
 # for row in vs_data:
 for row in unique_labels_visits:
     # datapoint_root = f"{row['USUBJID']}/{row['DOMAIN']}/{clean(row['LBSEQ'])}"
-    bc_label = DATA_LABELS_TO_BC_LABELS[row['VSTEST']]
+    if row['VSTEST'] in DATA_LABELS_TO_BC_LABELS:
+        bc_label = DATA_LABELS_TO_BC_LABELS[row['VSTEST']]
+    else:
+        bc_label = ""
+        print("Add ",row['VSTEST'])
     # print("bc_label",bc_label)
     properties = get_bc_properties(db, bc_label,row)
+    # print("properties",properties)
+    if properties:
+        good.append([bc_label])
+    else:
+        bad.append([bc_label])
     for property in properties:
         if property in all_data:
             True
@@ -124,11 +137,8 @@ for row in unique_labels_visits:
 
 db.close()
 
-
-# print("data[0].__class__",data[0].__class__)
-# print("data[0].keys()",data[0].keys())
-# data = set(all_data)
 data = all_data
+print("len(data)",len(data))
 output_variables = list(data[0].keys())
 
 OUTPUT_FILE = OUTPUT_PATH / "data_contracts.csv"
