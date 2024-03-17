@@ -141,10 +141,7 @@ data = all_data
 print("len(data)",len(data))
 output_variables = list(data[0].keys())
 
-OUTPUT_FILE = OUTPUT_PATH / "data_contracts.csv"
+OUTPUT_FILE = OUTPUT_PATH / "data_contracts.json"
 print("Saving to",OUTPUT_FILE)
-with open(OUTPUT_FILE, 'w') as csv_file:
-    writer = csv.DictWriter(csv_file, fieldnames=output_variables)
-    writer.writeheader()
-    writer.writerows(data)
-print("Done")
+with open(OUTPUT_FILE, 'w') as f:
+    f.write(json.dumps(data, indent = 2))
