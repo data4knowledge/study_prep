@@ -8,6 +8,15 @@ from d4kms_service import Neo4jConnection
 
 print("\033[H\033[J") # Clears terminal window in vs code
 
+def write_debug(data):
+    OUTPUT_FILE = Path('/Users/johannes/tmp/debug-files/debug-python.txt')
+    print("Writing debug...",OUTPUT_FILE, end="")
+    with open(OUTPUT_FILE, 'w') as f:
+        for it in data:
+            f.write(str(it))
+            f.write('\n')
+    print(" ...done")
+
 def clean(txt: str):
     txt = txt.replace(".","/")
     txt = txt.replace(" ","")
@@ -18,7 +27,8 @@ def get_bc_properties(db, bc_label, row):
     if row['VISIT'] in DATA_VISITS_TO_ENCOUNTER_LABELS:
         visit = DATA_VISITS_TO_ENCOUNTER_LABELS[row['VISIT']]
     else:
-        print("visit not found:",row['VISIT'])
+        # print("visit not found:",row['VISIT'])
+        issues.append("visit not found:"+row['VISIT'])
         return []
     query = f"""
     MATCH (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp)<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(act_inst)-[:ENCOUNTER_REL]-(enc)
@@ -26,17 +36,14 @@ def get_bc_properties(db, bc_label, row):
     AND  bc.label = '{bc_label}'
     return bc.label as BC_LABEL, bcp.name as BCP_NAME, enc.label as ENCOUNTER_LABEL, dc.uri as DC_URI
     """
-    # JOHANNES KOLLA QUERY här
-    # print('bcp query',query)
     results = db.query(query)
     # print('results',results)
-    if results == None:
+    if results == None:    
         print("DataContract has errors in it",row['VISIT'],visit,bc_label)
         # print("Query",query)
         return []
     if results == []:
-        print("DataContract query did not yield any results",row['VISIT'],visit,bc_label)
-        print("query",query)
+        # print("query",query)
         return []
     # print("contract query alright")
     return [result.data() for result in results]
@@ -110,6 +117,7 @@ print("connected")
 # add_vs(db, vs_data, subjects)
 print("Looping VS")
 all_data = []
+issues = []
 good = []
 bad = []
 # rows = [row for row in vs_data]
@@ -127,8 +135,22 @@ for row in unique_labels_visits:
     # print("properties",properties)
     if properties:
         good.append([bc_label])
+    elif row['VISIT'] in DATA_VISITS_TO_ENCOUNTER_LABELS:
+        visit = DATA_VISITS_TO_ENCOUNTER_LABELS[row['VISIT']]
+        print("DataContract query did not yield any results",row['VISIT'],visit,bc_label)
+        print("  Trying to fake visit",bc_label,visit)
+        query = f"""
+        MATCH (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp)<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(act_inst)
+        WHERE  bc.label = '{bc_label}'
+        return bc.label as BC_LABEL, bcp.name as BCP_NAME, '{visit}' as ENTOUNTER_LABEL, dc.uri as DC_URI
+        """
+        # print("query",query)
+        results = db.query(query)
+        if results != None and results != []:
+            properties = [result.data() for result in results]
+        # print("---results",results)
     else:
-        bad.append([bc_label])
+        bad.append([bc_label,row['VISIT']])
     for property in properties:
         if property in all_data:
             True
@@ -139,7 +161,11 @@ db.close()
 
 data = all_data
 print("len(data)",len(data))
+print("len(good)",len(good))
+print("len(bad)",len(bad))
 output_variables = list(data[0].keys())
+
+write_debug(bad)
 
 OUTPUT_FILE = OUTPUT_PATH / "data_contracts.json"
 print("Saving to",OUTPUT_FILE)

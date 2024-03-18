@@ -281,6 +281,9 @@ print("---issues",len(issues))
 for issue in issues:
     print(issue)
 
+if len(data) == 0:
+    print("No data has been found")
+    exit()
 output_variables = list(data[0].keys())
 OUTPUT_FILE = OUTPUT_PATH / "datapoints.csv"
 print("Saving to",OUTPUT_FILE)
