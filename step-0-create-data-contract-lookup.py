@@ -9,7 +9,7 @@ from d4kms_service import Neo4jConnection
 print("\033[H\033[J") # Clears terminal window in vs code
 
 def write_debug(data):
-    OUTPUT_FILE = Path('/Users/johannes/tmp/debug-files/debug-python.txt')
+    OUTPUT_FILE = OUTPUT_PATH / 'debug-python.txt'
     print("Writing debug...",OUTPUT_FILE, end="")
     with open(OUTPUT_FILE, 'w') as f:
         for it in data:
@@ -36,9 +36,11 @@ def get_bc_properties(db, bc_label, row):
     AND  bc.label = '{bc_label}'
     return bc.label as BC_LABEL, bcp.name as BCP_NAME, enc.label as ENCOUNTER_LABEL, dc.uri as DC_URI
     """
+    queries.append("standard")
+    queries.append(query)
     results = db.query(query)
     # print('results',results)
-    if results == None:    
+    if results == None:
         print("DataContract has errors in it",row['VISIT'],visit,bc_label)
         # print("Query",query)
         return []
@@ -119,6 +121,7 @@ print("Looping VS")
 all_data = []
 issues = []
 good = []
+queries = []
 bad = []
 # rows = [row for row in vs_data]
 # for row in rows:
@@ -140,14 +143,30 @@ for row in unique_labels_visits:
         print("DataContract query did not yield any results",row['VISIT'],visit,bc_label)
         print("  Trying to fake visit",bc_label,visit)
         query = f"""
-        MATCH (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp)<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(act_inst)
-        WHERE  bc.label = '{bc_label}'
-        return bc.label as BC_LABEL, bcp.name as BCP_NAME, '{visit}' as ENTOUNTER_LABEL, dc.uri as DC_URI
+            MATCH (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp)<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(act_inst)
+            WHERE  bc.label = '{bc_label}'
+            return bc.label as BC_LABEL, bcp.name as BCP_NAME, '{visit}' as ENTOUNTER_LABEL, dc.uri as DC_URI
+        """
+        query = f"""
+            // Get Activity, ScheduledTimeline, Timing and ScheduledActivityInstance
+            MATCH (actl:Activity)-[:TIMELINE_REL]->(stl:ScheduleTimeline {{entryCondition:'Automatic execution'}})
+            MATCH (stl)-[:TIMINGS_REL]-(t:Timing)
+            MATCH (t)-[:RELATIVE_TO_SCHEDULED_INSTANCE_REL]-(sai:ScheduledActivityInstance)
+            return *
         """
         # print("query",query)
+        queries.append("extra")
+        queries.append(query)
         results = db.query(query)
+        # queries.append(results)
         if results != None and results != []:
-            properties = [result.data() for result in results]
+        #     properties = [result.data() for result in results]
+            rs = [result.data() for result in results]
+            for r in rs:
+                # queries.append(r)
+                for q in r.items():
+                    queries.append(q)
+
         # print("---results",results)
     else:
         bad.append([bc_label,row['VISIT']])
@@ -165,7 +184,8 @@ print("len(good)",len(good))
 print("len(bad)",len(bad))
 output_variables = list(data[0].keys())
 
-write_debug(bad)
+write_debug(queries)
+# write_debug(bad)
 
 OUTPUT_FILE = OUTPUT_PATH / "data_contracts.json"
 print("Saving to",OUTPUT_FILE)
