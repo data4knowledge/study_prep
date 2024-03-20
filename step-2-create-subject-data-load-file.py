@@ -218,14 +218,15 @@ assert VS_DATA.exists(), "VS_DATA not found"
 with open(VS_DATA) as f:
     vs_data = json.load(f)
 
+# Subsetting VS
 # tests = [row['VSTESTCD'] for row in vs_data]
 # print(len(tests))
 # print(len(set(tests)))
 # print(set(tests))
-
+# exit()
 # {'DIABP', 'TEMP', 'HEIGHT', 'SYSBP', 'PULSE', 'WEIGHT'}
 # vs_data = [row for row in vs_data if row['VSTESTCD'] in ['TEMP', 'HEIGHT', 'WEIGHT']]
-vs_data = [row for row in vs_data if row['VSTESTCD'] in ['DIABP']]
+# vs_data = [row for row in vs_data if row['VSTESTCD'] in ['DIABP']]
 
 
 issues = []
@@ -284,11 +285,21 @@ for issue in issues:
 if len(data) == 0:
     print("No data has been found")
     exit()
-output_variables = list(data[0].keys())
-OUTPUT_FILE = OUTPUT_PATH / "datapoints.csv"
-print("Saving to",OUTPUT_FILE)
-with open(OUTPUT_FILE, 'w') as csv_file:
-    writer = csv.DictWriter(csv_file, fieldnames=output_variables)
-    writer.writeheader()
-    writer.writerows(data)
+
+def save_file(path: Path, name, data):
+    OUTPUT_FILE = path / f"{name}.json"
+    print("Saving to",OUTPUT_FILE)
+    with open(OUTPUT_FILE, 'w') as f:
+        f.write(json.dumps(data, indent = 2))
+
+    OUTPUT_FILE = path / f"{name}.csv"
+    print("Saving to",OUTPUT_FILE)
+    output_variables = list(data[0].keys())
+    with open(OUTPUT_FILE, 'w') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=output_variables)
+        writer.writeheader()
+        writer.writerows(data)
+
+save_file(OUTPUT_PATH,"datapoints",data)
+
 print("Done")
