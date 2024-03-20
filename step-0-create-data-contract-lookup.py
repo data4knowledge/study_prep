@@ -9,7 +9,8 @@ from d4kms_service import Neo4jConnection
 print("\033[H\033[J") # Clears terminal window in vs code
 
 def write_debug(data):
-    OUTPUT_FILE = OUTPUT_PATH / 'debug-python.txt'
+    TMP_PATH = Path.cwd() / "tmp"
+    OUTPUT_FILE = TMP_PATH / 'debug-python.txt'
     print("Writing debug...",OUTPUT_FILE, end="")
     with open(OUTPUT_FILE, 'w') as f:
         for it in data:
