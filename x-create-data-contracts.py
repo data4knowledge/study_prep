@@ -1,12 +1,80 @@
 import os
 import csv
 from pathlib import Path
-# from neo4j import GraphDatabase
-# from d4kms_generic import ServiceEnvironment
 from d4kms_service import Neo4jConnection
 
 
 print("\033[H\033[J") # Clears terminal window in vs code
+
+def clear_created_nodes(db):
+    query = "match (n:Datapoint) detach delete n return count(n)"
+    results = db.query(query)
+    # print("results1",results)
+    query = 'match (n:DataContract {delete:"me"}) detach delete n return count(n)'
+    results = db.query(query)
+    # print("results2",results)
+    query = 'match (n:DattaContract {delete:"me"}) detach delete n return count(n)'
+    results = db.query(query)
+    # print("results3",results)
+    query = 'match ()-[r:DC_TO_MAIN_TIMELINE]-() detach delete r return count(r)'
+    results = db.query(query)
+    # print("results4",results)
+    query = 'match ()-[r:HEY]-() detach delete r return count(r)'
+    results = db.query(query)
+    # print("results4",results)
+
+
+def get_main_timings_matching_other_timeline(db):
+    query = """
+        MATCH (act:Activity)-[:TIMELINE_REL]->(other_stl:ScheduleTimeline)
+        MATCH (act)<-[:ACTIVITY_REL]-(main_sai:ScheduledActivityInstance)
+        MATCH (main_sai)-[:ENCOUNTER_REL]->(enc:Encounter)-[:SCHEDULED_AT_REL]->(main_t:Timing)
+        return  other_stl.name AS timeline_name,other_stl.uuid as timeline_uuid, collect(main_t.uuid) as main_timeline_uuids
+    """
+    # print('get query',query)
+    results = db.query(query)
+    # print('results',results)
+    return [result.data() for result in results]
+
+def create_data_contracts(db, timeline_uuid, main_timeline_uuids):
+    query = """
+        MATCH (stl:ScheduleTimeline {uuid:$timeline_uuid})-[:INSTANCES_REL]->(other_sai:ScheduledActivityInstance)
+        return  *
+    """
+    num_nodes = 0
+    # for timing_uuid in main_timeline_uuids[0:2]:
+    for timing_uuid in main_timeline_uuids:
+        uri = 'https://study.d4k.dk/study-cdisc-pilot-lzzt'+'/dc/'+timing_uuid+'/'+timeline_uuid
+        query = """
+            MATCH (main_t:Timing {uuid:'%s'})
+            MATCH (stl:ScheduleTimeline {uuid:'%s'})-[:INSTANCES_REL]->(sai:ScheduledActivityInstance)
+            MATCH (sai)-[:ACTIVITY_REL]->(o_a:Activity)-[:BIOMEDICAL_CONCEPT_REL]->(bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
+            MATCH (sai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
+            with main_t, sai, t, bcp
+            CREATE (dc:DataContract {delete:'me'})
+            MERGE (dc)-[:DC_TO_MAIN_TIMELINE]->(main_t)
+            MERGE (dc)-[:INSTANCES_REL]->(sai)
+            MERGE (dc)-[:PROPERTIES_REL]->(bcp)
+            SET dc.uri = '%s'
+            return  *
+        """ % (timing_uuid, timeline_uuid, uri)
+
+# uri: https://study.d4k.dk/study-cdisc-pilot-lzzt/75fded6a-96fe-414d-afcc-5e16438b25d7/09ccd782-231a-4156-97df-8ff8fbfce1c8
+        # print('create query',query)
+        results = db.query(query, timeline_uuid)
+        if results == None or results == []:
+            print("Query probably didn't work")
+            print("uri",uri)
+            print("query",query)
+            print("---")
+        else:
+            # print("Query results",len(results))
+            num_nodes = num_nodes + len(results)
+        # print('results',results)
+        # return [result.data() for result in results]
+    # return [result.data() for result in results]
+    print("added nodes",num_nodes)
+    return True
 
 def get_start(db):
     # query = f"""
@@ -52,11 +120,22 @@ db = Neo4jConnection()
 
 # Add vs data to the graph
 # add_vs(db, vs_data, subjects)
-print("Looping VS")
+print("Starting")
 all_data = []
 
-results = get_start(db)
-for result in results:
-    print(result.keys())
+clear_created_nodes(db)
+timelines = get_main_timings_matching_other_timeline(db)
+for result in timelines:
+    print("----")
+    # print(result.keys())
+    # print(result['timeline_uuid'])
+    create_data_contracts(db, result['timeline_uuid'], result['main_timeline_uuids'])
+
+
+    # print(result.keys())
+
+# results = get_start(db)
+# for result in results:
+#     print(result.keys())
 
 db.close()
