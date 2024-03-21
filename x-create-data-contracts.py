@@ -25,7 +25,7 @@ def get_main_timeline_with_sub_timeline(db):
         MATCH (main_sai)-[:ENCOUNTER_REL]->(enc:Encounter)
         return  sub_timeline.name AS sub_timeline_name,sub_timeline.uuid as sub_timeline_uuid, collect(main_sai.uuid) as main_timeline_sai_uuids
     """
-    # print('get query',query)
+    print('get query',query)
     results = db.query(query)
     return [result.data() for result in results]
 
@@ -54,7 +54,7 @@ def create_data_contracts(db, sub_timeline_uuid, main_timeline_sai_uuids):
         results = db.query(query, sub_timeline_uuid)
         if results == None or results == []:
             print("Query probably didn't work")
-            print("uri",uri)
+            print("uri",uri_root)
             print("query",query)
             print("---")
         else:
