@@ -13,13 +13,7 @@ def clear_created_nodes(db):
     query = 'match (n:DataContract {delete:"me"}) detach delete n return count(n)'
     results = db.query(query)
     # print("results2",results)
-    query = 'match (n:DattaContract {delete:"me"}) detach delete n return count(n)'
-    results = db.query(query)
-    # print("results3",results)
     query = 'match ()-[r:DC_TO_MAIN_TIMELINE]-() detach delete r return count(r)'
-    results = db.query(query)
-    # print("results4",results)
-    query = 'match ()-[r:HEY]-() detach delete r return count(r)'
     results = db.query(query)
     # print("results4",results)
 
@@ -31,21 +25,17 @@ def get_main_timeline_with_sub_timeline(db):
         MATCH (main_sai)-[:ENCOUNTER_REL]->(enc:Encounter)
         return  sub_timeline.name AS sub_timeline_name,sub_timeline.uuid as sub_timeline_uuid, collect(main_sai.uuid) as main_timeline_sai_uuids
     """
-    print('get query',query)
+    # print('get query',query)
     results = db.query(query)
-    # print('results',results)
     return [result.data() for result in results]
 
 def create_data_contracts(db, sub_timeline_uuid, main_timeline_sai_uuids):
-    query = """
-        MATCH (stl:ScheduleTimeline {uuid:$sub_timeline_uuid})-[:INSTANCES_REL]->(other_sai:ScheduledActivityInstance)
-        return  *
-    """
     num_nodes = 0
-    for timing_uuid in main_timeline_sai_uuids[0:2]:
-    # for timing_uuid in main_timeline_sai_uuids:
+    # for main_sai_uuid in main_timeline_sai_uuids[0:2]:
+    for main_sai_uuid in main_timeline_sai_uuids:
+        # uri: https://study.d4k.dk/study-cdisc-pilot-lzzt/75fded6a-96fe-414d-afcc-5e16438b25d7/09ccd782-231a-4156-97df-8ff8fbfce1c8
         # main acticity uuid + timeline activity uuid + bc property id
-        uri = 'https://study.d4k.dk/study-cdisc-pilot-lzzt'+'/dc/'+timing_uuid+'/'+sub_timeline_uuid
+        uri_root = 'https://study.d4k.dk/study-cdisc-pilot-lzzt'+'/'+main_sai_uuid+'/'
         query = """
             MATCH (main_t:ScheduledActivityInstance {uuid:'%s'})
             MATCH (stl:ScheduleTimeline {uuid:'%s'})-[:INSTANCES_REL]->(sai:ScheduledActivityInstance)
@@ -56,11 +46,10 @@ def create_data_contracts(db, sub_timeline_uuid, main_timeline_sai_uuids):
             MERGE (dc)-[:DC_TO_MAIN_TIMELINE]->(main_t)
             MERGE (dc)-[:INSTANCES_REL]->(sai)
             MERGE (dc)-[:PROPERTIES_REL]->(bcp)
-            SET dc.uri = '%s'
+            SET dc.uri = '%s' + sai.uuid + '/' + bcp.uuid
             return  *
-        """ % (timing_uuid, sub_timeline_uuid, uri)
+        """ % (main_sai_uuid, sub_timeline_uuid, uri_root)
 
-# uri: https://study.d4k.dk/study-cdisc-pilot-lzzt/75fded6a-96fe-414d-afcc-5e16438b25d7/09ccd782-231a-4156-97df-8ff8fbfce1c8
         # print('create query',query)
         results = db.query(query, sub_timeline_uuid)
         if results == None or results == []:
