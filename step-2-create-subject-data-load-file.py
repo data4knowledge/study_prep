@@ -75,11 +75,11 @@ DATA_TPT_TO_TIMING_LABELS = {
     "AFTER STANDING FOR 3 MINUTES"  : 'PT2M'
 }
 
-# result_name = 'Clinical Test Result'
-result_name = 'Vital Signs Result'
+result_name = 'Clinical Test Result'
+# result_name = 'Vital Signs Result'
 TEST_ROW_VARIABLE_TO_BC_PROPERTY = {
     "Weight": {
-        "VSORRES": result_name, # 
+        "VSORRES": result_name,
         "VSORRESU": "Unit of Weight",
     },
     "Height": {

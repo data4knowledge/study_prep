@@ -23,7 +23,7 @@ def get_main_timeline_with_sub_timeline(db):
         MATCH (act:Activity)-[:TIMELINE_REL]->(sub_timeline:ScheduleTimeline)
         MATCH (act)<-[:ACTIVITY_REL]-(main_sai:ScheduledActivityInstance)
         MATCH (main_sai)-[:ENCOUNTER_REL]->(enc:Encounter)
-        return  sub_timeline.name AS sub_timeline_name,sub_timeline.uuid as sub_timeline_uuid, collect(main_sai.uuid) as main_timeline_sai_uuids
+        return sub_timeline.name AS sub_timeline_name,sub_timeline.uuid as sub_timeline_uuid, collect(main_sai.uuid) as main_timeline_sai_uuids
     """
     print('get query',query)
     results = db.query(query)
@@ -43,7 +43,7 @@ def create_data_contracts(db, sub_timeline_uuid, main_timeline_sai_uuids):
             MATCH (sai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
             with main_t, sai, t, bcp
             CREATE (dc:DataContract {delete:'me'})
-            MERGE (dc)-[:DC_TO_MAIN_TIMELINE]->(main_t)
+            MERGE (dc)-[:INSTANCES_REL]->(main_t)
             MERGE (dc)-[:INSTANCES_REL]->(sai)
             MERGE (dc)-[:PROPERTIES_REL]->(bcp)
             SET dc.uri = '%s' + sai.uuid + '/' + bcp.uuid
