@@ -158,8 +158,6 @@ for row in vs_data:
         else:
             unique_labels_visits.append({"VSTEST":row['VSTEST'],"VISIT":row['VISIT']})
 
-# write_debug(unique_labels_visits)
-
 print("Connecting to Neo4j...",end="")
 db = Neo4jConnection()
 print("connected")
@@ -207,6 +205,8 @@ print("len(good)",len(good))
 print("len(bad)",len(bad))
 output_variables = list(data[0].keys())
 
+# write_debug(unique_test_visit)
+# write_debug(unique_labels_visits)
 # write_debug(queries)
 write_debug(bad)
 

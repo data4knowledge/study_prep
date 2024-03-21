@@ -4,6 +4,14 @@ from pathlib import Path
 
 print("\033[H\033[J") # Clears terminal window in vs code
 
+def write_debug(data):
+    TMP_PATH = Path.cwd() / "tmp"
+    OUTPUT_FILE = TMP_PATH / 'debug-python.txt'
+    with open(OUTPUT_FILE, 'w') as f:
+        for it in data:
+            f.write(str(it))
+            f.write('\n')
+
 def get_data(file):
     with open(file, mode ='r')as file:
         csv_file = csv.DictReader(file)
@@ -20,26 +28,32 @@ def get_data(file):
 
 
 DATA_LABELS_TO_BC_LABELS = {
-    "Temperature": "Body Temperature",
-    "Weight": "Body Weight",
-    "Height": "Body Height",
-    "Alanine Aminotransferase": "Alanine Aminotransferase Measurement",
-    "Sodium": "Sodium Measurement",
-    "Aspartate Aminotransferase": "Aspartate Aminotransferase Measurement",
-    "Potassium": "Potassium Measurement",
-    "Albumin": "Albumin Measurement",
-    "Creatinine": "Creatinine Measurement",
-    "Alkaline Phosphatase": "Alkaline Phosphatase Measurement",
-    "Diastolic Blood Pressure": "Diastolic Blood Pressure",
-    "Systolic Blood Pressure": "Systolic Blood Pressure",
-    "ALP": "",
-    "ALT": "",
-    "K": "",
-    "ALB": "",
-    "SODIUM": "",
-    "AST": "",
-    "CREAT": ""
+    'Temperature': 'Body Temperature',
+    'Weight': 'Body Weight',
+    'Height': 'Body Height',
+    'Pulse Rate': 'Heart Rate',
+    'Alanine Aminotransferase': 'Alanine Aminotransferase Measurement',
+    'Sodium': 'Sodium Measurement',
+    'Aspartate Aminotransferase': 'Aspartate Aminotransferase Measurement',
+    'Potassium': 'Potassium Measurement',
+    'Albumin': 'Albumin Measurement',
+    'Creatinine': 'Creatinine Measurement',
+    'Alkaline Phosphatase': 'Alkaline Phosphatase Measurement',
+    'Diastolic Blood Pressure': 'Diastolic Blood Pressure',
+    'Systolic Blood Pressure': 'Systolic Blood Pressure',
+    'ALP': '',
+    'ALT': '',
+    'K': '',
+    'ALB': '',
+    'SODIUM': '',
+    'AST': '',
+    'CREAT': ''
 }
+
+# Unknown visits
+# 'RETRIEVAL': 'CHECK', 
+# 'AMBUL ECG PLACEMENT': 'CHECK', 
+# 'AMBUL ECG REMOVAL': 'CHECK'
 DATA_VISITS_TO_ENCOUNTER_LABELS = {
     'SCREENING 1': 'Screening 1', 
     'SCREENING 2': 'Screening 2', 
@@ -54,10 +68,42 @@ DATA_VISITS_TO_ENCOUNTER_LABELS = {
     'WEEK 26': 'Week 24', 
     'WEEK 24': 'Week 26', 
 }
-# Unknown visits
-# 'RETRIEVAL': 'CHECK', 
-# 'AMBUL ECG PLACEMENT': 'CHECK', 
-# 'AMBUL ECG REMOVAL': 'CHECK'
+
+DATA_TPT_TO_TIMING_LABELS = {
+    "AFTER LYING DOWN FOR 5 MINUTES": 'PT5M',
+    "AFTER STANDING FOR 1 MINUTE"   : 'PT1M',
+    "AFTER STANDING FOR 3 MINUTES"  : 'PT2M'
+}
+
+# result_name = 'Clinical Test Result'
+result_name = 'Vital Signs Result'
+TEST_ROW_VARIABLE_TO_BC_PROPERTY = {
+    "Weight": {
+        "VSORRES": result_name, # 
+        "VSORRESU": "Unit of Weight",
+    },
+    "Height": {
+        "VSORRES": result_name,
+        "VSORRESU": "Unit of Height",
+    },
+    "Temperature": {
+        "VSORRES": result_name,
+        "VSORRESU": "Unit of Temperature",
+    },
+    "Diastolic Blood Pressure": {
+        "VSORRES": result_name,
+        "VSORRESU": "Unit of Pressure",
+    },
+    "Systolic Blood Pressure": {
+        "VSORRES": result_name,
+        "VSORRESU": "Unit of Pressure",
+    },
+    "Pulse Rate": {
+        "VSORRES": result_name,
+        "VSORRESU": "Count per Minute"
+    },
+}
+
 
 def clean(txt):
     result = ""
@@ -101,29 +147,6 @@ def clean(txt):
 # "Body Position":[""],
 # "Count per Minute":[""]
 
-TEST_ROW_VARIABLE_TO_BC_PROPERTY = {
-    "Weight": {
-        "VSORRES": "Clinical Test Result",
-        "VSORRESU": "Unit of Weight",
-    },
-    "Height": {
-        "VSORRES": "Clinical Test Result",
-        "VSORRESU": "Unit of Height",
-    },
-    "Temperature": {
-        "VSORRES": "Clinical Test Result",
-        "VSORRESU": "Unit of Temperature",
-    },
-    "Diastolic Blood Pressure": {
-        "VSORRES": "Clinical Test Result",
-        "VSORRESU": "Unit of Pressure",
-    },
-    "Systolic Blood Pressure": {
-        "VSORRES": "Clinical Test Result",
-        "VSORRESU": "Unit of Pressure",
-    },
-}
-
 
 def get_property_for_variable(test,variable):
     # property = next((property for property,variables in VARIABLE_TO_PROPERTY.items() if variable in variables), None)
@@ -140,7 +163,8 @@ def get_encounter(row):
         if row['VISIT'] in DATA_VISITS_TO_ENCOUNTER_LABELS:
             encounter = DATA_VISITS_TO_ENCOUNTER_LABELS[row['VISIT']]
         else:
-            encounter = f"E:{row['VISIT']}"
+            encounter = ""
+            # encounter = f"E:{row['VISIT']}"
     else:
         encounter = f"VISIT not in row"
     return encounter
@@ -153,25 +177,13 @@ def get_bc_label(thing):
         print("Add bc_label:",thing)
     return bc_label
 
-# def get_data_contract(row,property):
-#     # dc_uri = data_contracts.find
-#     if row['VISIT'] in DATA_VISITS_TO_ENCOUNTER_LABELS:    
-#         visit = DATA_VISITS_TO_ENCOUNTER_LABELS[row['VISIT']]
-#         bc_label = DATA_LABELS_TO_BC_LABELS[row['VSTEST']]
-#         # print("--find",bc_label,property,visit)
-#         dc_item = next((item for item in data_contracts if item["BC_LABEL"] == bc_label and item['BCP_NAME'] == property and item['ENCOUNTER_LABEL'] == visit), None)
-#         if dc_item != None:
-#             if "DC_URI" in dc_item:
-#                 return dc_item['DC_URI']
-#             else:
-#                 print("Missing DC_URI", visit, bc_label)
-#         else:
-#             return None
-#     return None
-
-def get_data_contract(encounter,bc_label,property):
+def get_data_contract(encounter,bc_label,property,tpt):
     # print("--find",bc_label,property,encounter)
-    dc_item = next((item for item in data_contracts if item["BC_LABEL"] == bc_label and item['BCP_NAME'] == property and item['ENCOUNTER_LABEL'] == encounter), None)
+    if tpt == "":
+        dc_item = next((item for item in data_contracts if item["BC_LABEL"] == bc_label and item['BCP_NAME'] == property and item['ENCOUNTER_LABEL'] == encounter), None)
+    else:
+        dc_item = next((item for item in data_contracts if item["BC_LABEL"] == bc_label and item['BCP_NAME'] == property and item['ENCOUNTER_LABEL'] == encounter and item['TIMEPOINT_VALUE'] == tpt), None)
+
     if dc_item != None:
         ok.append(dc_item)
         if "DC_URI" in dc_item:
@@ -179,16 +191,7 @@ def get_data_contract(encounter,bc_label,property):
         else:
             print("Missing DC_URI", encounter, bc_label)
     else:
-        # dc_item = next((item for item in data_contracts if item["BC_LABEL"] == bc_label), None)
-        # if dc_item == None:
-        #     issues.append(f"Miss BC_LABEL {bc_label}")
-        # dc_item = next((item for item in data_contracts if item['BCP_NAME'] == property), None)
-        # issues.append(f"Miss BCP_NAME {dc_item['BCP_NAME']}")
-        # if dc_item == None:
-        #     issues.append(f"Miss BCP_NAME {property}")
-        # dc_item = next((item for item in data_contracts if item['ENCOUNTER_LABEL'] == encounter), None)
-        # if dc_item == None:
-        #     issues.append(f"Miss ENCOUNTER_LABEL {encounter}")
+        # issues.append(f"Miss ENCOUNTER_LABEL {encounter}")
         return None
 
 DM_DATA = Path.cwd() / "data" / "output" / "enrolment.json"
@@ -227,13 +230,14 @@ with open(VS_DATA) as f:
 # {'DIABP', 'TEMP', 'HEIGHT', 'SYSBP', 'PULSE', 'WEIGHT'}
 # vs_data = [row for row in vs_data if row['VSTESTCD'] in ['TEMP', 'HEIGHT', 'WEIGHT']]
 # vs_data = [row for row in vs_data if row['VSTESTCD'] in ['DIABP']]
+# vs_data = [row for row in vs_data[0:20]]
 
 
 issues = []
 ok = []
 print("Creating datapoint and value")
 data = []
-# output_variables = ['DATAPOINT','VALUE','ENCOUNTER']
+
 # for row in vs_data[0:5]:
 for row in vs_data:
     # print(list(row.keys()))
@@ -242,44 +246,53 @@ for row in vs_data:
 
     # Result
     encounter = get_encounter(row)
-    bc_label = get_bc_label(row['VSTEST'])
-    property = get_property_for_variable(row['VSTEST'],'VSORRESU')
-    data_contract = get_data_contract(encounter,bc_label,property)
+    if encounter != "":
+        bc_label = get_bc_label(row['VSTEST'])
+        tpt = ""
+        if 'VSTPT' in row and row['VSTPT'] != "":
+            tpt = DATA_TPT_TO_TIMING_LABELS[row['VSTPT']]
 
-    if data_contract:
-        item['USUBJID'] = row['USUBJID']
-        item['DC_URI'] = data_contract
-        item['DATAPOINT'] = f"{datapoint_root}{row['VSTESTCD']}/result"
-        item['VALUE'] = f"{row['VSORRES']}"
-        # item['ENCOUNTER'] = encounter
-        data.append(item)
+        property = get_property_for_variable(row['VSTEST'],'VSORRES')
+        # if row['VSTPT'] != "":
+
+        data_contract = get_data_contract(encounter,bc_label,property,tpt)
+
+        if data_contract:
+            item['USUBJID'] = row['USUBJID']
+            item['DC_URI'] = data_contract
+            item['DATAPOINT'] = f"{datapoint_root}{row['VSTESTCD']}/result"
+            item['VALUE'] = f"{row['VSORRES']}"
+            # item['ENCOUNTER'] = encounter
+            data.append(item)
+        else:
+            # issues.append(f"No data contract result {row['VSTESTCD']} {row['VISIT']} encounter: {encounter} property: {property}")
+            # issues.append(f"No dc result {row['VSTESTCD']} {row['VISIT']} bc_label: {bc_label} property: {property} encounter: {encounter}")
+            issues.append(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
+
+        # Unit
+        encounter = get_encounter(row)
+        bc_label = get_bc_label(row['VSTEST'])
+        property = get_property_for_variable(row['VSTEST'],'VSORRESU')
+        data_contract = get_data_contract(encounter,bc_label,property,tpt)
+        if data_contract:
+            item = {}
+            item['USUBJID'] = row['USUBJID']
+            item['DC_URI'] = data_contract
+            item['DATAPOINT'] = f"{datapoint_root}{row['VSTESTCD']}/unit"
+            item['VALUE'] = f"{row['VSORRESU']}"
+            # item['ENCOUNTER'] = encounter
+            data.append(item)
+        else:
+            issues.append(f"No dc UNIT bc_label: {bc_label} - encounter: {encounter} property: {property}")
     else:
-        # issues.append(f"No data contract result {row['VSTESTCD']} {row['VISIT']} encounter: {encounter} property: {property}")
-        # issues.append(f"No dc result {row['VSTESTCD']} {row['VISIT']} bc_label: {bc_label} property: {property} encounter: {encounter}")
-        issues.append(f"No dc result bc_label: {bc_label} property: {property} encounter: {encounter}")
-
-    # Unit
-    encounter = get_encounter(row)
-    bc_label = get_bc_label(row['VSTEST'])
-    property = get_property_for_variable(row['VSTEST'],'VSORRESU')
-    data_contract = get_data_contract(encounter,bc_label,property)
-    if data_contract:
-        item = {}
-        item['USUBJID'] = row['USUBJID']
-        item['DC_URI'] = data_contract
-        item['DATAPOINT'] = f"{datapoint_root}{row['VSTESTCD']}/unit"
-        item['VALUE'] = f"{row['VSORRESU']}"
-        # item['ENCOUNTER'] = encounter
-        data.append(item)
-    else:
-        issues.append(f"No dc unit {row['VSTESTCD']} {row['VISIT']} encounter: {encounter} property: {property}")
-
+            issues.append(f"Ignoring visit {row['VISIT']} encounter: {encounter}")
+        
 
 print("---OK:",len(ok))
 # for o in ok:
 #     print(o)
 print("---issues",len(issues))
-for issue in issues:
+for issue in set(issues):
     print(issue)
 
 if len(data) == 0:
@@ -300,6 +313,9 @@ def save_file(path: Path, name, data):
         writer.writeheader()
         writer.writerows(data)
 
+print("Writing debug...", end="")
+write_debug(issues)
+print(" ...done")
 save_file(OUTPUT_PATH,"datapoints",data)
 
 print("Done")
