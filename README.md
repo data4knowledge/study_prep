@@ -22,5 +22,6 @@ If data contracts have not been created by study service for ScheduledActivityIn
 - Step-3: Create datapoint file: USUBJID, DC_URI, DATAPOINT, VALUE
 
 ### Post-step: If not able to load via study service ui
+- N.B! Copy _data/output/enrolment.csv_ and _datapoints.csv_ to Neo4j import library before running
 - Run _utility.load_datapoints.py_
 

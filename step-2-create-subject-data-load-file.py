@@ -207,7 +207,7 @@ for row in vs_data:
         if data_contract:
             item['USUBJID'] = row['USUBJID']
             item['DC_URI'] = data_contract
-            item['DATAPOINT'] = f"{datapoint_root}{row['VSTESTCD']}/result"
+            item['DATAPOINT_URI'] = f"{datapoint_root}{row['VSTESTCD']}/result"
             item['VALUE'] = f"{row['VSORRES']}"
             data.append(item)
         else:
@@ -222,7 +222,7 @@ for row in vs_data:
             item = {}
             item['USUBJID'] = row['USUBJID']
             item['DC_URI'] = data_contract
-            item['DATAPOINT'] = f"{datapoint_root}{row['VSTESTCD']}/unit"
+            item['DATAPOINT_URI'] = f"{datapoint_root}{row['VSTESTCD']}/unit"
             item['VALUE'] = f"{row['VSORRESU']}"
             data.append(item)
         else:

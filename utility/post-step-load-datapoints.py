@@ -22,7 +22,7 @@ def add_datapoints(db):
         with data_row, site_row
         MATCH (dc:DataContract {uri:data_row['DC_URI']})
         MATCH (design:StudyDesign {name:'Study Design 1'})
-        MERGE (d:DataPoint {uri: data_row['DATAPOINT'], value: data_row['VALUE']})
+        MERGE (d:DataPoint {uri: data_row['DATAPOINT_URI'], value: data_row['VALUE']})
         MERGE (s:Subject {identifier:data_row['USUBJID']})
         MERGE (site:StudySite {name:site_row['SITEID']})
         MERGE (dc)<-[:FOR_DC_REL]-(d)
