@@ -39,7 +39,7 @@ def get_bc_properties_sub_timeline(db, bc_label, tpt, row):
     if row['VISIT'] in DATA_VISITS_TO_ENCOUNTER_LABELS:
         visit = DATA_VISITS_TO_ENCOUNTER_LABELS[row['VISIT']]
     else:
-        add_issue("visit not found:"+row['VISIT'])
+        add_issue("visit not found:",row['VISIT'])
         return []
     query = f"""
         match (msai:ScheduledActivityInstance)<-[:INSTANCES_REL]-(dc:DataContract)-[:INSTANCES_REL]-(ssai:ScheduledActivityInstance)
