@@ -2,9 +2,8 @@ import csv
 import json
 import pandas as pd
 from pathlib import Path
-# from neo4j import GraphDatabase
-# from d4kms_generic import ServiceEnvironment
-from d4kms_service import Neo4jConnection
+from d4kms_service import Neo4jConnection, ServiceEnvironment
+import utility.debug
 
 print("\033[H\033[J") # Clears terminal window in vs code
 
@@ -31,7 +30,7 @@ def get_bc_properties(db, bc_label, row):
     """
     results = db.query(query)
     if results == None:
-        add_issue("DataContract has errors in it",row['VISIT'],visit,bc_label)
+        add_issue("DataContract has errors in it",row['VISIT'],visit,bc_label,query)
         return []
     return [result.data() for result in results]
 
@@ -58,11 +57,18 @@ def get_bc_properties_sub_timeline(db, bc_label, tpt, row):
     return [result.data() for result in results]
 
 
-VS_DATA = Path.cwd() / "data" / "input" / "vs.json"
-print("Reading",VS_DATA)
-assert VS_DATA.exists(), "VS_DATA not found"
-with open(VS_DATA) as f:
-    vs_data = json.load(f)
+# VS_DATA = Path.cwd() / "data" / "input" / "vs.json"
+# print("Reading",VS_DATA)
+# assert VS_DATA.exists(), "VS_DATA not found"
+# with open(VS_DATA) as f:
+#     vs_data = json.load(f)
+
+
+LB_DATA = Path.cwd() / "data" / "input" / "lb.json"
+print("Reading",LB_DATA)
+assert LB_DATA.exists(), "LB_DATA not found"
+with open(LB_DATA) as f:
+    lb_data = json.load(f)
 
 OUTPUT_PATH = Path.cwd() / "data" / "output"
 assert OUTPUT_PATH.exists(), "OUTPUT_PATH not found"
@@ -115,28 +121,48 @@ DATA_TPT_TO_TIMING_LABELS = {
     "AFTER STANDING FOR 3 MINUTES"  : 'PT2M'
 }
 
-# unique_labels_visits_vs = [tuple({"VSTEST":row['VSTEST'],"VISIT":row['VISIT']}) for row in vs_data]
 unique_test_visit = set()
-unique_labels_visits_vs = []
-for row in vs_data:
-    # if 'VSTPT' in row:
-    if row['VSTPT'] != "":
-        test_visit = f"{clean(row['VSTEST'])}{clean(row['VISIT'])}{clean(row['VSTPT'])}"
+unique_labels_visits = []
+# for row in vs_data:
+#     # if 'VSTPT' in row:
+#     if row['VSTPT'] != "":
+#         test_visit = f"{clean(row['VSTEST'])}{clean(row['VISIT'])}{clean(row['VSTPT'])}"
+#     else:
+#         test_visit = f"{clean(row['VSTEST'])}{clean(row['VISIT'])}"
+
+#     if test_visit not in unique_test_visit:
+#         unique_test_visit.add(test_visit)
+#         if row['VSTPT'] != "":
+#             unique_labels_visits.append({"VSTEST":row['VSTEST'],"VISIT":row['VISIT'],"VSTPT":row['VSTPT']})
+#         else:
+#             unique_labels_visits.append({"VSTEST":row['VSTEST'],"VISIT":row['VISIT']})
+
+for row in lb_data:
+    if 'LBTPT' in row and row['LBTPT'] != "":
+        test_visit = f"{clean(row['LBTEST'])}{clean(row['VISIT'])}{clean(row['LBTPT'])}"
     else:
-        test_visit = f"{clean(row['VSTEST'])}{clean(row['VISIT'])}"
+        test_visit = f"{clean(row['LBTEST'])}{clean(row['VISIT'])}"
 
     if test_visit not in unique_test_visit:
         unique_test_visit.add(test_visit)
-        if row['VSTPT'] != "":
-            unique_labels_visits_vs.append({"VSTEST":row['VSTEST'],"VISIT":row['VISIT'],"VSTPT":row['VSTPT']})
+        if  'LBTPT' in row and row['LBTPT'] != "":
+            unique_labels_visits.append({"LBTEST":row['LBTEST'],"VISIT":row['VISIT'],"LBTPT":row['LBTPT']})
         else:
-            unique_labels_visits_vs.append({"VSTEST":row['VSTEST'],"VISIT":row['VISIT']})
+            unique_labels_visits.append({"LBTEST":row['LBTEST'],"VISIT":row['VISIT']})
+
+def check_connection():
+    sv = ServiceEnvironment()
+    self._db_name = sv.get('NEO4J_DB_NAME')
+    self._url = sv.get('NEO4J_URI')
+    self._usr = sv.get('NEO4J_USERNAME')
+    self._pwd = sv.get('NEO4J_PASSWORD')
+
 
 print("Connecting to Neo4j...",end="")
-db = Neo4jConnection()
 print("connected")
+db = Neo4jConnection()
 
-# Add vs data to the graph
+# Add LB data to the graph
 # add_vs(db, vs_data, subjects)
 print("Looping VS")
 all_data_contracts = []
@@ -145,20 +171,39 @@ matches = []
 mismatches = []
 debug = []
 
-def get_data_contracts_vs():
-    return True
+# for row in unique_labels_visits:
+#     # datapoint_root = f"{row['USUBJID']}/{row['DOMAIN']}/{clean(row['LBSEQ'])}"
+#     tpt = ""
+#     if row['VSTEST'] in DATA_LABELS_TO_BC_LABELS:
+#         bc_label = DATA_LABELS_TO_BC_LABELS[row['VSTEST']]
+#     else:
+#         bc_label = ""
+#         add_issue("Add test",row['VSTEST'])
+#     if 'VSTPT' in row and row['VSTPT'] != "":
+#         tpt = DATA_TPT_TO_TIMING_LABELS[row['VSTPT']]
+#         properties = get_bc_properties_sub_timeline(db, bc_label, tpt,row)
+#     else:
+#         properties = get_bc_properties(db, bc_label,row)
+#     if properties:
+#         matches.append([bc_label])
+#     else:
+#         mismatches.append([bc_label,row['VISIT'],tpt])
+#     for property in properties:
+#         if property in all_data_contracts:
+#             True
+#         else:
+#             all_data_contracts.append(property)
 
-# for row in unique_labels_visits_vs[0:5]:
-for row in unique_labels_visits_vs:
+for row in unique_labels_visits:
     # datapoint_root = f"{row['USUBJID']}/{row['DOMAIN']}/{clean(row['LBSEQ'])}"
     tpt = ""
-    if row['VSTEST'] in DATA_LABELS_TO_BC_LABELS:
-        bc_label = DATA_LABELS_TO_BC_LABELS[row['VSTEST']]
+    if row['LBTEST'] in DATA_LABELS_TO_BC_LABELS:
+        bc_label = DATA_LABELS_TO_BC_LABELS[row['LBTEST']]
     else:
         bc_label = ""
-        add_issue("Add test",row['VSTEST'])
-    if 'VSTPT' in row and row['VSTPT'] != "":
-        tpt = DATA_TPT_TO_TIMING_LABELS[row['VSTPT']]
+        add_issue("Add test",row['LBTEST'])
+    if 'LBTPT' in row and row['LBTPT'] != "":
+        tpt = DATA_TPT_TO_TIMING_LABELS[row['LBTPT']]
         properties = get_bc_properties_sub_timeline(db, bc_label, tpt,row)
     else:
         properties = get_bc_properties(db, bc_label,row)
