@@ -25,7 +25,6 @@ def get_main_timeline_with_sub_timeline(db):
         MATCH (main_sai)-[:ENCOUNTER_REL]->(enc:Encounter)
         return sub_timeline.name AS sub_timeline_name,sub_timeline.uuid as sub_timeline_uuid, collect(main_sai.uuid) as main_timeline_sai_uuids
     """
-    print('get query',query)
     results = db.query(query)
     return [result.data() for result in results]
 
@@ -60,56 +59,12 @@ def create_data_contracts(db, sub_timeline_uuid, main_timeline_sai_uuids):
         else:
             # print("Query results",len(results))
             num_nodes = num_nodes + len(results)
-        # print('results',results)
-        # return [result.data() for result in results]
-    # return [result.data() for result in results]
-    print("added nodes",num_nodes)
+    print("added",num_nodes, "data contract nodes")
     return True
-
-def get_start(db):
-    # query = f"""
-    #     MATCH (act:Activity)-[:TIMELINE_REL]->(other_stl:ScheduleTimeline {name:'Vital Sign Blood Pressure Timeline'})
-    #     MATCH (act)<-[:ACTIVITY_REL]-(main_sai:ScheduledActivityInstance)
-    #     MATCH (main_sai)-[:ENCOUNTER_REL]->(enc:Encounter)-[:SCHEDULED_AT_REL]->(main_t:Timing)
-    #     MATCH (other_stl)-[:INSTANCES_REL]->(other_sai:ScheduledActivityInstance)
-    #     MATCH (other_sai)-[:ACTIVITY_REL]->(o_a:Activity)-[:BIOMEDICAL_CONCEPT_REL]->(bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
-    #     MATCH (other_sai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(o_t:Timing)
-    #     //return  act, main_sai, main_t, enc, other_stl, other_sai, o_a, bc, bcp, o_t
-    #     //WITH main_t, other_sai, bcp, o_t
-    #     WITH main_t, o_t, other_sai, bcp
-    #     //UNWIND 
-    #     return *
-    # """
-    query = """
-        MATCH (act:Activity)-[:TIMELINE_REL]->(other_stl:ScheduleTimeline {name:'%s'})
-        MATCH (act)<-[:ACTIVITY_REL]-(main_sai:ScheduledActivityInstance)
-        MATCH (main_sai)-[:ENCOUNTER_REL]->(enc:Encounter)-[:SCHEDULED_AT_REL]->(main_t:Timing)
-        MATCH (other_stl)-[:INSTANCES_REL]->(other_sai:ScheduledActivityInstance)
-        MATCH (other_sai)-[:ACTIVITY_REL]->(o_a:Activity)-[:BIOMEDICAL_CONCEPT_REL]->(bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
-        MATCH (other_sai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(o_t:Timing)
-        //return  act, main_sai, main_t, enc, other_stl, other_sai, o_a, bc, bcp, o_t
-        //WITH main_t, other_sai, bcp, o_t
-        WITH main_t, o_t, other_sai, bcp
-        //UNWIND 
-        return *
-    """ % ('Vital Sign Blood Pressure Timeline')
-    print('bcp query',query)
-    results = db.query(query)
-    # print('results',results)
-    # if results == None:
-    #     print("DataContract has errors in it",row['VISIT'],visit,bc_label,query)
-    #     return []
-    # if results == []:
-    #     print("DataContract query did not yield any results",row['VISIT'],visit,bc_label)
-    #     return []
-    # # print("contract query alright")
-    return [result.data() for result in results]
-
 
 db = Neo4jConnection()
 
 # Add vs data to the graph
-# add_vs(db, vs_data, subjects)
 print("Starting")
 all_data = []
 
@@ -117,15 +72,6 @@ clear_created_nodes(db)
 timelines = get_main_timeline_with_sub_timeline(db)
 for result in timelines:
     print("----")
-    # print(result.keys())
-    # print(result['sub_timeline_uuid'])
     create_data_contracts(db, result['sub_timeline_uuid'], result['main_timeline_sai_uuids'])
-
-
-    # print(result.keys())
-
-# results = get_start(db)
-# for result in results:
-#     print(result.keys())
 
 db.close()

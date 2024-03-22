@@ -288,10 +288,8 @@ for row in vs_data:
             issues.append(f"Ignoring visit {row['VISIT']} encounter: {encounter}")
         
 
-print("---OK:",len(ok))
-# for o in ok:
-#     print(o)
-print("---issues",len(issues))
+print("---Datapoint - Data contract matches:",len(ok))
+print("---Non matching Datapoints (e.g. visit not defined)",len(issues))
 for issue in set(issues):
     print(issue)
 
