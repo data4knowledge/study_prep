@@ -198,6 +198,10 @@ print("Number of matches   :",len(matches))
 print("Number of mismatches:",len(mismatches), "(e.g. visit not defined in study)")
 print("")
 
+for issue in set(issues):
+    print(issue)
+print("")
+
 OUTPUT_FILE = OUTPUT_PATH / "data_contracts.json"
 print("Saving to",OUTPUT_FILE)
 with open(OUTPUT_FILE, 'w') as f:
