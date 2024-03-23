@@ -74,16 +74,16 @@ OUTPUT_PATH = Path.cwd() / "data" / "output"
 assert OUTPUT_PATH.exists(), "OUTPUT_PATH not found"
 
 DATA_LABELS_TO_BC_LABELS = {
-    'Temperature': 'Body Temperature',
-    'Weight': 'Body Weight',
-    'Height': 'Body Height',
-    'Alanine Aminotransferase': 'Alanine Aminotransferase Measurement',
+    'Temperature': 'Temperature',
+    'Weight': 'Weight',
+    'Height': 'Height',
+    'Alanine Aminotransferase': 'Alanine Aminotransferase Concentration in Serum/Plasma',
     'Sodium': 'Sodium Measurement',
     'Aspartate Aminotransferase': 'Aspartate Aminotransferase Measurement',
     'Potassium': 'Potassium Measurement',
-    'Albumin': 'Albumin Measurement',
+    'Albumin': 'Albumin Presence in Urine',
     'Creatinine': 'Creatinine Measurement',
-    'Alkaline Phosphatase': 'Alkaline Phosphatase Measurement',
+    'Alkaline Phosphatase': 'Alkaline Phosphatase Concentration in Serum/Plasma',
     'Diastolic Blood Pressure': 'Diastolic Blood Pressure',
     'Systolic Blood Pressure': 'Systolic Blood Pressure',
     'Pulse Rate': 'Heart Rate',
