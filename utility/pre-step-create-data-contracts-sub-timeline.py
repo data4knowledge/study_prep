@@ -13,9 +13,6 @@ def clear_created_nodes(db):
     query = 'match (n:DataContract {delete:"me"}) detach delete n return count(n)'
     results = db.query(query)
     # print("results2",results)
-    query = 'match ()-[r:DC_TO_MAIN_TIMELINE]-() detach delete r return count(r)'
-    results = db.query(query)
-    # print("results4",results)
 
 
 def get_main_timeline_with_sub_timeline(db):
