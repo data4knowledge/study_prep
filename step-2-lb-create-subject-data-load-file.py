@@ -85,6 +85,7 @@ TEST_ROW_VARIABLE_TO_BC_PROPERTY = {
         'LBORRES': 'Laboratory Test Result',
         'LBORRESU': 'Unit of Concentration'
     },
+    # 'Alkaline Phosphatase Measurement': {
     'Alkaline Phosphatase': {
         'LBORRES': 'Laboratory Test Result',
         'LBORRESU': 'Unit of Catalytic Activity Concentration',
@@ -92,6 +93,11 @@ TEST_ROW_VARIABLE_TO_BC_PROPERTY = {
         'LBSPEC': 'Biospecimen Type'
 
     },
+    # BC_LABEL: Alanine Aminotransferase Measurement BCP_LABEL: Unit of Concentration ENCOUNTER_LABEL: Week 20 TPT: 
+    # Laboratory Test Fasting Status
+    # Unit of Catalytic Activity Concentration
+    # Biospecimen Type
+    # Laboratory Test Result
     'Alanine Aminotransferase': {
         'LBORRES': 'Laboratory Test Result',
         'LBORRESU': 'Unit of Catalytic Activity Concentration',
@@ -143,6 +149,7 @@ def get_property_for_variable(test,variable):
         property = TEST_ROW_VARIABLE_TO_BC_PROPERTY[test][variable]
     else:
         print("Add property",test,variable)
+        print("test in TEST_ROW_VARIABLE_TO_BC_PROPERTY",test in TEST_ROW_VARIABLE_TO_BC_PROPERTY)
     return property
 
 def get_encounter(row):
@@ -321,10 +328,11 @@ for issue in set(issues):
 print("")
 
 write_debug(set(issues))
+# write_debug(issues)
 if len(data) == 0:
     print("No data has been found")
     exit()
 
-save_file(OUTPUT_PATH,"datapoints",data)
+save_file(OUTPUT_PATH,"datapoints_lb",data)
 
 print("\ndone")

@@ -4,7 +4,6 @@ import pandas as pd
 from pathlib import Path
 from neo4j import GraphDatabase
 from d4kms_service import Neo4jConnection, ServiceEnvironment
-import utility.debug
 
 print("\033[H\033[J") # Clears terminal window in vs code
 
@@ -88,13 +87,6 @@ DATA_LABELS_TO_BC_LABELS = {
     'Diastolic Blood Pressure': 'Diastolic Blood Pressure',
     'Systolic Blood Pressure': 'Systolic Blood Pressure',
     'Pulse Rate': 'Heart Rate',
-    'ALP': '',
-    'ALT': '',
-    'K': '',
-    'ALB': '',
-    'SODIUM': '',
-    'AST': '',
-    'CREAT': ''
 }
 
 # Unknown visits
@@ -134,9 +126,9 @@ for row in vs_data:
     if test_visit not in unique_test_visit:
         unique_test_visit.add(test_visit)
         if row['VSTPT'] != "":
-            unique_labels_visits.append({"VSTEST":row['VSTEST'],"VISIT":row['VISIT'],"VSTPT":row['VSTPT']})
+            unique_labels_visits.append({"TEST":row['VSTEST'],"VISIT":row['VISIT'],"TPT":row['VSTPT']})
         else:
-            unique_labels_visits.append({"VSTEST":row['VSTEST'],"VISIT":row['VISIT']})
+            unique_labels_visits.append({"TEST":row['VSTEST'],"VISIT":row['VISIT']})
 
 for row in lb_data:
     if 'LBTPT' in row and row['LBTPT'] != "":
@@ -147,9 +139,9 @@ for row in lb_data:
     if test_visit not in unique_test_visit:
         unique_test_visit.add(test_visit)
         if  'LBTPT' in row and row['LBTPT'] != "":
-            unique_labels_visits.append({"LBTEST":row['LBTEST'],"VISIT":row['VISIT'],"LBTPT":row['LBTPT']})
+            unique_labels_visits.append({"TEST":row['LBTEST'],"VISIT":row['VISIT'],"TPT":row['LBTPT']})
         else:
-            unique_labels_visits.append({"LBTEST":row['LBTEST'],"VISIT":row['VISIT']})
+            unique_labels_visits.append({"TEST":row['LBTEST'],"VISIT":row['VISIT']})
 
 def db_is_down():
     sv = ServiceEnvironment()
@@ -171,7 +163,7 @@ print("connected")
 db = Neo4jConnection()
 
 print("Looping")
-all_data_contracts = []
+unique_data_contracts = []
 issues = []
 matches = []
 mismatches = []
@@ -179,63 +171,39 @@ debug = []
 
 for row in unique_labels_visits:
     tpt = ""
-    if row['VSTEST'] in DATA_LABELS_TO_BC_LABELS:
-        bc_label = DATA_LABELS_TO_BC_LABELS[row['VSTEST']]
+    if row['TEST'] in DATA_LABELS_TO_BC_LABELS:
+        bc_label = DATA_LABELS_TO_BC_LABELS[row['TEST']]
     else:
         bc_label = ""
-        add_issue("Add test",row['VSTEST'])
-    if 'VSTPT' in row and row['VSTPT'] != "":
-        tpt = DATA_TPT_TO_TIMING_LABELS[row['VSTPT']]
+        add_issue("Add test",row['TEST'])
+    if 'TPT' in row and row['TPT'] != "":
+        tpt = DATA_TPT_TO_TIMING_LABELS[row['TPT']]
         properties = get_bc_properties_sub_timeline(db, bc_label, tpt,row)
     else:
         properties = get_bc_properties(db, bc_label,row)
     if properties:
-        matches.append([bc_label])
+        matches.append([bc_label,row['VISIT'],tpt,[x['BCP_NAME'] for x in properties]])
     else:
         mismatches.append([bc_label,row['VISIT'],tpt])
     for property in properties:
-        if property in all_data_contracts:
+        if property in unique_data_contracts:
             True
         else:
-            all_data_contracts.append(property)
-
-for row in unique_labels_visits:
-    tpt = ""
-    if row['LBTEST'] in DATA_LABELS_TO_BC_LABELS:
-        bc_label = DATA_LABELS_TO_BC_LABELS[row['LBTEST']]
-    else:
-        bc_label = ""
-        add_issue("Add test",row['LBTEST'])
-    if 'LBTPT' in row and row['LBTPT'] != "":
-        tpt = DATA_TPT_TO_TIMING_LABELS[row['LBTPT']]
-        properties = get_bc_properties_sub_timeline(db, bc_label, tpt,row)
-    else:
-        properties = get_bc_properties(db, bc_label,row)
-    if properties:
-        matches.append([bc_label])
-    else:
-        mismatches.append([bc_label,row['VISIT'],tpt])
-    for property in properties:
-        if property in all_data_contracts:
-            True
-        else:
-            all_data_contracts.append(property)
+            unique_data_contracts.append(property)
 
 db.close()
 
-data = all_data_contracts
-print("Number of contracts and properties in VS;",len(data))
-print("Number of matches   :",len(matches))
-print("Number of mismatches:",len(mismatches), "(e.g. visit not defined in study)")
+print("Number of contracts and properties:",len(unique_data_contracts))
+print("Number of matches with data:",len(matches))
+print("Number of mismatches       :",len(mismatches), "(e.g. visit not defined in study)")
 print("")
 
 for issue in set([issues for issues in issues]):
     print(issue)
 print("")
 
-
 OUTPUT_FILE = OUTPUT_PATH / "data_contracts.json"
 print("Saving to",OUTPUT_FILE)
 with open(OUTPUT_FILE, 'w') as f:
-    f.write(json.dumps(data, indent = 2))
+    f.write(json.dumps(unique_data_contracts, indent = 2))
 print("done")

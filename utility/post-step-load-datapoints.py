@@ -1,6 +1,4 @@
-# import os
-# import csv
-from pathlib import Path
+# from pathlib import Path
 from d4kms_service import Neo4jConnection
 
 
