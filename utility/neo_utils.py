@@ -12,8 +12,9 @@ def db_is_down():
     except:
         return True
 
-print("Connecting to Neo4j...",end="")
-if db_is_down():
-    print("is not running")
-    exit()
-print("connected")
+if __name__ == "__main__":
+    print("Connecting to Neo4j...",end="")
+    if db_is_down():
+        print("is not running")
+        exit()
+    print("connected")
