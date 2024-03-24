@@ -1,7 +1,6 @@
 import json
 import csv
 from pathlib import Path
-from utility.debug import write_debug
 
 print("\033[H\033[J") # Clears terminal window in vs code
 
@@ -12,7 +11,7 @@ DATA_LABELS_TO_BC_LABELS = {
     'Height': 'Height',
     'Alanine Aminotransferase': 'Alanine Aminotransferase Concentration in Serum/Plasma',
     'Sodium': 'Sodium Measurement',
-    'Aspartate Aminotransferase': 'Aspartate Aminotransferase Measurement',
+    'Aspartate Aminotransferase': 'Aspartate Aminotransferase in Serum/Plasma',
     'Potassium': 'Potassium Measurement',
     'Albumin': 'Albumin Presence in Urine',
     'Creatinine': 'Creatinine Measurement',
@@ -77,7 +76,7 @@ TEST_ROW_VARIABLE_TO_BC_PROPERTY = {
         'VSORRES': vs_result_name,
         'VSORRESU': vs_unit_name
     },
-    'Albumin': {
+    'Aspartate Aminotransferase': {
         'LBORRES': lb_result_name,
         'LBORRESU': lb_unit_name
     },
@@ -315,7 +314,6 @@ for issue in set(issues):
     print(issue)
 print("")
 
-write_debug(set(issues))
 if len(data) == 0:
     print("No data has been found")
     exit()
