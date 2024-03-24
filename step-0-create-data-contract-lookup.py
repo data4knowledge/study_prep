@@ -4,7 +4,6 @@ import pandas as pd
 from pathlib import Path
 from neo4j import GraphDatabase
 from d4kms_service import Neo4jConnection, ServiceEnvironment
-from utility.debug import write_debug
 from utility.neo_utils import db_is_down
 
 print("\033[H\033[J") # Clears terminal window in vs code
@@ -189,7 +188,6 @@ print("Number of matches with data:",len(matches))
 print("Number of mismatches       :",len(mismatches), "(e.g. visit not defined in study)")
 print("")
 
-write_debug(issues)
 for issue in set([issues for issues in issues]):
     print(issue)
 print("")
