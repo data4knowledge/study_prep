@@ -4,6 +4,7 @@ import pandas as pd
 from pathlib import Path
 from neo4j import GraphDatabase
 from d4kms_service import Neo4jConnection, ServiceEnvironment
+from utility.debug import write_debug
 
 print("\033[H\033[J") # Clears terminal window in vs code
 
@@ -79,9 +80,9 @@ DATA_LABELS_TO_BC_LABELS = {
     'Height': 'Height',
     'Alanine Aminotransferase': 'Alanine Aminotransferase Concentration in Serum/Plasma',
     'Sodium': 'Sodium Measurement',
-    'Aspartate Aminotransferase': 'Aspartate Aminotransferase Measurement',
+    'Aspartate Aminotransferase': 'Aspartate Aminotransferase in Serum/Plasma',
     'Potassium': 'Potassium Measurement',
-    'Albumin': 'Albumin Presence in Urine',
+    'Hemoglobin A1C' : 'Hemoglobin A1C Concentration in Blood',
     'Creatinine': 'Creatinine Measurement',
     'Alkaline Phosphatase': 'Alkaline Phosphatase Concentration in Serum/Plasma',
     'Diastolic Blood Pressure': 'Diastolic Blood Pressure',
@@ -198,6 +199,7 @@ print("Number of matches with data:",len(matches))
 print("Number of mismatches       :",len(mismatches), "(e.g. visit not defined in study)")
 print("")
 
+write_debug(issues)
 for issue in set([issues for issues in issues]):
     print(issue)
 print("")

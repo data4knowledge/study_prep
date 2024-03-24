@@ -4,11 +4,11 @@ from pathlib import Path
 
 LABELS = [
     "Alanine Aminotransferase",
-    "Albumin",
+    "Hemoglobin A1C",
+    "Aspartate Aminotransferase",
     "Alkaline Phosphatase",
 ]
     # Ignoring to reduce size 
-    # "Aspartate Aminotransferase",
     # "Creatinine",
     # "Potassium",
     # "Sodium"

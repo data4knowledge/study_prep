@@ -7,27 +7,21 @@ print("\033[H\033[J") # Clears terminal window in vs code
 
 
 DATA_LABELS_TO_BC_LABELS = {
-    'Temperature': 'Body Temperature',
-    'Weight': 'Body Weight',
-    'Height': 'Body Height',
-    'Pulse Rate': 'Heart Rate',
-    'Alanine Aminotransferase': 'Alanine Aminotransferase Measurement',
+    'Temperature': 'Temperature',
+    'Weight': 'Weight',
+    'Height': 'Height',
+    'Alanine Aminotransferase': 'Alanine Aminotransferase Concentration in Serum/Plasma',
     'Sodium': 'Sodium Measurement',
     'Aspartate Aminotransferase': 'Aspartate Aminotransferase Measurement',
     'Potassium': 'Potassium Measurement',
-    'Albumin': 'Albumin Measurement',
+    'Albumin': 'Albumin Presence in Urine',
     'Creatinine': 'Creatinine Measurement',
-    'Alkaline Phosphatase': 'Alkaline Phosphatase Measurement',
+    'Alkaline Phosphatase': 'Alkaline Phosphatase Concentration in Serum/Plasma',
     'Diastolic Blood Pressure': 'Diastolic Blood Pressure',
     'Systolic Blood Pressure': 'Systolic Blood Pressure',
-    'ALP': '',
-    'ALT': '',
-    'K': '',
-    'ALB': '',
-    'SODIUM': '',
-    'AST': '',
-    'CREAT': ''
+    'Pulse Rate': 'Heart Rate',
 }
+
 
 # Unknown visits
 # 'RETRIEVAL': 'CHECK', 
@@ -54,49 +48,50 @@ DATA_TPT_TO_TIMING_LABELS = {
     "AFTER STANDING FOR 3 MINUTES"  : 'PT2M'
 }
 
-# result_name = 'Vital Signs Result' # Old name
-result_name = 'Clinical Test Result' # Updated name
+vs_result_name = 'VSORRES'
+lb_result_name = 'LBORRES'
+vs_unit_name = 'VSORRESU'
+lb_unit_name = 'LBORRESU'
 TEST_ROW_VARIABLE_TO_BC_PROPERTY = {
     'Weight': {
-        'VSORRES': result_name,
-        'VSORRESU': 'Unit of Weight',
+        'VSORRES': vs_result_name,
+        'VSORRESU': vs_unit_name
     },
     'Height': {
-        'VSORRES': result_name,
-        'VSORRESU': 'Unit of Height',
+        'VSORRES': vs_result_name,
+        'VSORRESU': vs_unit_name
     },
     'Temperature': {
-        'VSORRES': result_name,
-        'VSORRESU': 'Unit of Temperature',
+        'VSORRES': vs_result_name,
+        'VSORRESU': vs_unit_name
     },
     'Diastolic Blood Pressure': {
-        'VSORRES': result_name,
-        'VSORRESU': 'Unit of Pressure',
+        'VSORRES': vs_result_name,
+        'VSORRESU': vs_unit_name
     },
     'Systolic Blood Pressure': {
-        'VSORRES': result_name,
-        'VSORRESU': 'Unit of Pressure',
+        'VSORRES': vs_result_name,
+        'VSORRESU': vs_unit_name
     },
     'Pulse Rate': {
-        'VSORRES': result_name,
-        'VSORRESU': 'Count per Minute'
+        'VSORRES': vs_result_name,
+        'VSORRESU': vs_unit_name
     },
     'Albumin': {
-        'LBORRES': 'Laboratory Test Result',
-        'LBORRESU': 'Unit of Concentration'
+        'LBORRES': lb_result_name,
+        'LBORRESU': lb_unit_name
     },
     'Alkaline Phosphatase': {
-        'LBORRES': 'Laboratory Test Result',
-        'LBORRESU': 'Unit of Catalytic Activity Concentration',
-        'LBFAST': 'Laboratory Test Fasting Status',
-        'LBSPEC': 'Biospecimen Type'
-
+        'LBORRES': lb_result_name,
+        'LBORRESU': lb_unit_name,
+        'LBFAST': 'LBFAST',
+        'LBSPEC': 'LBSPEC'
     },
     'Alanine Aminotransferase': {
-        'LBORRES': 'Laboratory Test Result',
-        'LBORRESU': 'Unit of Catalytic Activity Concentration',
-        'LBFAST': 'Laboratory Test Fasting Status',
-        'LBSPEC': 'Biospecimen Type'
+        'LBORRES': lb_result_name,
+        'LBORRESU': lb_unit_name,
+        'LBFAST': 'LBFAST',
+        'LBSPEC': 'LBSPEC'
     },
 }
 
