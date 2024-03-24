@@ -5,6 +5,7 @@ from pathlib import Path
 from neo4j import GraphDatabase
 from d4kms_service import Neo4jConnection, ServiceEnvironment
 from utility.debug import write_debug
+from utility.neo_utils import db_is_down
 
 print("\033[H\033[J") # Clears terminal window in vs code
 
@@ -143,17 +144,6 @@ for row in lb_data:
             unique_labels_visits.append({"TEST":row['LBTEST'],"VISIT":row['VISIT'],"TPT":row['LBTPT']})
         else:
             unique_labels_visits.append({"TEST":row['LBTEST'],"VISIT":row['VISIT']})
-
-def db_is_down():
-    sv = ServiceEnvironment()
-    uri = sv.get('NEO4J_URI')
-    auth = (sv.get("NEO4J_USERNAME"), sv.get("NEO4J_PASSWORD"))
-    try:
-        with GraphDatabase.driver(uri, auth=auth) as driver:
-            driver.verify_connectivity()
-        return False
-    except:
-        return True
 
 print("Connecting to Neo4j...",end="")
 if db_is_down():
