@@ -7,15 +7,12 @@ from d4kms_service import Neo4jConnection
 print("\033[H\033[J") # Clears terminal window in vs code
 
 def clear_created_nodes(db):
-    query = "match (n:Datapoint) detach delete n return count(n)"
+    query = "match (n:Datapoint|DataPoint) detach delete n return count(n)"
     results = db.query(query)
-    # print("results1",results)
+    print("Removed Datapoint/DataPoint:",results)
     query = 'match (n:DataContract {delete:"me"}) detach delete n return count(n)'
     results = db.query(query)
-    # print("results2",results)
-    query = 'match ()-[r:DC_TO_MAIN_TIMELINE]-() detach delete r return count(r)'
-    results = db.query(query)
-    # print("results4",results)
+    print("Removed DataContract:",results)
 
 
 def get_main_timeline_with_sub_timeline(db):
