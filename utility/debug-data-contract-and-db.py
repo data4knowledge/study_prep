@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from debug import write_debug
+from utility.debug import write_debug
 from d4kms_service import Neo4jConnection
 
 print("\033[H\033[J") # Clears terminal window in vs code
