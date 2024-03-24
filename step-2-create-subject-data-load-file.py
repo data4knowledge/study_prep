@@ -128,7 +128,7 @@ def clean(txt):
     else:
         print("clean does not now of:",txt.__class__,txt)
 
-    return result.replace(".","/")
+    return result.replace(".","_").replace(" ","/")
 
 
 def get_property_for_variable(test,variable):
@@ -229,7 +229,7 @@ for row in vs_data:
         if data_contract:
             item['USUBJID'] = row['USUBJID']
             item['DC_URI'] = data_contract
-            item['DATAPOINT_URI'] = f"{datapoint_root}{row['VSTESTCD']}/result"
+            item['DATAPOINT_URI'] = f"{datapoint_root}/{row['VSTESTCD']}/result"
             item['VALUE'] = f"{row['VSORRES']}"
             data.append(item)
         else:
@@ -244,7 +244,7 @@ for row in vs_data:
             item = {}
             item['USUBJID'] = row['USUBJID']
             item['DC_URI'] = data_contract
-            item['DATAPOINT_URI'] = f"{datapoint_root}{row['VSTESTCD']}/unit"
+            item['DATAPOINT_URI'] = f"{datapoint_root}/{row['VSTESTCD']}/unit"
             item['VALUE'] = f"{row['VSORRESU']}"
             data.append(item)
         else:
@@ -279,7 +279,7 @@ for row in lb_data:
             if data_contract:
                 item['USUBJID'] = row['USUBJID']
                 item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{datapoint_root}{row['LBTESTCD']}/result"
+                item['DATAPOINT_URI'] = f"{datapoint_root}/{row['LBTESTCD']}/result"
                 item['VALUE'] = f"{row['LBORRES']}"
                 data.append(item)
             else:
@@ -296,7 +296,7 @@ for row in lb_data:
                 item = {}
                 item['USUBJID'] = row['USUBJID']
                 item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{datapoint_root}{row['LBTESTCD']}/unit"
+                item['DATAPOINT_URI'] = f"{datapoint_root}/{row['LBTESTCD']}/unit"
                 item['VALUE'] = f"{row['LBORRESU']}"
                 data.append(item)
             else:
