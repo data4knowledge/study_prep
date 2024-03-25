@@ -5,6 +5,7 @@ from pathlib import Path
 from neo4j import GraphDatabase
 from d4kms_service import Neo4jConnection, ServiceEnvironment
 from utility.neo_utils import db_is_down
+from utility.mappings import DATA_LABELS_TO_BC_LABELS, DATA_VISITS_TO_ENCOUNTER_LABELS, DATA_TPT_TO_TIMING_LABELS
 
 print("\033[H\033[J") # Clears terminal window in vs code
 
@@ -73,47 +74,6 @@ with open(LB_DATA) as f:
 
 OUTPUT_PATH = Path.cwd() / "data" / "output"
 assert OUTPUT_PATH.exists(), "OUTPUT_PATH not found"
-
-DATA_LABELS_TO_BC_LABELS = {
-    'Temperature': 'Temperature',
-    'Weight': 'Weight',
-    'Height': 'Height',
-    'Alanine Aminotransferase': 'Alanine Aminotransferase Concentration in Serum/Plasma',
-    'Sodium': 'Sodium Measurement',
-    'Aspartate Aminotransferase': 'Aspartate Aminotransferase in Serum/Plasma',
-    'Potassium': 'Potassium Measurement',
-    'Hemoglobin A1C' : 'Hemoglobin A1C Concentration in Blood',
-    'Creatinine': 'Creatinine Measurement',
-    'Alkaline Phosphatase': 'Alkaline Phosphatase Concentration in Serum/Plasma',
-    'Diastolic Blood Pressure': 'Diastolic Blood Pressure',
-    'Systolic Blood Pressure': 'Systolic Blood Pressure',
-    'Pulse Rate': 'Heart Rate',
-}
-
-# Unknown visits
-# 'RETRIEVAL': 'CHECK', 
-# 'AMBUL ECG PLACEMENT': 'CHECK', 
-# 'AMBUL ECG REMOVAL': 'CHECK'
-DATA_VISITS_TO_ENCOUNTER_LABELS = {
-    'SCREENING 1': 'Screening 1', 
-    'SCREENING 2': 'Screening 2', 
-    'BASELINE': 'Baseline', 
-    'WEEK 2': 'Week 2', 
-    'WEEK 4': 'Week 4', 
-    'WEEK 6': 'Week 6', 
-    'WEEK 8': 'Week 8', 
-    'WEEK 12': 'Week 12', 
-    'WEEK 16': 'Week 16', 
-    'WEEK 20': 'Week 20', 
-    'WEEK 26': 'Week 24', 
-    'WEEK 24': 'Week 26', 
-}
-
-DATA_TPT_TO_TIMING_LABELS = {
-    "AFTER LYING DOWN FOR 5 MINUTES": 'PT5M',
-    "AFTER STANDING FOR 1 MINUTE"   : 'PT1M',
-    "AFTER STANDING FOR 3 MINUTES"  : 'PT2M'
-}
 
 unique_test_visit = set()
 unique_labels_visits = []
