@@ -11,11 +11,24 @@ def clear_created_nodes():
     print("Removing Datapoint/DataPoint",results)
     query = "match (n:Subject) detach delete n return count(n)"
     results = db.query(query)
-    db.close()
     print("Removing Subject",results)
+    # query = "match (n:StudySite) detach delete n return count(n)"
+    # results = db.query(query)
+    # print("Removing StudySite",results)
+    db.close()
 
-def copy_file_to_db_import(source):
-    target_folder = Path("/Users/johannes/Library/Application Support/Neo4j Desktop/Application/relate-data/dbmss/dbms-d90dad3e-743c-40f1-aeee-e4997b8ee1b8/import")
+def get_import_directory():
+    db = Neo4jConnection()
+    query = "call dbms.listConfig()"
+    results = db.query(query)
+    db.close()
+    config = [x.data() for x in results]
+    import_directory = next((item for item in config if item["name"] == 'server.directories.import'), None)
+    return import_directory['value']
+
+
+def copy_file_to_db_import(source, import_directory):
+    target_folder = Path(import_directory)
     assert target_folder.exists(), f"Change Neo4j db import directory: {target_folder}"
     target_file = target_folder / source.name
     with open(source,'r') as f:
@@ -24,13 +37,13 @@ def copy_file_to_db_import(source):
         f.write(txt)
     print("Written",target_file)
 
-def copy_files_to_db_import():
+def copy_files_to_db_import(import_directory):
     enrolment_file = Path.cwd() / "data" / "output" / "enrolment.csv"
     assert enrolment_file.exists(), f"enrolment_file does not exist: {enrolment_file}"
-    copy_file_to_db_import(enrolment_file)
+    copy_file_to_db_import(enrolment_file, import_directory)
     datapoints_file = Path.cwd() / "data" / "output" / "datapoints.csv"
     assert datapoints_file.exists(), f"datapoints_file does not exist: {datapoints_file}"
-    copy_file_to_db_import(datapoints_file)
+    copy_file_to_db_import(datapoints_file, import_directory)
 
 def add_datapoints():
     db = Neo4jConnection()
@@ -57,5 +70,6 @@ def add_datapoints():
 
 
 clear_created_nodes()
-copy_files_to_db_import()
+import_directory = get_import_directory()
+copy_files_to_db_import(import_directory)
 add_datapoints()
