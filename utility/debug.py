@@ -2,7 +2,7 @@ import json
 import pandas as pd
 from pathlib import Path
 from d4kms_service import Neo4jConnection
-from neo_utils import db_is_down
+# from neo_utils import db_is_down
 
 print("\033[H\033[J") # Clears terminal window in vs code
 
@@ -95,6 +95,45 @@ def get_datapoint_bc_properties():
             print("Query returned no results")
         else:
             write_tmp('db_datapoints.txt',results)
+
+def check_data_contract_exist():
+    query = f"""
+        MATCH (dc:DataContract)
+        MATCH (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
+        MATCH (bcp)<-[:PROPERTIES_REL]-(bc:BiomedicalConcept)
+        MATCH (dc)-[:INSTANCES_REL]->(main_sai:ScheduledActivityInstance)
+        MATCH (main_sai)-[:ENCOUNTER_REL]->(enc:Encounter)
+        MATCH (dc)-[:INSTANCES_REL]->(sub_sai:ScheduledActivityInstance)
+        MATCH (sub_sai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
+        where main_sai.id <> sub_sai.id
+        return bc.name as bc, bcp.name as property, enc.name as encounter, t.name as tpt
+        limit 10
+    """
+    # results = query_db(query)
+    # if results[0]['count'] == 0:
+    #     return print("No DataPoints labels in db - count:",results[0]['count'])
+    # print("DataPoints exist in db")
+    # # WHERE dp.uri in ['01-701-1097/LB/135_0/ALT/result','01-701-1015/VS/22_0/DIABP/result']
+    # query = f"""
+    #     match (dp:DataPoint)
+    #     MATCH (dp)-[:FOR_DC_REL]->(dc:DataContract)
+    #     MATCH (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
+    #     MATCH (bcp)<-[:PROPERTIES_REL]-(bc:BiomedicalConcept)
+    #     MATCH (dc)-[:INSTANCES_REL]->(main_sai:ScheduledActivityInstance)
+    #     MATCH (main_sai)-[:ENCOUNTER_REL]->(enc:Encounter)
+    #     optional MATCH (dc)-[:INSTANCES_REL]->(sub_sai:ScheduledActivityInstance)
+    #     optional MATCH (sub_sai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
+    #     where main_sai.id <> sub_sai.id
+    #     return distinct bc.name as bc, bcp.name as property, enc.name as encounter, t.name as tpt
+    # """
+    # results = query_db(query)
+    # if results == None:
+    #     print("Error in query")
+    # else:
+    #     if results == []:
+    #         print("Query returned no results")
+    #     else:
+    #         write_tmp('db_datapoints.txt',results)
 
 if __name__ == "__main__":
     # check_lb()
