@@ -162,6 +162,5 @@ cython_debug/
 # Misc
 .DS_STORE
 .vscode
-data/output
 tmp
 .*_env
