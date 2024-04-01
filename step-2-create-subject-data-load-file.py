@@ -122,7 +122,6 @@ print("\nCreating datapoint and value")
 data = []
 
 for row in vs_data:
-    datapoint_root = f"{row['USUBJID']}/{row['DOMAIN']}/{clean(row['VSSEQ'])}"
     item = {}
 
     # Result
@@ -140,7 +139,7 @@ for row in vs_data:
         if data_contract:
             item['USUBJID'] = row['USUBJID']
             item['DC_URI'] = data_contract
-            item['DATAPOINT_URI'] = f"{datapoint_root}/{row['VSTESTCD']}/result"
+            item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
             item['VALUE'] = f"{row['VSORRES']}"
             data.append(item)
         else:
@@ -155,7 +154,7 @@ for row in vs_data:
             item = {}
             item['USUBJID'] = row['USUBJID']
             item['DC_URI'] = data_contract
-            item['DATAPOINT_URI'] = f"{datapoint_root}/{row['VSTESTCD']}/unit"
+            item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
             item['VALUE'] = f"{row['VSORRESU']}"
             data.append(item)
         else:
@@ -172,7 +171,6 @@ with open(LB_DATA) as f:
 
 
 for row in lb_data:
-    datapoint_root = f"{row['USUBJID']}/{row['DOMAIN']}/{clean(row['LBSEQ'])}"
     item = {}
 
     # Result
@@ -190,7 +188,7 @@ for row in lb_data:
             if data_contract:
                 item['USUBJID'] = row['USUBJID']
                 item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{datapoint_root}/{row['LBTESTCD']}/result"
+                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
                 item['VALUE'] = f"{row['LBORRES']}"
                 data.append(item)
             else:
@@ -207,7 +205,7 @@ for row in lb_data:
                 item = {}
                 item['USUBJID'] = row['USUBJID']
                 item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{datapoint_root}/{row['LBTESTCD']}/unit"
+                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
                 item['VALUE'] = f"{row['LBORRESU']}"
                 data.append(item)
             else:
