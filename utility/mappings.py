@@ -13,6 +13,8 @@ DATA_LABELS_TO_BC_LABELS = {
     'Diastolic Blood Pressure': 'Diastolic Blood Pressure',
     'Systolic Blood Pressure': 'Systolic Blood Pressure',
     'Pulse Rate': 'Heart Rate',
+    'Sex': 'Sex',
+    'Race': 'Race',
 }
 
 # Unknown visits
@@ -84,5 +86,13 @@ TEST_ROW_VARIABLE_TO_BC_PROPERTY = {
         'LBORRESU': LB_UNIT_NAME,
         'LBFAST': 'LBFAST',
         'LBSPEC': 'LBSPEC'
+    },
+    'Sex': {
+        'value': "Sex",
+        'date': "Date Time",
+    },
+    'Race': {
+        'value': "Race",
+        'date': "Date Time",
     },
 }

@@ -85,11 +85,23 @@ def get_data_contract(encounter,bc_label,property,tpt):
         add_issue("get_data_contract Miss BC_LABEL:", bc_label, "BCP_LABEL:",property, "ENCOUNTER_LABEL:",encounter,"TPT:",tpt)
         return None
 
-DM_DATA = Path.cwd() / "data" / "output" / "enrolment.json"
-assert DM_DATA.exists(), "DM_DATA not found"
-print("\nGetting subjects from file",DM_DATA)
-with open(DM_DATA) as f:
-    dm_data = json.load(f)
+def get_data_contract_dm(encounter,bc_label,property):
+    dc_item = next((item for item in data_contracts if item["BC_LABEL"] == bc_label and item['BCP_NAME'] == property and item['ENCOUNTER_LABEL'] == encounter), None)
+    if dc_item != None:
+        matches.append(dc_item)
+        if "DC_URI" in dc_item:
+            return dc_item['DC_URI']
+        else:
+            print("Missing DC_URI", bc_label, property)
+    else:
+        add_issue("get_data_contract_dm Miss BC_LABEL:", bc_label, "BCP_LABEL:",property)
+        return None
+
+ENROLMENT_DATA = Path.cwd() / "data" / "output" / "enrolment.json"
+assert ENROLMENT_DATA.exists(), "ENROLMENT_DATA not found"
+print("\nGetting subjects from file",ENROLMENT_DATA)
+with open(ENROLMENT_DATA) as f:
+    enrolment_data = json.load(f)
 
 
 DATA_CONTRACTS_LOOKUP = Path.cwd() / "data" / "output" / "data_contracts.json"
@@ -102,7 +114,7 @@ OUTPUT_PATH = Path.cwd() / "data" / "output"
 assert OUTPUT_PATH.exists(), "OUTPUT_PATH not found"
 
 # Get subjects from the enrolment file
-subjects = [row['USUBJID'] for row in dm_data]
+subjects = [row['USUBJID'] for row in enrolment_data]
 
 matches = []
 issues = []
@@ -110,16 +122,12 @@ issues = []
 print("\nCreating datapoint and value")
 data = []
 
-
 print("\nGetting VS data")
 VS_DATA = Path.cwd() / "data" / "input" / "vs.json"
 assert VS_DATA.exists(), "VS_DATA not found"
 with open(VS_DATA) as f:
     vs_data = json.load(f)
 
-
-print("\nCreating datapoint and value")
-data = []
 
 for row in vs_data:
     item = {}
@@ -169,7 +177,6 @@ assert LB_DATA.exists(), "LB_DATA not found"
 with open(LB_DATA) as f:
     lb_data = json.load(f)
 
-
 for row in lb_data:
     item = {}
 
@@ -214,7 +221,55 @@ for row in lb_data:
             add_issue("Add property for LBTEST",row['LBTEST'],"LBORRESU",row['LBORRESU'])
     else:
             add_issue("Ignoring visit", row['VISIT'], "encounter:", encounter)
-        
+
+
+print("\nGetting DM data")
+DM_DATA = Path.cwd() / "data" / "input" / "dm.json"
+assert DM_DATA.exists(), "DM_DATA not found"
+with open(DM_DATA) as f:
+    dm_data = json.load(f)
+
+# DM does not contain VISIT
+# Sex
+for row in dm_data:
+    item = {}
+
+    dm_visit = "Screening 1"
+    bc_label = get_bc_label("Sex")
+    property = get_property_for_variable(bc_label,'value')
+    data_contract = get_data_contract_dm(dm_visit,bc_label,property)
+    if property:
+        if data_contract:
+            item['USUBJID'] = row['USUBJID']
+            item['DC_URI'] = data_contract
+            item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+            item['VALUE'] = f"{row['SEX']}"
+            data.append(item)
+        else:
+            add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {dm_visit}")
+    else:
+        add_issue("Add property for DM","Sex",'value',row['SEX'])
+
+# Race
+for row in dm_data:
+    item = {}
+
+    dm_visit = "Screening 1"
+    bc_label = get_bc_label("Race")
+    property = get_property_for_variable(bc_label,'value')
+    data_contract = get_data_contract_dm(dm_visit,bc_label,property)
+    if property:
+        if data_contract:
+            item['USUBJID'] = row['USUBJID']
+            item['DC_URI'] = data_contract
+            item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+            item['VALUE'] = f"{row['RACE']}"
+            data.append(item)
+        else:
+            add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {dm_visit}")
+    else:
+        add_issue("Add property for DM","Race",'value',row['RACE'])
+
 
 print("---Datapoint - Data contract matches:",len(matches))
 print("---Non matching Datapoints (e.g. visit not defined)",len(issues))
@@ -223,6 +278,7 @@ for issue in set(issues):
     print(issue)
 print("")
 
+print("--- number of Datapoints:",len(data))
 if len(data) == 0:
     print("No data has been found")
     exit()

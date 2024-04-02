@@ -36,6 +36,24 @@ def get_bc_properties(db, bc_label, row):
         return []
     return [result.data() for result in results]
 
+def get_bc_properties_dm(db, bc_label, dm_visit):
+    if dm_visit in DATA_VISITS_TO_ENCOUNTER_LABELS:
+        visit = DATA_VISITS_TO_ENCOUNTER_LABELS[dm_visit]
+    else:
+        add_issue("visit not found:",dm_visit)
+        return []
+    query = f"""
+    MATCH (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp)<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(act_inst)-[:ENCOUNTER_REL]-(enc)
+    WHERE enc.label = '{visit}'
+    AND  bc.label = '{bc_label}'
+    return bc.label as BC_LABEL, bcp.name as BCP_NAME, enc.label as ENCOUNTER_LABEL, dc.uri as DC_URI
+    """
+    results = db.query(query)
+    if results == None:
+        add_issue("DataContract has errors in it",row['VISIT'],visit,bc_label,query)
+        return []
+    return [result.data() for result in results]
+
 def get_bc_properties_sub_timeline(db, bc_label, tpt, row):
     if row['VISIT'] in DATA_VISITS_TO_ENCOUNTER_LABELS:
         visit = DATA_VISITS_TO_ENCOUNTER_LABELS[row['VISIT']]
@@ -140,6 +158,32 @@ for row in unique_labels_visits:
             True
         else:
             unique_data_contracts.append(property)
+
+# Add DM stuff
+dm_visit ='SCREENING 1'
+bc_label = "Sex"
+properties = get_bc_properties_dm(db,bc_label,dm_visit)
+if properties:
+    matches.append([bc_label,[x['BCP_NAME'] for x in properties]])
+else:
+    mismatches.append([bc_label,dm_visit])
+for property in properties:
+    if property in unique_data_contracts:
+        True
+    else:
+        unique_data_contracts.append(property)
+bc_label = "Race"
+properties = get_bc_properties_dm(db,bc_label,dm_visit)
+if properties:
+    matches.append([bc_label,[x['BCP_NAME'] for x in properties]])
+else:
+    mismatches.append([bc_label,dm_visit])
+for property in properties:
+    if property in unique_data_contracts:
+        True
+    else:
+        unique_data_contracts.append(property)
+
 
 db.close()
 
