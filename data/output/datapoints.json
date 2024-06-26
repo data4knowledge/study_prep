@@ -1,0 +1,122 @@
+[
+  {
+    "USUBJID": "01-701-1015",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/98502b18-b512-4673-aedb-081ad9c86702",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/98502b18-b512-4673-aedb-081ad9c86702/01-701-1015",
+    "VALUE": "F"
+  },
+  {
+    "USUBJID": "01-701-1023",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/98502b18-b512-4673-aedb-081ad9c86702",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/98502b18-b512-4673-aedb-081ad9c86702/01-701-1023",
+    "VALUE": "M"
+  },
+  {
+    "USUBJID": "01-701-1028",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/98502b18-b512-4673-aedb-081ad9c86702",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/98502b18-b512-4673-aedb-081ad9c86702/01-701-1028",
+    "VALUE": "M"
+  },
+  {
+    "USUBJID": "01-701-1033",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/98502b18-b512-4673-aedb-081ad9c86702",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/98502b18-b512-4673-aedb-081ad9c86702/01-701-1033",
+    "VALUE": "M"
+  },
+  {
+    "USUBJID": "01-701-1034",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/98502b18-b512-4673-aedb-081ad9c86702",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/98502b18-b512-4673-aedb-081ad9c86702/01-701-1034",
+    "VALUE": "F"
+  },
+  {
+    "USUBJID": "01-701-1047",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/98502b18-b512-4673-aedb-081ad9c86702",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/98502b18-b512-4673-aedb-081ad9c86702/01-701-1047",
+    "VALUE": "F"
+  },
+  {
+    "USUBJID": "01-701-1057",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/98502b18-b512-4673-aedb-081ad9c86702",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/98502b18-b512-4673-aedb-081ad9c86702/01-701-1057",
+    "VALUE": "F"
+  },
+  {
+    "USUBJID": "01-701-1097",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/98502b18-b512-4673-aedb-081ad9c86702",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/98502b18-b512-4673-aedb-081ad9c86702/01-701-1097",
+    "VALUE": "M"
+  },
+  {
+    "USUBJID": "01-701-1111",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/98502b18-b512-4673-aedb-081ad9c86702",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/98502b18-b512-4673-aedb-081ad9c86702/01-701-1111",
+    "VALUE": "F"
+  },
+  {
+    "USUBJID": "01-701-1115",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/98502b18-b512-4673-aedb-081ad9c86702",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/98502b18-b512-4673-aedb-081ad9c86702/01-701-1115",
+    "VALUE": "M"
+  },
+  {
+    "USUBJID": "01-701-1015",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/d447166c-f09e-40b0-8ffa-cae98b2eb965",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/d447166c-f09e-40b0-8ffa-cae98b2eb965/01-701-1015",
+    "VALUE": "WHITE"
+  },
+  {
+    "USUBJID": "01-701-1023",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/d447166c-f09e-40b0-8ffa-cae98b2eb965",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/d447166c-f09e-40b0-8ffa-cae98b2eb965/01-701-1023",
+    "VALUE": "WHITE"
+  },
+  {
+    "USUBJID": "01-701-1028",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/d447166c-f09e-40b0-8ffa-cae98b2eb965",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/d447166c-f09e-40b0-8ffa-cae98b2eb965/01-701-1028",
+    "VALUE": "WHITE"
+  },
+  {
+    "USUBJID": "01-701-1033",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/d447166c-f09e-40b0-8ffa-cae98b2eb965",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/d447166c-f09e-40b0-8ffa-cae98b2eb965/01-701-1033",
+    "VALUE": "WHITE"
+  },
+  {
+    "USUBJID": "01-701-1034",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/d447166c-f09e-40b0-8ffa-cae98b2eb965",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/d447166c-f09e-40b0-8ffa-cae98b2eb965/01-701-1034",
+    "VALUE": "WHITE"
+  },
+  {
+    "USUBJID": "01-701-1047",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/d447166c-f09e-40b0-8ffa-cae98b2eb965",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/d447166c-f09e-40b0-8ffa-cae98b2eb965/01-701-1047",
+    "VALUE": "WHITE"
+  },
+  {
+    "USUBJID": "01-701-1057",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/d447166c-f09e-40b0-8ffa-cae98b2eb965",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/d447166c-f09e-40b0-8ffa-cae98b2eb965/01-701-1057",
+    "VALUE": "WHITE"
+  },
+  {
+    "USUBJID": "01-701-1097",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/d447166c-f09e-40b0-8ffa-cae98b2eb965",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/d447166c-f09e-40b0-8ffa-cae98b2eb965/01-701-1097",
+    "VALUE": "WHITE"
+  },
+  {
+    "USUBJID": "01-701-1111",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/d447166c-f09e-40b0-8ffa-cae98b2eb965",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/d447166c-f09e-40b0-8ffa-cae98b2eb965/01-701-1111",
+    "VALUE": "WHITE"
+  },
+  {
+    "USUBJID": "01-701-1115",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/d447166c-f09e-40b0-8ffa-cae98b2eb965",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/98c9f5e8-1e42-44c9-92cf-4825cb813072/d447166c-f09e-40b0-8ffa-cae98b2eb965/01-701-1115",
+    "VALUE": "WHITE"
+  }
+]

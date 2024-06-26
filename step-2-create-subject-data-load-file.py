@@ -270,6 +270,26 @@ for row in dm_data:
     else:
         add_issue("Add property for DM","Race",'value',row['RACE'])
 
+# Informed Consent
+for row in dm_data:
+    item = {}
+
+    dm_visit = "Screening 1"
+    bc_label = get_bc_label("Informed Consent")
+    property = get_property_for_variable(bc_label,'value')
+    data_contract = get_data_contract_dm(dm_visit,bc_label,property)
+    if property:
+        if data_contract:
+            item['USUBJID'] = row['USUBJID']
+            item['DC_URI'] = data_contract
+            item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+            item['VALUE'] = f"{row['RFICDTC']}"
+            data.append(item)
+        else:
+            add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {dm_visit}")
+    else:
+        add_issue("Add property for DM","Informed Consent",'value',row['RFICDTC'])
+
 
 print("---Datapoint - Data contract matches:",len(matches))
 print("---Non matching Datapoints (e.g. visit not defined)",len(issues))
