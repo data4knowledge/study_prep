@@ -67,8 +67,11 @@ def add_datapoints():
     db.close()
     print("results datapoints",results)
 
+def load_datapoints():
+    clear_created_nodes()
+    import_directory = get_import_directory()
+    copy_files_to_db_import(import_directory)
+    add_datapoints()
 
-clear_created_nodes()
-import_directory = get_import_directory()
-copy_files_to_db_import(import_directory)
-add_datapoints()
+if __name__ == "__main__":
+    load_datapoints()
