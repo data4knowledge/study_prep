@@ -2,8 +2,6 @@ import json
 import pandas as pd
 from pathlib import Path
 
-print("\033[H\033[J") # Clears terminal window in vs code
-
 def get_xpt_data(file):
     df = pd.read_sas(file,format='xport',encoding='ISO-8859-1')
     df = df.fillna('')
