@@ -3,9 +3,6 @@ import csv
 import pandas as pd
 from pathlib import Path
 
-print("\033[H\033[J") # Clears terminal window in vs code
-
-
 DM_DATA = Path.cwd() / "data" / "input"  / "dm.json"
 print("Reading",DM_DATA)
 assert DM_DATA.exists(), f"DM_DATA not found"
