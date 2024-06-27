@@ -15,6 +15,7 @@ DATA_LABELS_TO_BC_LABELS = {
     'Pulse Rate': 'Heart Rate',
     'Sex': 'Sex',
     'Race': 'Race',
+    'Informed Consent': 'Informed Consent',
 }
 
 # Unknown visits
@@ -93,6 +94,10 @@ TEST_ROW_VARIABLE_TO_BC_PROPERTY = {
     },
     'Race': {
         'value': "Race",
+        'date': "Date Time",
+    },
+    'Informed Consent': {
+        'value': "Observation Start Date Time",
         'date': "Date Time",
     },
 }

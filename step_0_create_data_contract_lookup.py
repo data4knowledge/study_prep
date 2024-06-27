@@ -206,11 +206,24 @@ def create_data_contracts_lookup():
         print(issue)
     print("")
 
+    write_tmp("debug-dc.txt",mismatches)
+    write_tmp("debug-dc-matches.txt",matches)
+
     OUTPUT_FILE = OUTPUT_PATH / "data_contracts.json"
     print("Saving to",OUTPUT_FILE)
     with open(OUTPUT_FILE, 'w') as f:
         f.write(json.dumps(unique_data_contracts, indent = 2))
     print("done")
+
+def write_tmp(name, data):
+    TMP_PATH = Path.cwd() / "tmp" / "saved_debug"
+    OUTPUT_FILE = TMP_PATH / name
+    print("Writing file...",OUTPUT_FILE.name,OUTPUT_FILE, end="")
+    with open(OUTPUT_FILE, 'w') as f:
+        for it in data:
+            f.write(str(it))
+            f.write('\n')
+    print(" ...done")
 
 if __name__ == "__main__":
     create_data_contracts_lookup()
