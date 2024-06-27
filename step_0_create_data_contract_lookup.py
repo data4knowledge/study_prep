@@ -7,6 +7,12 @@ from d4kms_service import Neo4jConnection, ServiceEnvironment
 from utility.neo_utils import db_is_down
 from utility.mappings import DATA_LABELS_TO_BC_LABELS, DATA_VISITS_TO_ENCOUNTER_LABELS, DATA_TPT_TO_TIMING_LABELS
 
+unique_data_contracts = []
+issues = []
+matches = []
+mismatches = []
+debug = []
+
 def clean(txt: str):
     txt = txt.replace(".","/")
     txt = txt.replace(" ","")
@@ -129,11 +135,6 @@ def create_data_contracts_lookup():
     db = Neo4jConnection()
 
     print("Looping")
-    unique_data_contracts = []
-    issues = []
-    matches = []
-    mismatches = []
-    debug = []
 
     for row in unique_labels_visits:
         tpt = ""
