@@ -20,7 +20,13 @@ def reduce_dm():
     dm = get_xpt_data(FULL_DM_DATA)
     print("full len(dm)",len(dm))
 
-    dm_data = [x for x in dm[0:10]]
+    # dm_data = [x for x in dm[0:10]]
+    dm_data = []
+    print("N.B! Faking RFICDTC from DMDTC")
+    for row in dm[0:10]:
+        row['RFICDTC'] = row['DMDTC']
+        dm_data.append(row)
+
     print("reduced len(dm_data)",len(dm_data))
 
     DM_JSON = Path.cwd() / "data" / "input" / "dm.json"

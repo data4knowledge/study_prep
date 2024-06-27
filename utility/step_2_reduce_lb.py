@@ -2,17 +2,6 @@ import json
 import pandas as pd
 from pathlib import Path
 
-LABELS = [
-    "Alanine Aminotransferase",
-    "Hemoglobin A1C",
-    "Aspartate Aminotransferase",
-    "Alkaline Phosphatase",
-]
-    # Ignoring to reduce size 
-    # "Creatinine",
-    # "Potassium",
-    # "Sodium"
-
 print("\033[H\033[J") # Clears terminal window in vs code
 
 def get_xpt_data(file):
@@ -21,26 +10,41 @@ def get_xpt_data(file):
     data = df.to_dict(orient='records')
     return data
 
+def reduce_lb():
+    LABELS = [
+        "Alanine Aminotransferase",
+        "Hemoglobin A1C",
+        "Aspartate Aminotransferase",
+        "Alkaline Phosphatase",
+    ]
+        # Ignoring to reduce size 
+        # "Creatinine",
+        # "Potassium",
+        # "Sodium"
 
-DM_DATA = Path.cwd() / "data" / "input" / "dm.json"
-print("Reading DM_DATA:",DM_DATA)
-assert DM_DATA.exists(), "DM_DATA not found"
-with open(DM_DATA) as f:
-    dm = json.load(f)
+    DM_DATA = Path.cwd() / "data" / "input" / "dm.json"
+    print("Reading DM_DATA:",DM_DATA)
+    assert DM_DATA.exists(), "DM_DATA not found"
+    with open(DM_DATA) as f:
+        dm = json.load(f)
 
-subjects = [x['USUBJID'] for x in dm]
-print("subjects",subjects)
+    subjects = [x['USUBJID'] for x in dm]
+    print("subjects",subjects)
 
-LB_DATA_FULL = Path.cwd() / "tmp" / "lb.xpt"
-assert LB_DATA_FULL.exists(), "LB_DATA_FULL not found"
-lb = get_xpt_data(LB_DATA_FULL)
+    LB_DATA_FULL = Path.cwd() / "tmp" / "lb.xpt"
+    assert LB_DATA_FULL.exists(), "LB_DATA_FULL not found"
+    lb = get_xpt_data(LB_DATA_FULL)
 
-print("full len(lb)",len(lb))
-lb_data = [x for x in lb if x['USUBJID'] in subjects and x['LBTEST'] in LABELS]
-print("reduced len(lb_data)",len(lb_data))
+    print("full len(lb)",len(lb))
+    lb_data = [x for x in lb if x['USUBJID'] in subjects and x['LBTEST'] in LABELS]
+    print("reduced len(lb_data)",len(lb_data))
 
-LB_DATA = Path.cwd() / "data" / "input" / "lb.json"
-with open(LB_DATA, 'w') as f:
-    f.write(json.dumps(lb_data, indent = 2))
+    LB_DATA = Path.cwd() / "data" / "input" / "lb.json"
+    with open(LB_DATA, 'w') as f:
+        f.write(json.dumps(lb_data, indent = 2))
 
-print("done")
+    print("done")
+
+if __name__ == "__main__":
+    print("not running as main")
+    # reduce_lb()
