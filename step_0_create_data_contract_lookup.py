@@ -182,7 +182,7 @@ def create_data_contracts_lookup():
             True
         else:
             unique_data_contracts.append(property)
-    bc_label = "Informed Consent"
+    bc_label = "Informed Consent Obtained"
     properties = get_bc_properties_dm(db,bc_label,dm_visit)
     if properties:
         matches.append([bc_label,[x['BCP_NAME'] for x in properties]])

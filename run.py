@@ -21,11 +21,11 @@ from step_2_create_subject_data_load_file import create_subject_data_load_file
 from utility.post_step_load_datapoints import load_datapoints
 print("\033[H\033[J") # Clears terminal window in vs code
 
-# create_data_contracts_lookup()
-# create_subject_enrolment_load_file()
-# create_subject_data_load_file()
+create_data_contracts_lookup()
+create_subject_enrolment_load_file()
+create_subject_data_load_file()
 
-load_datapoints()
+# load_datapoints()
 
 # compare_crm()
 # compare_sdtm()

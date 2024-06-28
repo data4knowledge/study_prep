@@ -102,6 +102,7 @@ def get_data_contract_dm(encounter,bc_label,property):
             print("Missing DC_URI", bc_label, property)
     else:
         add_issue("get_data_contract_dm Miss BC_LABEL:", bc_label, "BCP_LABEL:",property)
+        add_issue("-- Miss BC_LABEL:", bc_label, "BCP_LABEL:",property)
         return None
 
 def create_subject_data_load_file():
@@ -275,11 +276,13 @@ def create_subject_data_load_file():
 
         dm_visit = "Screening 1"
         bc_label = get_bc_label("Informed Consent")
+        # print("bc_label",bc_label)
         property = get_property_for_variable(bc_label,'value')
+        # print("property",property)
         data_contract = get_data_contract_dm(dm_visit,bc_label,property)
         if property:
             if data_contract:
-                print("creating data contract Informed Consent")
+                print("creating data contract Informed Consent (Obtained)")
                 item['USUBJID'] = row['USUBJID']
                 item['DC_URI'] = data_contract
                 item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
