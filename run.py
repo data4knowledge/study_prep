@@ -8,6 +8,10 @@ print("running")
 # reduce_lb()
 # reduce_vs()
 
+from utility.pre_step_convert_surrogate_to_bc import convert_surrogate_to_bc
+convert_surrogate_to_bc()
+
+
 # # Compare db
 # from utility.compare_aura_local_crm import compare_crm
 # from utility.compare_aura_local_sdtm import compare_sdtm
@@ -19,11 +23,11 @@ from step_2_create_subject_data_load_file import create_subject_data_load_file
 
 # Post steps
 from utility.post_step_load_datapoints import load_datapoints
-print("\033[H\033[J") # Clears terminal window in vs code
+# print("\033[H\033[J") # Clears terminal window in vs code
 
-create_data_contracts_lookup()
-create_subject_enrolment_load_file()
-create_subject_data_load_file()
+# create_data_contracts_lookup()
+# create_subject_enrolment_load_file()
+# create_subject_data_load_file()
 
 # load_datapoints()
 
