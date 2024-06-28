@@ -91,9 +91,6 @@ def copy_bc_properties_from_bc(db, new_bc_name,copy_bc_name, bc_uuid):
         # print(query)
         results = db.query(query)
         # Copy property nodes relationships
-        print("bcp_uuid",bcp['uuid'])
-        start_of_bcp=bcp['uuid'].rsplit('/',1)[0]
-        print("start_of_bcp",start_of_bcp)
         dc_uri="https://study.d4k.dk/study-cdisc-pilot-lzzt/"+bc_uuid+"/"+uuid
         query = f"""
             MATCH (source_bcp:BiomedicalConceptProperty {{uuid:"{bcp['uuid']}"}})<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]-(sai:ScheduledActivityInstance)
@@ -104,7 +101,7 @@ def copy_bc_properties_from_bc(db, new_bc_name,copy_bc_name, bc_uuid):
             RETURN "done"
         """
             # MERGE (bc)-[:PROPERTIES_REL]->(bcp)
-        print(query)
+        # print(query)
         results = db.query(query)
 
 
