@@ -52,6 +52,8 @@ def get_bc_properties_dm(db, bc_label, dm_visit):
     AND  bc.label = '{bc_label}'
     return bc.label as BC_LABEL, bcp.name as BCP_NAME, enc.label as ENCOUNTER_LABEL, dc.uri as DC_URI
     """
+    print(query)
+
     results = db.query(query)
     if results == None:
         add_issue("DataContract has errors in it",row['VISIT'],visit,bc_label,query)
@@ -183,6 +185,17 @@ def create_data_contracts_lookup():
         else:
             unique_data_contracts.append(property)
     bc_label = "Informed Consent Obtained"
+    properties = get_bc_properties_dm(db,bc_label,dm_visit)
+    if properties:
+        matches.append([bc_label,[x['BCP_NAME'] for x in properties]])
+    else:
+        mismatches.append([bc_label,dm_visit])
+    for property in properties:
+        if property in unique_data_contracts:
+            True
+        else:
+            unique_data_contracts.append(property)
+    bc_label = "Date of Birth"
     properties = get_bc_properties_dm(db,bc_label,dm_visit)
     if properties:
         matches.append([bc_label,[x['BCP_NAME'] for x in properties]])

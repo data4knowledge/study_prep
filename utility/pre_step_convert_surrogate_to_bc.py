@@ -96,7 +96,7 @@ def copy_bc_properties_from_bc(db, new_bc_name,copy_bc_name, bc_uuid):
             MATCH (source_bcp:BiomedicalConceptProperty {{uuid:"{bcp['uuid']}"}})<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]-(sai:ScheduledActivityInstance)
             MATCH (bcp:BiomedicalConceptProperty {{uuid:"{uuid}"}})
             with sai, bcp
-            CREATE (dc:DataContract {{uuid:'{dc_uri}', fake_node: "yes"}})
+            CREATE (dc:DataContract {{uri:'{dc_uri}', fake_node: "yes"}})
             CREATE (bcp)<-[:PROPERTIES_REL]-(dc)-[:INSTANCES_REL]->(sai)
             RETURN "done"
         """
