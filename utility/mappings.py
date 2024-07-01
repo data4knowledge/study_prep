@@ -17,6 +17,7 @@ DATA_LABELS_TO_BC_LABELS = {
     'Race': 'Race',
     'Informed Consent': 'Informed Consent',
     'Informed Consent': 'Informed Consent Obtained',
+    'Date of Birth': 'Date of Birth',
 }
 
 # Unknown visits
@@ -107,6 +108,10 @@ TEST_ROW_VARIABLE_TO_BC_PROPERTY = {
     },
     'Informed Consent Obtained': {
         'value': "--DTC",
+        'date': "Date Time",
+    },
+    'Date of Birth': {
+        'value': "Date of Birth",
         'date': "Date Time",
     },
 }

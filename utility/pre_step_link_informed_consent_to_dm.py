@@ -58,7 +58,6 @@ def copy_bc_properties_from_bc(db, new_bc_name,copy_bc_name, bc_uuid):
         MATCH (bc:BiomedicalConcept {{name:"{copy_bc_name}"}})-[:PROPERTIES_REL]->(bcp)
         RETURN bcp.uuid as uuid, bcp.name as name, bcp.label as label
     """
-    # print("query\n",query)
     # Create the same properties for new bc and add relationships to data contract and scheduled activity instance
     results = db.query(query)
     for bcp in [result.data() for result in results]:
@@ -89,8 +88,9 @@ def copy_bc_properties_from_bc(db, new_bc_name,copy_bc_name, bc_uuid):
             MATCH (bcp:BiomedicalConceptProperty {{uuid:"{uuid}"}})
             MERGE (bc)-[:PROPERTIES_REL]->(bcp)
         """
+        # print(query)
         results = db.query(query)
-        # Copy property nodes relationships: DataContract
+        # Copy property nodes relationships
         dc_uri="https://study.d4k.dk/study-cdisc-pilot-lzzt/"+bc_uuid+"/"+uuid
         query = f"""
             MATCH (source_bcp:BiomedicalConceptProperty {{uuid:"{bcp['uuid']}"}})<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]-(sai:ScheduledActivityInstance)
@@ -100,34 +100,10 @@ def copy_bc_properties_from_bc(db, new_bc_name,copy_bc_name, bc_uuid):
             CREATE (bcp)<-[:PROPERTIES_REL]-(dc)-[:INSTANCES_REL]->(sai)
             RETURN "done"
         """
-        results = db.query(query)
-        # Copy property nodes relationships: IS_A_REL        
-        query = f"""
-            MATCH (source_bcp:BiomedicalConceptProperty {{uuid:"{bcp['uuid']}"}})-[:IS_A_REL]->(crm:CRMNode)
-            MATCH (bcp:BiomedicalConceptProperty {{uuid:"{uuid}"}})
-            with crm, bcp
-            CREATE (bcp)-[:IS_A_REL]->(crm)
-            return *
-        """
+            # MERGE (bc)-[:PROPERTIES_REL]->(bcp)
         # print(query)
         results = db.query(query)
 
-
-def link_birthdtc_to_crm(db):
-    # If topic result (e.g. Date of Birth)
-    # if bcp['name'] != copy_bc_name:
-    bcp_name = "Date of Birth"
-    uuid = 0
-        # MATCH (source_bcp:BiomedicalConceptProperty {{name:"{bcp_name}"}})-[:IS_A_REL]->(crm:CRMNode)
-    query = f"""
-        MATCH (bcp:BiomedicalConceptProperty {{name:"{bcp_name}"}})-[:IS_A_REL]->(crm:CRMNode)
-        MATCH (v:Variable {{name:"BRTHDTC"}})
-        with crm, v
-        CREATE (v)-[:IS_A_REL]->(crm)
-        return *
-    """
-    print(query)
-    results = db.query(query)
 
 
 def copy_bc_relationships_from_bc(db, new_bc_name,copy_bc_name):
@@ -165,7 +141,6 @@ def create_bc_from_existing_surrogate(db, new_bc_name, copy_bc):
     # Copy properties from another BC
     bcp_uuids = copy_bc_properties_from_bc(db, new_bc_name, copy_bc, bc_uuid)
     copy_bc_relationships_from_bc(db, new_bc_name, copy_bc)
-    link_birthdtc_to_crm(db)
     print("bcp_uuids",bcp_uuids)
 
 

@@ -3,6 +3,18 @@ import csv
 from pathlib import Path
 from utility.mappings import DATA_LABELS_TO_BC_LABELS, DATA_VISITS_TO_ENCOUNTER_LABELS, DATA_TPT_TO_TIMING_LABELS, TEST_ROW_VARIABLE_TO_BC_PROPERTY
 
+def write_tmp(name, data):
+    TMP_PATH = Path.cwd() / "tmp" / "saved_debug"
+    OUTPUT_FILE = TMP_PATH / name
+    print("Writing file...",OUTPUT_FILE.name,OUTPUT_FILE, end="")
+    with open(OUTPUT_FILE, 'w') as f:
+        for it in data:
+            f.write(str(it))
+            f.write('\n')
+    print(" ...done")
+
+debug = []
+
 matches = []
 issues = []
 
@@ -229,26 +241,26 @@ def create_subject_data_load_file():
     with open(DM_DATA) as f:
         dm_data = json.load(f)
 
-    # DM does not contain VISIT
-    # Sex
-    for row in dm_data:
-        item = {}
+    # # DM does not contain VISIT
+    # # Sex
+    # for row in dm_data:
+    #     item = {}
 
-        dm_visit = "Screening 1"
-        bc_label = get_bc_label("Sex")
-        property = get_property_for_variable(bc_label,'value')
-        data_contract = get_data_contract_dm(dm_visit,bc_label,property)
-        if property:
-            if data_contract:
-                item['USUBJID'] = row['USUBJID']
-                item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-                item['VALUE'] = f"{row['SEX']}"
-                data.append(item)
-            else:
-                add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {dm_visit}")
-        else:
-            add_issue("Add property for DM","Sex",'value',row['SEX'])
+    #     dm_visit = "Screening 1"
+    #     bc_label = get_bc_label("Sex")
+    #     property = get_property_for_variable(bc_label,'value')
+    #     data_contract = get_data_contract_dm(dm_visit,bc_label,property)
+    #     if property:
+    #         if data_contract:
+    #             item['USUBJID'] = row['USUBJID']
+    #             item['DC_URI'] = data_contract
+    #             item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+    #             item['VALUE'] = f"{row['SEX']}"
+    #             data.append(item)
+    #         else:
+    #             add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {dm_visit}")
+    #     else:
+    #         add_issue("Add property for DM","Sex",'value',row['SEX'])
 
     # # Race
     # for row in dm_data:
@@ -270,28 +282,54 @@ def create_subject_data_load_file():
     #     else:
     #         add_issue("Add property for DM","Race",'value',row['RACE'])
 
-    # Informed Consent
+    # # Informed Consent
+    # for row in dm_data:
+    #     item = {}
+
+    #     dm_visit = "Screening 1"
+    #     bc_label = get_bc_label("Informed Consent")
+    #     # print("bc_label",bc_label)
+    #     property = get_property_for_variable(bc_label,'value')
+    #     # print("property",property)
+    #     data_contract = get_data_contract_dm(dm_visit,bc_label,property)
+    #     if property:
+    #         if data_contract:
+    #             # print("creating data contract Informed Consent (Obtained)")
+    #             item['USUBJID'] = row['USUBJID']
+    #             item['DC_URI'] = data_contract
+    #             item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+    #             item['VALUE'] = f"{row['RFICDTC']}"
+    #             data.append(item)
+    #         else:
+    #             add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {dm_visit}")
+    #     else:
+    #         add_issue("Add property for DM","Informed Consent",'value',row['RFICDTC'])
+
+    # Date of Birth
     for row in dm_data:
         item = {}
 
         dm_visit = "Screening 1"
-        bc_label = get_bc_label("Informed Consent")
+        bc_label = get_bc_label("Date of Birth")
         # print("bc_label",bc_label)
         property = get_property_for_variable(bc_label,'value')
+        debug.append(f"\nbc_label {bc_label} -> {property}")
         # print("property",property)
         data_contract = get_data_contract_dm(dm_visit,bc_label,property)
+        debug.append(f"bc_label+prop {property}  -> {data_contract}")
+        print("dc_uri",data_contract)
         if property:
             if data_contract:
-                print("creating data contract Informed Consent (Obtained)")
+                print("creating data contract Date of Birth")
                 item['USUBJID'] = row['USUBJID']
                 item['DC_URI'] = data_contract
                 item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-                item['VALUE'] = f"{row['RFICDTC']}"
+                item['VALUE'] = f"{row['BRTHDTC']}"
                 data.append(item)
             else:
                 add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {dm_visit}")
         else:
-            add_issue("Add property for DM","Informed Consent",'value',row['RFICDTC'])
+            add_issue("Add property for DM","Date of Birth",'value',row['BRTHDTC'])
 
 
     print("---Datapoint - Data contract matches:",len(matches))
@@ -307,6 +345,8 @@ def create_subject_data_load_file():
         exit()
 
     save_file(OUTPUT_PATH,"datapoints",data)
+
+    write_tmp("dc-debug.txt",debug)
 
     print("\ndone")
 

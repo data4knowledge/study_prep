@@ -24,7 +24,8 @@
     "ACTARM": "Placebo",
     "COUNTRY": "USA",
     "DMDTC": "2013-12-26",
-    "DMDY": -7.0
+    "DMDY": -7.0,
+    "BRTHDTC": "1980"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -51,7 +52,8 @@
     "ACTARM": "Placebo",
     "COUNTRY": "USA",
     "DMDTC": "2012-07-22",
-    "DMDY": -14.0
+    "DMDY": -14.0,
+    "BRTHDTC": "1980"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -78,7 +80,8 @@
     "ACTARM": "Xanomeline High Dose",
     "COUNTRY": "USA",
     "DMDTC": "2013-07-11",
-    "DMDY": -8.0
+    "DMDY": -8.0,
+    "BRTHDTC": "1980"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -105,7 +108,8 @@
     "ACTARM": "Xanomeline Low Dose",
     "COUNTRY": "USA",
     "DMDTC": "2014-03-10",
-    "DMDY": -8.0
+    "DMDY": -8.0,
+    "BRTHDTC": "1980"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -132,7 +136,8 @@
     "ACTARM": "Xanomeline High Dose",
     "COUNTRY": "USA",
     "DMDTC": "2014-06-24",
-    "DMDY": -7.0
+    "DMDY": -7.0,
+    "BRTHDTC": "1980"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -159,7 +164,8 @@
     "ACTARM": "Placebo",
     "COUNTRY": "USA",
     "DMDTC": "2013-01-22",
-    "DMDY": -21.0
+    "DMDY": -21.0,
+    "BRTHDTC": "1980"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -186,7 +192,8 @@
     "ACTARM": "Screen Failure",
     "COUNTRY": "USA",
     "DMDTC": "2013-12-20",
-    "DMDY": ""
+    "DMDY": "",
+    "BRTHDTC": "1980"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -213,7 +220,8 @@
     "ACTARM": "Xanomeline Low Dose",
     "COUNTRY": "USA",
     "DMDTC": "2013-12-23",
-    "DMDY": -9.0
+    "DMDY": -9.0,
+    "BRTHDTC": "1980"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -240,7 +248,8 @@
     "ACTARM": "Xanomeline Low Dose",
     "COUNTRY": "USA",
     "DMDTC": "2012-08-25",
-    "DMDY": -13.0
+    "DMDY": -13.0,
+    "BRTHDTC": "1980"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -267,6 +276,7 @@
     "ACTARM": "Xanomeline Low Dose",
     "COUNTRY": "USA",
     "DMDTC": "2012-11-23",
-    "DMDY": -7.0
+    "DMDY": -7.0,
+    "BRTHDTC": "1980"
   }
 ]
