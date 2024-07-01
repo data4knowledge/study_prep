@@ -216,14 +216,20 @@ def create_data_contracts_lookup():
             unique_data_contracts.append(property)
     bc_label = "Date of Birth"
     properties = get_bc_properties_dm(db,bc_label,dm_visit)
+    print("-- DoB")
     if properties:
+        for x in properties:
+            print(x)
+
         matches.append([bc_label,[x['BCP_NAME'] for x in properties]])
     else:
         mismatches.append([bc_label,dm_visit])
     for property in properties:
         if property in unique_data_contracts:
+            add_debug("DoB not adding",property)
             True
         else:
+            add_debug("DoB adding",property)
             unique_data_contracts.append(property)
 
 
@@ -246,7 +252,8 @@ def create_data_contracts_lookup():
     [add_debug(x) for x in mismatches]
     add_debug("\n== matches")
     [add_debug(x) for x in matches]
-    write_debug("debug-dc.txt",debug)
+
+    write_debug("debug-data-contracts-lookup.txt",debug)
 
     OUTPUT_FILE = OUTPUT_PATH / "data_contracts.json"
     print("Saving to",OUTPUT_FILE, end="")

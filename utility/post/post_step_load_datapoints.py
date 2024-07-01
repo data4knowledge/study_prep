@@ -43,7 +43,64 @@ def copy_files_to_db_import(import_directory):
     assert datapoints_file.exists(), f"datapoints_file does not exist: {datapoints_file}"
     copy_file_to_db_import(datapoints_file, import_directory)
 
+def add_identifiers():
+    db = Neo4jConnection()
+    query = """
+        LOAD CSV WITH HEADERS FROM 'file:///enrolment.csv' AS site_row
+        MATCH (design:StudyDesign {name:'Study Design 1'})
+        MERGE (s:Subject {identifier:site_row['USUBJID']})
+        MERGE (site:StudySite {name:site_row['SITEID']})
+        MERGE (s)-[:ENROLLED_AT_SITE_REL]->(site)
+        MERGE (site)<-[:MANAGES_SITE]-(researchOrg)
+        MERGE (researchOrg)<-[:ORGANIZATIONS_REL]-(design)
+        RETURN count(*) as count
+    """
+    results = db.query(query)
+    db.close()
+    print("results identifiers/enrolment",results)
+
 def add_datapoints():
+    db = Neo4jConnection()
+    query = """
+        LOAD CSV WITH HEADERS FROM 'file:///datapoints.csv' AS data_row
+        MATCH (dc:DataContract {uri:data_row['DC_URI']})
+        MATCH (design:StudyDesign {name:'Study Design 1'})
+        MERGE (d:DataPoint {uri: data_row['DATAPOINT_URI'], value: data_row['VALUE']})
+        MERGE (s:Subject {identifier:data_row['USUBJID']})
+        MERGE (dc)<-[:FOR_DC_REL]-(d)
+        MERGE (d)-[:FOR_SUBJECT_REL]->(s)
+        RETURN count(*) as count
+    """
+    results = db.query(query)
+    db.close()
+    print("results datapoints",results)
+
+def check_data_contracts():
+    db = Neo4jConnection()
+    query = """
+        LOAD CSV WITH HEADERS FROM 'file:///datapoints.csv' AS data_row
+        RETURN distinct data_row['DC_URI'] as data_contract
+    """
+    results = db.query(query)
+    db.close()
+    items = [result.data() for result in results]
+    for item in items:
+        query = f"""
+            MATCH (dc:DataContract {{uri:'{item['data_contract']}'}})
+            WITH COUNT(dc) > 0  as dc_exists
+            RETURN dc_exists as exist
+        """
+        # print(query)
+        results = db.query(query)
+        if results[0].data()['exist']:
+            pass
+            # print("data_contract exists:",item['data_contract'])
+        else:
+            print("\n---\ndata_contract MISSING :",item['data_contract'])
+
+
+
+def add_identifiers_datapoints():
     db = Neo4jConnection()
     query = """
         LOAD CSV WITH HEADERS FROM 'file:///datapoints.csv'  AS data_row
@@ -69,7 +126,10 @@ def load_datapoints():
     clear_created_nodes()
     import_directory = get_import_directory()
     copy_files_to_db_import(import_directory)
+    add_identifiers()
     add_datapoints()
+    check_data_contracts()
+    # add_identifiers_datapoints()
 
 if __name__ == "__main__":
     load_datapoints()
