@@ -1,7 +1,7 @@
 from pathlib import Path
 from utility.neo_utils import db_is_down
 from d4kms_service import Neo4jConnection
-from utility.mappings import DATA_LABELS_TO_BC_LABELS, DATA_VISITS_TO_ENCOUNTER_LABELS, DATA_TPT_TO_TIMING_LABELS, TEST_ROW_VARIABLE_TO_BC_PROPERTY
+from utility.mappings import DATA_LABELS_TO_BC_LABELS, DATA_VISITS_TO_ENCOUNTER_LABELS, DATA_TPT_TO_TIMING_LABELS, TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME
 
 # <============= DEBUG
 def write_debug(name, data):
@@ -58,7 +58,7 @@ def check_bc_properties(ok,missing):
     add_debug("\n=== check bc_properties")
     bc_properties = set()
     add_debug("picking properties")
-    for test, items in TEST_ROW_VARIABLE_TO_BC_PROPERTY.items():
+    for test, items in TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME.items():
         add_debug("\n  test",test)
         for data_var, bc_property in items.items():
             add_debug("    property",data_var, bc_property)

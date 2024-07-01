@@ -58,5 +58,125 @@
     "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/d5373988-9be1-4f7d-867b-0a6d8d8dbd13/defe081a-b95a-4c9d-9536-3b15117a06f7",
     "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/d5373988-9be1-4f7d-867b-0a6d8d8dbd13/defe081a-b95a-4c9d-9536-3b15117a06f7/01-701-1115",
     "VALUE": "WHITE"
+  },
+  {
+    "USUBJID": "01-701-1015",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/d5373988-9be1-4f7d-867b-0a6d8d8dbd13/f470a746-92fc-4779-8e9b-017418d70c87",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/d5373988-9be1-4f7d-867b-0a6d8d8dbd13/f470a746-92fc-4779-8e9b-017418d70c87/01-701-1015",
+    "VALUE": "2013-12-26"
+  },
+  {
+    "USUBJID": "01-701-1023",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/d5373988-9be1-4f7d-867b-0a6d8d8dbd13/f470a746-92fc-4779-8e9b-017418d70c87",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/d5373988-9be1-4f7d-867b-0a6d8d8dbd13/f470a746-92fc-4779-8e9b-017418d70c87/01-701-1023",
+    "VALUE": "2012-07-22"
+  },
+  {
+    "USUBJID": "01-701-1028",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/d5373988-9be1-4f7d-867b-0a6d8d8dbd13/f470a746-92fc-4779-8e9b-017418d70c87",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/d5373988-9be1-4f7d-867b-0a6d8d8dbd13/f470a746-92fc-4779-8e9b-017418d70c87/01-701-1028",
+    "VALUE": "2013-07-11"
+  },
+  {
+    "USUBJID": "01-701-1033",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/d5373988-9be1-4f7d-867b-0a6d8d8dbd13/f470a746-92fc-4779-8e9b-017418d70c87",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/d5373988-9be1-4f7d-867b-0a6d8d8dbd13/f470a746-92fc-4779-8e9b-017418d70c87/01-701-1033",
+    "VALUE": "2014-03-10"
+  },
+  {
+    "USUBJID": "01-701-1034",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/d5373988-9be1-4f7d-867b-0a6d8d8dbd13/f470a746-92fc-4779-8e9b-017418d70c87",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/d5373988-9be1-4f7d-867b-0a6d8d8dbd13/f470a746-92fc-4779-8e9b-017418d70c87/01-701-1034",
+    "VALUE": "2014-06-24"
+  },
+  {
+    "USUBJID": "01-701-1047",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/d5373988-9be1-4f7d-867b-0a6d8d8dbd13/f470a746-92fc-4779-8e9b-017418d70c87",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/d5373988-9be1-4f7d-867b-0a6d8d8dbd13/f470a746-92fc-4779-8e9b-017418d70c87/01-701-1047",
+    "VALUE": "2013-01-22"
+  },
+  {
+    "USUBJID": "01-701-1057",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/d5373988-9be1-4f7d-867b-0a6d8d8dbd13/f470a746-92fc-4779-8e9b-017418d70c87",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/d5373988-9be1-4f7d-867b-0a6d8d8dbd13/f470a746-92fc-4779-8e9b-017418d70c87/01-701-1057",
+    "VALUE": "2013-12-20"
+  },
+  {
+    "USUBJID": "01-701-1097",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/d5373988-9be1-4f7d-867b-0a6d8d8dbd13/f470a746-92fc-4779-8e9b-017418d70c87",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/d5373988-9be1-4f7d-867b-0a6d8d8dbd13/f470a746-92fc-4779-8e9b-017418d70c87/01-701-1097",
+    "VALUE": "2013-12-23"
+  },
+  {
+    "USUBJID": "01-701-1111",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/d5373988-9be1-4f7d-867b-0a6d8d8dbd13/f470a746-92fc-4779-8e9b-017418d70c87",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/d5373988-9be1-4f7d-867b-0a6d8d8dbd13/f470a746-92fc-4779-8e9b-017418d70c87/01-701-1111",
+    "VALUE": "2012-08-25"
+  },
+  {
+    "USUBJID": "01-701-1115",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/d5373988-9be1-4f7d-867b-0a6d8d8dbd13/f470a746-92fc-4779-8e9b-017418d70c87",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/d5373988-9be1-4f7d-867b-0a6d8d8dbd13/f470a746-92fc-4779-8e9b-017418d70c87/01-701-1115",
+    "VALUE": "2012-11-23"
+  },
+  {
+    "USUBJID": "01-701-1015",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/2f29f4a3-54a1-4168-b618-291349fd0690",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/2f29f4a3-54a1-4168-b618-291349fd0690/01-701-1015",
+    "VALUE": "1980"
+  },
+  {
+    "USUBJID": "01-701-1023",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/2f29f4a3-54a1-4168-b618-291349fd0690",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/2f29f4a3-54a1-4168-b618-291349fd0690/01-701-1023",
+    "VALUE": "1980"
+  },
+  {
+    "USUBJID": "01-701-1028",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/2f29f4a3-54a1-4168-b618-291349fd0690",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/2f29f4a3-54a1-4168-b618-291349fd0690/01-701-1028",
+    "VALUE": "1980"
+  },
+  {
+    "USUBJID": "01-701-1033",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/2f29f4a3-54a1-4168-b618-291349fd0690",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/2f29f4a3-54a1-4168-b618-291349fd0690/01-701-1033",
+    "VALUE": "1980"
+  },
+  {
+    "USUBJID": "01-701-1034",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/2f29f4a3-54a1-4168-b618-291349fd0690",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/2f29f4a3-54a1-4168-b618-291349fd0690/01-701-1034",
+    "VALUE": "1980"
+  },
+  {
+    "USUBJID": "01-701-1047",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/2f29f4a3-54a1-4168-b618-291349fd0690",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/2f29f4a3-54a1-4168-b618-291349fd0690/01-701-1047",
+    "VALUE": "1980"
+  },
+  {
+    "USUBJID": "01-701-1057",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/2f29f4a3-54a1-4168-b618-291349fd0690",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/2f29f4a3-54a1-4168-b618-291349fd0690/01-701-1057",
+    "VALUE": "1980"
+  },
+  {
+    "USUBJID": "01-701-1097",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/2f29f4a3-54a1-4168-b618-291349fd0690",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/2f29f4a3-54a1-4168-b618-291349fd0690/01-701-1097",
+    "VALUE": "1980"
+  },
+  {
+    "USUBJID": "01-701-1111",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/2f29f4a3-54a1-4168-b618-291349fd0690",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/2f29f4a3-54a1-4168-b618-291349fd0690/01-701-1111",
+    "VALUE": "1980"
+  },
+  {
+    "USUBJID": "01-701-1115",
+    "DC_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/2f29f4a3-54a1-4168-b618-291349fd0690",
+    "DATAPOINT_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/2f29f4a3-54a1-4168-b618-291349fd0690/01-701-1115",
+    "VALUE": "1980"
   }
 ]

@@ -49,7 +49,7 @@ VS_RESULT_NAME = 'VSORRES'
 LB_RESULT_NAME = 'LBORRES'
 VS_UNIT_NAME = 'VSORRESU'
 LB_UNIT_NAME = 'LBORRESU'
-TEST_ROW_VARIABLE_TO_BC_PROPERTY = {
+TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME = {
     'Weight': {
         'VSORRES': VS_RESULT_NAME,
         'VSORRESU': VS_UNIT_NAME
@@ -98,20 +98,20 @@ TEST_ROW_VARIABLE_TO_BC_PROPERTY = {
         'value': "Race",
         'date': "Date Time",
     },
-    'Informed Consent': {
-        'value': "Observation Start Date Time",
-        'date': "Date Time",
-    },
-    'Informed Consent Obtained 1': {
-        'value': "Observation Start Date Time",
-        'date': "Date Time",
-    },
+    # 'Informed Consent': {
+    #     'value': "Observation Start Date Time",
+    #     'date': "Date Time",
+    # },
+    # 'Informed Consent Obtained 1': {
+    #     'value': "Observation Start Date Time",
+    #     'date': "Date Time",
+    # },
     'Informed Consent Obtained': {
-        'value': "Observation Start Date Time",
+        'value': "DSSTDTC",
         'date': "Date Time",
     },
     'Date of Birth': {
-        'value': "Date/Time of Birth",
+        'value': "Date of Birth",
         'date': "Date Time",
     },
 }

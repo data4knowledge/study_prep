@@ -32,7 +32,6 @@ from step_2_create_subject_data_load_file import create_subject_data_load_file
 
 print("\n== Create data contracts")
 create_data_contracts_lookup()
-exit()
 print("\n== Create data enrolment")
 create_subject_enrolment_load_file()
 print("\n== Create data datapoints")

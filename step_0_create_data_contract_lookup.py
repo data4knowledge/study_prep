@@ -52,7 +52,7 @@ def get_bc_properties(db, bc_label, row):
     MATCH (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp)<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(act_inst)-[:ENCOUNTER_REL]-(enc)
     WHERE enc.label = '{visit}'
     AND  bc.label = '{bc_label}'
-    return bc.label as BC_LABEL, bcp.name as BCP_NAME, enc.label as ENCOUNTER_LABEL, dc.uri as DC_URI
+    return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, enc.label as ENCOUNTER_LABEL, dc.uri as DC_URI
     """
     results = db.query(query)
     if results == None:
@@ -70,9 +70,8 @@ def get_bc_properties_dm(db, bc_label, dm_visit):
     MATCH (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp)<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(act_inst)-[:ENCOUNTER_REL]-(enc)
     WHERE enc.label = '{visit}'
     AND  bc.label = '{bc_label}'
-    return bc.label as BC_LABEL, bcp.name as BCP_NAME, enc.label as ENCOUNTER_LABEL, dc.uri as DC_URI
+    return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, enc.label as ENCOUNTER_LABEL, dc.uri as DC_URI
     """
-    # print(query)
 
     results = db.query(query)
     if results == None:
@@ -94,7 +93,7 @@ def get_bc_properties_sub_timeline(db, bc_label, tpt, row):
         WHERE enc.label = '{visit}'
         and    t.value = '{tpt}'
         AND  bc.label = '{bc_label}'
-        return bc.label as BC_LABEL, bcp.name as BCP_NAME, enc.label as ENCOUNTER_LABEL, t.value as TIMEPOINT_VALUE, dc.uri as DC_URI
+        return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, enc.label as ENCOUNTER_LABEL, t.value as TIMEPOINT_VALUE, dc.uri as DC_URI
     """
     results = db.query(query)
     if results == None:
