@@ -5,7 +5,7 @@ print("\033[H\033[J") # Clears terminal window in vs code
 print("running")
 
 # # Pre-steps
-from utility.pre.step_1_reduce_dm import reduce_dm
+# from utility.pre.step_1_reduce_dm import reduce_dm
 # from utility.step_2_reduce_lb import reduce_lb
 # from utility.step_2_reduce_vs import reduce_vs
 # reduce_dm()
@@ -14,8 +14,12 @@ from utility.pre.step_1_reduce_dm import reduce_dm
 
 # # Compare db
 # from utility.compare_aura_local_crm import compare_crm
-# from utility.compare_aura_local_sdtm import compare_sdtm
+from utility.compare.compare_aura_local_sdtm import compare_sdtm
 from utility.pre.pre_step_check_mappings_against_db import check_mappings_against_db
+
+print("\n== Compare db ")
+compare_sdtm()
+exit()
 
 print("\n== Check mappings against db")
 check_mappings_against_db()

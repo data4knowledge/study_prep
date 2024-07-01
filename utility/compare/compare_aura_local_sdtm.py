@@ -59,10 +59,13 @@ def query_both(query):
     aura_results = query_aura(query)
     return {"local":local_results,"aura":aura_results}
 
-def add_to_debug(results):
+# def add_debug(results):
+def add_debug(*results):
     if results:
-        for result in results:
-            debug.append(result)
+        line = " ".join([str(result) for result in results])
+        # for result in results:
+        #     line += str(result)
+        debug.append(line)
     else:
         debug.append("No results from local")
         print("No results from local")
@@ -72,6 +75,42 @@ def add_to_debug(results):
 # for x,y in config.items():
 #   print(x,y)
 
+def compare_lists(a,b):
+    if isinstance(a,list) and isinstance(b,list):
+        x = set(a)
+        y = set(b)
+        # diff = x & y
+        # print("diff",diff)
+        only_a = x.difference(y)
+        if len(only_a) == 0:
+            print("equal")
+        else:
+            print("unequal")
+        add_debug("only_a",only_a)
+        # print("only_a",only_a)
+
+        only_b = y.difference(x)
+        if len(only_b) == 0:
+            print("equal")
+        else:
+            print("unequal")
+        add_debug("only_b",only_b)
+        # print("only_b",only_b)
+    else:
+        print("todo: comparison of",a.__class__,b.__class__)
+
+
+
+def compare_db_labels():
+    query = """
+    call db.labels()
+    """
+
+    results = query_both(query)
+    local = [x['label'] for x in results['local']]
+    aura = [x['label'] for x in results['aura']]
+    compare_lists(local,aura)
+
 def compare_sdtm():
     print("Connecting to local Neo4j...",end="")
     if db_is_down():
@@ -79,17 +118,17 @@ def compare_sdtm():
         exit()
     print("connected")
 
-    query = """
-    call db.labels()
-    """
+    # compare_db_labels()
 
+    query = "MATCH (v:Variable) return v.name as name"
+    query = "MATCH (v:Variable) return v.label as name"
     results = query_both(query)
-    debug.append("-- local")
-    add_to_debug([x['label'] for x in results['local']])
-    debug.append("-- aura")
-    add_to_debug([x['label'] for x in results['aura']])
+    local = [x['name'] for x in results['local']]
+    aura = [x['name'] for x in results['aura']]
+    compare_lists(local,aura)
 
-    write_tmp("result-sdtm",debug)
+
+    write_tmp("result-sdtm-aura-local.txt",debug)
 
 if __name__ == "__main__":
     compare_sdtm()
