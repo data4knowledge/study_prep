@@ -120,7 +120,7 @@ def get_data_contract_dm(encounter,bc_label,property):
 def create_subject_data_load_file():
     ENROLMENT_DATA = Path.cwd() / "data" / "output" / "enrolment.json"
     assert ENROLMENT_DATA.exists(), "ENROLMENT_DATA not found"
-    print("\nGetting subjects from file",ENROLMENT_DATA)
+    # print("\nGetting subjects from file",ENROLMENT_DATA)
     with open(ENROLMENT_DATA) as f:
         enrolment_data = json.load(f)
 
@@ -235,7 +235,7 @@ def create_subject_data_load_file():
     #             add_issue("Ignoring visit", row['VISIT'], "encounter:", encounter)
 
 
-    print("\nGetting DM data")
+    # print("\nGetting DM data")
     DM_DATA = Path.cwd() / "data" / "input" / "dm.json"
     assert DM_DATA.exists(), "DM_DATA not found"
     with open(DM_DATA) as f:
@@ -262,25 +262,28 @@ def create_subject_data_load_file():
     #     else:
     #         add_issue("Add property for DM","Sex",'value',row['SEX'])
 
-    # # Race
-    # for row in dm_data:
-    #     item = {}
+    # Race
+    for row in dm_data:
+        item = {}
 
-    #     dm_visit = "Screening 1"
-    #     bc_label = get_bc_label("Race")
-    #     property = get_property_for_variable(bc_label,'value')
-    #     data_contract = get_data_contract_dm(dm_visit,bc_label,property)
-    #     if property:
-    #         if data_contract:
-    #             item['USUBJID'] = row['USUBJID']
-    #             item['DC_URI'] = data_contract
-    #             item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-    #             item['VALUE'] = f"{row['RACE']}"
-    #             data.append(item)
-    #         else:
-    #             add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {dm_visit}")
-    #     else:
-    #         add_issue("Add property for DM","Race",'value',row['RACE'])
+        dm_visit = "Screening 1"
+        bc_label = get_bc_label("Race")
+        print("bc_label",bc_label)
+        property = get_property_for_variable(bc_label,'value')
+        print("  bc_property",property)
+        data_contract = get_data_contract_dm(dm_visit,bc_label,property)
+        print("    dc_uri",data_contract)
+        if property:
+            if data_contract:
+                item['USUBJID'] = row['USUBJID']
+                item['DC_URI'] = data_contract
+                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+                item['VALUE'] = f"{row['RACE']}"
+                data.append(item)
+            else:
+                add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {dm_visit}")
+        else:
+            add_issue("Add property for DM","Race",'value',row['RACE'])
 
     # # Informed Consent
     # for row in dm_data:
@@ -311,13 +314,14 @@ def create_subject_data_load_file():
 
         dm_visit = "Screening 1"
         bc_label = get_bc_label("Date of Birth")
-        # print("bc_label",bc_label)
+        print("bc_label",bc_label)
         property = get_property_for_variable(bc_label,'value')
         debug.append(f"\nbc_label {bc_label} -> {property}")
+        print("  bc_property",property)
         # print("property",property)
         data_contract = get_data_contract_dm(dm_visit,bc_label,property)
         debug.append(f"bc_label+prop {property}  -> {data_contract}")
-        print("dc_uri",data_contract)
+        print("    dc_uri",data_contract)
         if property:
             if data_contract:
                 print("creating data contract Date of Birth")

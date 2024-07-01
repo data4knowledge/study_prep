@@ -1,3 +1,7 @@
+from d4kms_service import Neo4jConnection
+
+print("\033[H\033[J") # Clears terminal window in vs code
+
 print("running")
 
 # # Pre-steps
@@ -8,28 +12,37 @@ from utility.step_1_reduce_dm import reduce_dm
 # reduce_lb()
 # reduce_vs()
 
-from utility.pre_step_convert_surrogate_to_bc import convert_surrogate_to_bc
-convert_surrogate_to_bc()
-
 # # Compare db
 # from utility.compare_aura_local_crm import compare_crm
 # from utility.compare_aura_local_sdtm import compare_sdtm
+from utility.pre_step_check_mappings_against_db import check_mappings_against_db
+
+print("\n== Check mappings against db")
+check_mappings_against_db()
+
+from utility.pre_step_convert_surrogate_to_bc import convert_surrogate_to_bc
+from utility.pre_step_link_informed_consent_to_dm import create_informed_conset_link
+# convert_surrogate_to_bc()
+# create_informed_conset_link()
 
 # Steps
 from step_0_create_data_contract_lookup import create_data_contracts_lookup
 from step_1_create_subject_enrolment_load_file import create_subject_enrolment_load_file
 from step_2_create_subject_data_load_file import create_subject_data_load_file
 
-# create_data_contracts_lookup()
-# create_subject_enrolment_load_file()
+print("\n== Create data contracts")
+create_data_contracts_lookup()
+exit()
+print("\n== Create data enrolment")
+create_subject_enrolment_load_file()
+print("\n== Create data datapoints")
 create_subject_data_load_file()
-
 # Post steps
 from utility.post_step_load_datapoints import load_datapoints
 # print("\033[H\033[J") # Clears terminal window in vs code
 
-
-# load_datapoints()
+print("\n== Load datapoint")
+load_datapoints()
 
 # compare_crm()
 # compare_sdtm()

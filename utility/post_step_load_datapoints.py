@@ -69,7 +69,7 @@ def load_datapoints():
     clear_created_nodes()
     import_directory = get_import_directory()
     copy_files_to_db_import(import_directory)
-    # add_datapoints()
+    add_datapoints()
 
 if __name__ == "__main__":
     load_datapoints()

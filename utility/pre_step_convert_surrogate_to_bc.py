@@ -4,10 +4,13 @@ from pathlib import Path
 from d4kms_service import Neo4jConnection
 from uuid import uuid4
 
-debug = []
-
-def write_tmp(name, data):
+# <============= DEBUG
+def write_debug(name, data):
+    from pathlib import Path
+    import os
     TMP_PATH = Path.cwd() / "tmp" / "saved_debug"
+    if not os.path.isdir(TMP_PATH):
+      os.makedirs(TMP_PATH)
     OUTPUT_FILE = TMP_PATH / name
     print("Writing file...",OUTPUT_FILE.name,OUTPUT_FILE, end="")
     with open(OUTPUT_FILE, 'w') as f:
@@ -15,6 +18,13 @@ def write_tmp(name, data):
             f.write(str(it))
             f.write('\n')
     print(" ...done")
+
+def add_debug(*txts):
+    for txt in txts:
+        debug.append(str(txt))
+
+debug = []
+# =============> DEBUG
 
 def clean(txt: str):
     txt = txt.replace(" ","")
@@ -28,6 +38,9 @@ def clear_created_nodes(db):
     query = "match (n {fake_node: 'yes' }) detach delete n return count(n) as count"
     results = db.query(query)
     print("Removed fake nodes:",[result.data() for result in results][0]['count'])
+    query = "match (n)-[r {fake_relationship: 'yes'}]-(m) delete r return count(r) as count"
+    results = db.query(query)
+    print("Removed fake relationships:",[result.data() for result in results][0]['count'])
 
 
 def create_bc_from_surrogate(db, new_bc_name):
@@ -66,39 +79,46 @@ def copy_bc_properties_from_bc(db, new_bc_name,copy_bc_name, bc_uuid):
         # Create property nodes
         bcp_name = bcp['name'] if bcp['name'] != copy_bc_name else new_bc_name
         bcp_label = bcp['label'] if bcp['label'] != copy_bc_name else new_bc_name
-        # print("bcp_name",bcp_name)
+        # HARD CODING
+        if bcp_label == 'Date of Birth':
+            bcp_label = 'Date/Time of Birth'
+        print('bcp_label',bcp_label,new_bc_name)
+        # print('bcp_name',bcp_name)
         query = f"""
-            MATCH (source_bcp:BiomedicalConceptProperty {{uuid:"{bcp['uuid']}"}})
+            MATCH (source_bcp:BiomedicalConceptProperty {{uuid:'{bcp['uuid']}'}})
             with source_bcp
             MERGE (bcp:BiomedicalConceptProperty {{uuid:'{uuid}'}})
             SET bcp.datatype     =	source_bcp.datatype
-            SET bcp.id           =	"tbd"
+            SET bcp.id           =	'tbd'
             SET bcp.instanceType =	source_bcp.instanceType
             SET bcp.isEnabled    =	source_bcp.isEnabled
             SET bcp.isRequired   =	source_bcp.isRequired
-            SET bcp.label        =	'{bcp_name}'
-            SET bcp.name         =	'{bcp_label}'
-            SET bcp.fake_node    = "yes"
+            SET bcp.label        =	'{bcp_label}'
+            SET bcp.name         =	'{bcp_name}'
+            SET bcp.fake_node    = 'yes'
             RETURN bcp.uuid as uuid
         """
         # print(query)
         results = db.query(query)
         # Link to new bc
         query = f"""
-            MATCH (bc:BiomedicalConcept {{uuid:"{make_fake_uuid(new_bc_name)}"}})
-            MATCH (bcp:BiomedicalConceptProperty {{uuid:"{uuid}"}})
-            MERGE (bc)-[:PROPERTIES_REL]->(bcp)
+            MATCH (bc:BiomedicalConcept {{uuid:'{make_fake_uuid(new_bc_name)}'}})
+            MATCH (bcp:BiomedicalConceptProperty {{uuid:'{uuid}'}})
+            MERGE (bc)-[r:PROPERTIES_REL]->(bcp)
+            set r.fake_relationship = 'yes'
         """
         results = db.query(query)
         # Copy property nodes relationships: DataContract
         dc_uri="https://study.d4k.dk/study-cdisc-pilot-lzzt/"+bc_uuid+"/"+uuid
         query = f"""
-            MATCH (source_bcp:BiomedicalConceptProperty {{uuid:"{bcp['uuid']}"}})<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]-(sai:ScheduledActivityInstance)
-            MATCH (bcp:BiomedicalConceptProperty {{uuid:"{uuid}"}})
+            MATCH (source_bcp:BiomedicalConceptProperty {{uuid:'{bcp['uuid']}'}})<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]-(sai:ScheduledActivityInstance)
+            MATCH (bcp:BiomedicalConceptProperty {{uuid:'{uuid}'}})
             with sai, bcp
-            CREATE (dc:DataContract {{uri:'{dc_uri}', fake_node: "yes"}})
-            CREATE (bcp)<-[:PROPERTIES_REL]-(dc)-[:INSTANCES_REL]->(sai)
-            RETURN "done"
+            CREATE (dc:DataContract {{uri:'{dc_uri}', fake_node: 'yes'}})
+            CREATE (bcp)<-[r1:PROPERTIES_REL]-(dc)-[r2:INSTANCES_REL]->(sai)
+            set r1.fake_relationship = 'yes'
+            set r2.fake_relationship = 'yes'
+            RETURN 'done'
         """
         results = db.query(query)
         # Copy property nodes relationships: IS_A_REL        
@@ -106,7 +126,8 @@ def copy_bc_properties_from_bc(db, new_bc_name,copy_bc_name, bc_uuid):
             MATCH (source_bcp:BiomedicalConceptProperty {{uuid:"{bcp['uuid']}"}})-[:IS_A_REL]->(crm:CRMNode)
             MATCH (bcp:BiomedicalConceptProperty {{uuid:"{uuid}"}})
             with crm, bcp
-            CREATE (bcp)-[:IS_A_REL]->(crm)
+            MERGE (bcp)-[r:IS_A_REL]->(crm)
+            set r.fake_relationship = "yes"
             return *
         """
         # print(query)
@@ -123,7 +144,8 @@ def link_birthdtc_to_crm(db):
         MATCH (bcp:BiomedicalConceptProperty {{name:"{bcp_name}"}})-[:IS_A_REL]->(crm:CRMNode)
         MATCH (v:Variable {{name:"BRTHDTC"}})
         with crm, v
-        CREATE (v)-[:IS_A_REL]->(crm)
+        MERGE (v)-[r:IS_A_REL]->(crm)
+        set r.fake_relationship = "yes"
         return *
     """
     print(query)
@@ -191,7 +213,7 @@ def convert_surrogate_to_bc():
 
     db.close()
 
-    write_tmp("debug-convert.txt",debug)
+    write_debug("debug-convert_surrogate.txt",debug)
 
 
 if __name__ == "__main__":

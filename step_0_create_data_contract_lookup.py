@@ -13,6 +13,26 @@ matches = []
 mismatches = []
 debug = []
 
+def write_debug(name, data):
+    from pathlib import Path
+    import os
+    TMP_PATH = Path.cwd() / "tmp" / "saved_debug"
+    if not os.path.isdir(TMP_PATH):
+      os.makedirs(TMP_PATH)
+    OUTPUT_FILE = TMP_PATH / name
+    print("Writing file...",OUTPUT_FILE.name,OUTPUT_FILE, end="")
+    with open(OUTPUT_FILE, 'w') as f:
+        for it in data:
+            f.write(str(it))
+            f.write('\n')
+    print(" ...done")
+
+def add_debug(*txts):
+    for txt in txts:
+        debug.append(str(txt))
+
+debug = []
+
 def clean(txt: str):
     txt = txt.replace(".","/")
     txt = txt.replace(" ","")
@@ -52,7 +72,7 @@ def get_bc_properties_dm(db, bc_label, dm_visit):
     AND  bc.label = '{bc_label}'
     return bc.label as BC_LABEL, bcp.name as BCP_NAME, enc.label as ENCOUNTER_LABEL, dc.uri as DC_URI
     """
-    print(query)
+    # print(query)
 
     results = db.query(query)
     if results == None:
@@ -84,14 +104,14 @@ def get_bc_properties_sub_timeline(db, bc_label, tpt, row):
 
 def create_data_contracts_lookup():
     VS_DATA = Path.cwd() / "data" / "input" / "vs.json"
-    print("Reading",VS_DATA)
+    add_debug("Reading",VS_DATA)
     assert VS_DATA.exists(), "VS_DATA not found"
     with open(VS_DATA) as f:
         vs_data = json.load(f)
 
 
     LB_DATA = Path.cwd() / "data" / "input" / "lb.json"
-    print("Reading",LB_DATA)
+    add_debug("Reading",LB_DATA)
     assert LB_DATA.exists(), "LB_DATA not found"
     with open(LB_DATA) as f:
         lb_data = json.load(f)
@@ -136,7 +156,7 @@ def create_data_contracts_lookup():
 
     db = Neo4jConnection()
 
-    print("Looping")
+    # print("Looping")
 
     for row in unique_labels_visits:
         tpt = ""
@@ -215,28 +235,25 @@ def create_data_contracts_lookup():
     print("Number of mismatches       :",len(mismatches), "(e.g. visit not defined in study)")
     print("")
 
-    for issue in set([issues for issues in issues]):
-        print(issue)
-    print("")
-
-    write_tmp("debug-dc.txt",mismatches)
-    write_tmp("debug-dc-matches.txt",matches)
+    # for issue in set([issues for issues in issues]):
+    #     print(issue,end="")
+    # print("")
+    # write_debug("debug-dc-issues.txt",issues)
+    # write_debug("debug-dc.txt",mismatches)
+    # write_debug("debug-dc-matches.txt",matches)
+    add_debug("== Issues")
+    [add_debug(x) for x in issues]
+    add_debug("\n== mismaches")
+    [add_debug(x) for x in mismatches]
+    add_debug("\n== matches")
+    [add_debug(x) for x in matches]
+    write_debug("debug-dc.txt",debug)
 
     OUTPUT_FILE = OUTPUT_PATH / "data_contracts.json"
-    print("Saving to",OUTPUT_FILE)
+    print("Saving to",OUTPUT_FILE, end="")
     with open(OUTPUT_FILE, 'w') as f:
         f.write(json.dumps(unique_data_contracts, indent = 2))
     print("done")
-
-def write_tmp(name, data):
-    TMP_PATH = Path.cwd() / "tmp" / "saved_debug"
-    OUTPUT_FILE = TMP_PATH / name
-    print("Writing file...",OUTPUT_FILE.name,OUTPUT_FILE, end="")
-    with open(OUTPUT_FILE, 'w') as f:
-        for it in data:
-            f.write(str(it))
-            f.write('\n')
-    print(" ...done")
 
 if __name__ == "__main__":
     create_data_contracts_lookup()

@@ -107,11 +107,11 @@ TEST_ROW_VARIABLE_TO_BC_PROPERTY = {
         'date': "Date Time",
     },
     'Informed Consent Obtained': {
-        'value': "--DTC",
+        'value': "Observation Start Date Time",
         'date': "Date Time",
     },
     'Date of Birth': {
-        'value': "Date of Birth",
+        'value': "Date/Time of Birth",
         'date': "Date Time",
     },
 }
