@@ -25,7 +25,7 @@
     "COUNTRY": "USA",
     "DMDTC": "2013-12-26",
     "DMDY": -7.0,
-    "BRTHDTC": "1980"
+    "BRTHDTC": "1980-01-01"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -53,7 +53,7 @@
     "COUNTRY": "USA",
     "DMDTC": "2012-07-22",
     "DMDY": -14.0,
-    "BRTHDTC": "1980"
+    "BRTHDTC": "1980-01-01"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -81,7 +81,7 @@
     "COUNTRY": "USA",
     "DMDTC": "2013-07-11",
     "DMDY": -8.0,
-    "BRTHDTC": "1980"
+    "BRTHDTC": "1980-01-01"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -109,7 +109,7 @@
     "COUNTRY": "USA",
     "DMDTC": "2014-03-10",
     "DMDY": -8.0,
-    "BRTHDTC": "1980"
+    "BRTHDTC": "1980-01-01"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -137,7 +137,7 @@
     "COUNTRY": "USA",
     "DMDTC": "2014-06-24",
     "DMDY": -7.0,
-    "BRTHDTC": "1980"
+    "BRTHDTC": "1980-01-01"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -165,7 +165,7 @@
     "COUNTRY": "USA",
     "DMDTC": "2013-01-22",
     "DMDY": -21.0,
-    "BRTHDTC": "1980"
+    "BRTHDTC": "1980-01-01"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -193,7 +193,7 @@
     "COUNTRY": "USA",
     "DMDTC": "2013-12-20",
     "DMDY": "",
-    "BRTHDTC": "1980"
+    "BRTHDTC": "1980-01-01"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -221,7 +221,7 @@
     "COUNTRY": "USA",
     "DMDTC": "2013-12-23",
     "DMDY": -9.0,
-    "BRTHDTC": "1980"
+    "BRTHDTC": "1980-01-01"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -249,7 +249,7 @@
     "COUNTRY": "USA",
     "DMDTC": "2012-08-25",
     "DMDY": -13.0,
-    "BRTHDTC": "1980"
+    "BRTHDTC": "1980-01-01"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -277,6 +277,6 @@
     "COUNTRY": "USA",
     "DMDTC": "2012-11-23",
     "DMDY": -7.0,
-    "BRTHDTC": "1980"
+    "BRTHDTC": "1980-01-01"
   }
 ]

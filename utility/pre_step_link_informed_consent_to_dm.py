@@ -52,17 +52,33 @@ def link_dsstdtc_to_dm(db):
     # print(query)
     results = db.query(query)
 
-    write_debug("debug-link-informed-consent.txt",debug)
+def link_rficdtc_to_crm(db):
+    # Copy RFICDTC to CRMnode
+    query = f"""
+        MATCH (crm:CRMNode)
+        MATCH (var:Variable)
+        WHERE crm.uri = 'https://crm.d4k.dk/dataset/observation/observation_result/result/coding/code'
+        AND  var.name = 'RFICDTC'
+        MERGE (var)-[r:IS_A_REL]->(crm)
+        SET r.fake_crm = 'yes'
+        RETURN *
+    """
+    print(query)
+    results = db.query(query)
 
-def create_informed_conset_link():
+
+def make_links():
     db = Neo4jConnection()
     clear_created_nodes(db)
     link_dsstdtc_to_dm(db)
+    link_rficdtc_to_crm(db)
     db.close()
+
+    write_debug("debug-link-informed-consent.txt",debug)
 
 if __name__ == "__main__":
     try:
-        create_informed_conset_link()
+        make_links()
     except Exception as e:
         print("problems",e)
 

@@ -21,9 +21,9 @@ print("\n== Check mappings against db")
 check_mappings_against_db()
 
 from utility.pre_step_convert_surrogate_to_bc import convert_surrogate_to_bc
-from utility.pre_step_link_informed_consent_to_dm import create_informed_conset_link
+from utility.pre_step_link_informed_consent_to_dm import make_links
 # convert_surrogate_to_bc()
-# create_informed_conset_link()
+make_links()
 
 # Steps
 from step_0_create_data_contract_lookup import create_data_contracts_lookup

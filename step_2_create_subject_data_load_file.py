@@ -291,19 +291,30 @@ def create_subject_data_load_file():
 
         dm_visit = "Screening 1"
         bc_label = get_bc_label("Informed Consent")
-        print("bc_label",bc_label)
+        # print("bc_label",bc_label)
         property_name = get_property_for_variable(bc_label,'value')
-        print("  property_name",property_name)
+        # print("  property_name",property_name)
         data_contract = get_data_contract_dm(dm_visit,bc_label,property_name)
-        print("    data_contract",data_contract)
+        # print("    data_contract",data_contract)
         if property_name:
             if data_contract:
-                print("creating data contract Informed Consent (Obtained)")
+                # print("creating data contract Informed Consent (Obtained)")
                 item['USUBJID'] = row['USUBJID']
                 item['DC_URI'] = data_contract
                 item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
                 item['VALUE'] = f"{row['RFICDTC']}"
                 data.append(item)
+
+                # # also add dsdecod
+                # property_name = get_property_for_variable(bc_label,'decod')
+                # # print("decod property_name",property_name)
+                # data_contract = get_data_contract_dm(dm_visit,bc_label,property_name)
+                # # print("decod data_contract",data_contract)
+                # item['USUBJID'] = row['USUBJID']
+                # item['DC_URI'] = data_contract
+                # item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+                # item['VALUE'] = f"Informed Consent Obtained"
+                # data.append(item)
             else:
                 add_issue(f"No dc RESULT bc_label: {bc_label} - property_name: {property_name} - encounter: {dm_visit}")
         else:

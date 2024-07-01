@@ -109,6 +109,7 @@ TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME = {
     'Informed Consent Obtained': {
         'value': "DSSTDTC",
         'date': "Date Time",
+        'decod': "DSDECOD",
     },
     'Date of Birth': {
         'value': "Date of Birth",

@@ -23,7 +23,7 @@ def reduce_dm():
     print("N.B! Faking 1) RFICDTC from DMDTC 2) BRTHDTC is hardcoded")
     for row in dm[0:10]:
         row['RFICDTC'] = row['DMDTC']
-        row['BRTHDTC'] = '1980'
+        row['BRTHDTC'] = '1980-01-01'
         dm_data.append(row)
 
     print("reduced len(dm_data)",len(dm_data))
