@@ -327,12 +327,11 @@ def create_subject_data_load_file():
         dm_visit = "Screening 1"
         bc_label = get_bc_label("Date of Birth")
         property_name = get_property_for_variable(bc_label,'value')
-        print()
-        debug.append(f"\nbc_label {bc_label} -> {property_name}")
+        # debug.append(f"\nbc_label {bc_label} -> {property_name}")
         data_contract = get_data_contract_dm(dm_visit,bc_label,property_name)
-        debug.append("DC_CONTRACT:"+data_contract)
-        debug.append("Should be  "+"https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/1a3e81d0-5534-446e-86d4-5aea6455ded5")
-        debug.append(f"bc_label+prop {property_name}  -> {data_contract}")
+        # debug.append("DC_CONTRACT:"+data_contract)
+        # debug.append("Should be  "+"https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/1a3e81d0-5534-446e-86d4-5aea6455ded5")
+        # debug.append(f"bc_label+prop {property_name}  -> {data_contract}")
         if property_name:
             if data_contract:
                 item['USUBJID'] = row['USUBJID']
