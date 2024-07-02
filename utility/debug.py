@@ -4,7 +4,7 @@ from pathlib import Path
 from d4kms_service import Neo4jConnection
 # from neo_utils import db_is_down
 
-print("\033[H\033[J") # Clears terminal window in vs code
+# print("\033[H\033[J") # Clears terminal window in vs code
 
 debug = []
 
