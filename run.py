@@ -1,8 +1,22 @@
 from d4kms_service import Neo4jConnection
 
-print("\033[H\033[J") # Clears terminal window in vs code
+# print("\033[H\033[J") # Clears terminal window in vs code
 
 print("running")
+
+# # Compare db
+# from utility.compare_aura_local_crm import compare_crm
+# from utility.compare.compare_aura_local_sdtm import compare_sdtm
+from utility.compare.compare_aura_local_bc import compare_bc
+from utility.compare.query_local import query_study_service
+from utility.pre.pre_step_check_mappings_against_db import check_mappings_against_db
+
+query_study_service()
+exit()
+
+# print("\n== Compare db ")
+# compare_sdtm()
+# compare_bc()
 
 # # Pre-steps
 # from utility.pre.step_1_reduce_dm import reduce_dm
@@ -12,13 +26,6 @@ print("running")
 # reduce_lb()
 # reduce_vs()
 
-# # Compare db
-# from utility.compare_aura_local_crm import compare_crm
-from utility.compare.compare_aura_local_sdtm import compare_sdtm
-from utility.pre.pre_step_check_mappings_against_db import check_mappings_against_db
-
-# print("\n== Compare db ")
-# compare_sdtm()
 
 print("\n== Check mappings against db")
 check_mappings_against_db()
@@ -26,8 +33,8 @@ check_mappings_against_db()
 # exit()
 from utility.pre.pre_step_convert_surrogate_to_bc import convert_surrogate_to_bc
 from utility.pre.pre_step_link_informed_consent_to_dm import make_links
-# convert_surrogate_to_bc()
-# make_links()
+convert_surrogate_to_bc()
+make_links()
 
 # Steps
 from step_0_create_data_contract_lookup import create_data_contracts_lookup
