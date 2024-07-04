@@ -51,22 +51,23 @@ def check_that_data_contracts_exist():
     missing_dcs = 0
     add_debug("=== Check DC_URIs")
     db = Neo4jConnection()
-    for dc in data_contracts:
-        # add_debug(dc['DC_URI'])
-        query = f"""
-            match (dc:DataContract) WHERE dc.uri = '{dc['DC_URI']}'
-            return dc.uri as uri
-        """
-        results = db.query(query)
-        if results == None:
-            add_debug("DC not found:",dc['DC_URI'])
-            missing_dcs += 1
-        #     add_issue("timeline DataContract query has errors in it",visit,bc_label,tpt,query)
-        #     return []
-        else:
-            pass
-            # 
-            # add_debug("found:",results)
+    with db.session() as session:
+        for dc in data_contracts:
+            # add_debug(dc['DC_URI'])
+            query = f"""
+                match (dc:DataContract) WHERE dc.uri = '{dc['DC_URI']}'
+                return dc.uri as uri
+            """
+            results = session.run(query)
+            if results == None:
+                add_debug("DC not found:",dc['DC_URI'])
+                missing_dcs += 1
+            #     add_issue("timeline DataContract query has errors in it",visit,bc_label,tpt,query)
+            #     return []
+            else:
+                pass
+                # 
+                # add_debug("found:",results)
     return missing_dcs
 
 
@@ -76,17 +77,18 @@ def get_bc_properties(db, bc_label, row):
     else:
         add_issue("visit not found:",row['VISIT'])
         return []
-    query = f"""
-    MATCH (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp)<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(act_inst)-[:ENCOUNTER_REL]-(enc)
-    WHERE enc.label = '{visit}'
-    AND  bc.label = '{bc_label}'
-    return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, enc.label as ENCOUNTER_LABEL, dc.uri as DC_URI
-    """
-    results = db.query(query)
-    if results == None:
-        add_issue("DataContract has errors in it",row['VISIT'],visit,bc_label,query)
-        return []
-    return [result.data() for result in results]
+    with db.session() as session:
+        query = f"""
+        MATCH (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp)<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(act_inst)-[:ENCOUNTER_REL]-(enc)
+        WHERE enc.label = '{visit}'
+        AND  bc.label = '{bc_label}'
+        return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, enc.label as ENCOUNTER_LABEL, dc.uri as DC_URI
+        """
+        results = session.run(query)
+        if results == None:
+            add_issue("DataContract has errors in it",row['VISIT'],visit,bc_label,query)
+            return []
+        return [result.data() for result in results]
 
 def get_bc_properties_dm(db, bc_label, dm_visit):
     if dm_visit in DATA_VISITS_TO_ENCOUNTER_LABELS:
@@ -290,6 +292,8 @@ def create_data_contracts_lookup():
     count = check_that_data_contracts_exist()
     if count:
         print("\n-- THERE ARE MISSING DATA_CONTRACTS\n")
+    else:
+        print("\n-- All data contracts exist\n")
     write_debug("step-0-debug-data-contracts-lookup.txt",debug)
 
 
