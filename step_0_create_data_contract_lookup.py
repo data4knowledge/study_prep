@@ -245,11 +245,7 @@ def create_data_contracts_lookup():
             unique_data_contracts.append(property)
     bc_label = "Date of Birth"
     properties = get_bc_properties_dm(db,bc_label,dm_visit)
-    print("-- DoB")
     if properties:
-        for x in properties:
-            print(x)
-
         matches.append([bc_label,[x['BCP_NAME'] for x in properties]])
     else:
         mismatches.append([bc_label,dm_visit])
