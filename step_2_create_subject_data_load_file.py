@@ -1,6 +1,8 @@
+import os
 import json
 import csv
 from pathlib import Path
+from d4kms_service import Neo4jConnection
 from utility.mappings import DATA_LABELS_TO_BC_LABELS, DATA_VISITS_TO_ENCOUNTER_LABELS, DATA_TPT_TO_TIMING_LABELS, TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME
 
 def write_tmp(name, data):
@@ -14,7 +16,6 @@ def write_tmp(name, data):
     print(" ...done")
 
 debug = []
-
 matches = []
 issues = []
 
@@ -33,14 +34,10 @@ def add_issue(*txts):
             add.append(txt)
     issues.append(" ".join(add))
 
-
-def save_file(path: Path, name, data):
-    OUTPUT_FILE = path / f"{name}.json"
-    print("Saving to",OUTPUT_FILE)
-    with open(OUTPUT_FILE, 'w') as f:
-        f.write(json.dumps(data, indent = 2))
-
-    OUTPUT_FILE = path / f"{name}.csv"
+def output_csv(path, name, data):
+    OUTPUT_FILE = path / name
+    if OUTPUT_FILE.exists():
+        os.unlink(OUTPUT_FILE)
     print("Saving to",OUTPUT_FILE)
     output_variables = list(data[0].keys())
     with open(OUTPUT_FILE, 'w') as csvfile:
@@ -48,6 +45,39 @@ def save_file(path: Path, name, data):
         writer.writeheader()
         writer.writerows(data)
 
+
+def save_file(path: Path, name, data):
+    OUTPUT_FILE = path / f"{name}.json"
+    if OUTPUT_FILE.exists():
+        os.unlink(OUTPUT_FILE)
+    print("Saving to",OUTPUT_FILE)
+    with open(OUTPUT_FILE, 'w') as f:
+        f.write(json.dumps(data, indent = 2))
+
+    output_csv(path, f"{name}.csv",data)
+
+    # Check that DC exist and make separate output files for each 
+    dc_uris = list(set([x['DC_URI'] for x in data]))
+    output_dc_uri_files = {}
+    db = Neo4jConnection()
+    with db.session() as session:
+        for dc_uri in dc_uris:
+            query = f"""
+                match (dc:DataContract)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
+                WHERE dc.uri = '{dc_uri}'
+                return bcp.name as name
+            """
+            results = session.run(query)
+            bcp_names = [result.data() for result in results]
+            if bcp_names:
+                bcp_name = bcp_names[0]['name']
+                output_dc_uri_files[bcp_name] = dc_uri
+            else:
+                print("!!! Data Conctract not found:",dc_uri)
+
+    for bcp_name,dc_uri in output_dc_uri_files.items():
+        bcp_data = [item for item in data if item['DC_URI'] == dc_uri]
+        output_csv(path,f"{name}-{bcp_name.replace(' ','')}.csv",bcp_data)
 
 def clean(txt):
     result = ""
