@@ -56,12 +56,12 @@ def check_lb():
 
 def query_db(query):
     db = Neo4jConnection()
-    results = db.query(query)
-    db.close()
-    if results == None:
-        print("Error in query",query)
-        exit()
-    return [x.data() for x in results]
+    with db.session() as session:
+        results = session.run(query)
+        if results == None:
+            print("Error in query",query)
+            exit()
+        return [x.data() for x in results]
 
 def get_datapoint_bc_properties():
     # if db_is_down():
