@@ -7,23 +7,25 @@ from d4kms_service import Neo4jConnection
 # print("\033[H\033[J") # Clears terminal window in vs code
 
 def clear_created_nodes(db):
-    query = "match (n:Datapoint|DataPoint) detach delete n return count(n)"
-    results = db.query(query)
-    print("Removed Datapoint/DataPoint:",results)
-    query = 'match (n:DataContract {delete:"me"}) detach delete n return count(n)'
-    results = db.query(query)
-    print("Removed DataContract:",results)
+    with db.session() as session:
+        query = "match (n:Datapoint|DataPoint) detach delete n return count(n)"
+        results = session.run(query)
+        print("Removed Datapoint/DataPoint:",results)
+        query = 'match (n:DataContract {delete:"me"}) detach delete n return count(n)'
+        results = session.run(query)
+        print("Removed DataContract:",results)
 
 
 def get_main_timeline_with_sub_timeline(db):
-    query = """
-        MATCH (act:Activity)-[:TIMELINE_REL]->(sub_timeline:ScheduleTimeline)
-        MATCH (act)<-[:ACTIVITY_REL]-(main_sai:ScheduledActivityInstance)
-        MATCH (main_sai)-[:ENCOUNTER_REL]->(enc:Encounter)
-        return sub_timeline.name AS sub_timeline_name,sub_timeline.uuid as sub_timeline_uuid, collect(main_sai.uuid) as main_timeline_sai_uuids
-    """
-    results = db.query(query)
-    return [result.data() for result in results]
+    with db.session() as session:
+        query = """
+            MATCH (act:Activity)-[:TIMELINE_REL]->(sub_timeline:ScheduleTimeline)
+            MATCH (act)<-[:ACTIVITY_REL]-(main_sai:ScheduledActivityInstance)
+            MATCH (main_sai)-[:ENCOUNTER_REL]->(enc:Encounter)
+            return sub_timeline.name AS sub_timeline_name,sub_timeline.uuid as sub_timeline_uuid, collect(main_sai.uuid) as main_timeline_sai_uuids
+        """
+        results = session.run(query)
+        return [result.data() for result in results]
 
 def create_data_contracts(db, sub_timeline_uuid, main_timeline_sai_uuids):
     num_nodes = 0
@@ -47,16 +49,17 @@ def create_data_contracts(db, sub_timeline_uuid, main_timeline_sai_uuids):
         """ % (main_sai_uuid, sub_timeline_uuid, uri_root)
 
         # print('create query',query)
-        results = db.query(query, sub_timeline_uuid)
-        if results == None or results == []:
-            print("Query probably didn't work")
-            print("uri",uri_root)
-            print("query",query)
-            print("---")
-        else:
-            # print("Query results",len(results))
-            num_nodes = num_nodes + len(results)
-    print("added",num_nodes, "data contract nodes")
+        with db.session() as session:
+            results = session.run(query, sub_timeline_uuid)
+            if results == None or results == []:
+                print("Query probably didn't work")
+                print("uri",uri_root)
+                print("query",query)
+                print("---")
+            else:
+                # print("Query results",len(results))
+                num_nodes = num_nodes + len(results)
+        print("added",num_nodes, "data contract nodes")
     return True
 
 db = Neo4jConnection()
