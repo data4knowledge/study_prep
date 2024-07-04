@@ -348,6 +348,8 @@ def create_subject_data_load_file():
     print("---Datapoint - Data contract matches:",len(matches))
     print("---Non matching Datapoints (e.g. visit not defined)",len(issues))
     print("\nIssues")
+    if len(issues) == 0:
+        print("None")
     for issue in set(issues):
         print(issue)
     print("")

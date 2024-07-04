@@ -10,9 +10,6 @@ def clear_created_nodes():
     query = "match (n:Subject) detach delete n return count(n)"
     results = db.query(query)
     print("Removing Subject",results)
-    # query = "match (n:StudySite) detach delete n return count(n)"
-    # results = db.query(query)
-    # print("Removing StudySite",results)
     db.close()
 
 def get_import_directory():
@@ -116,7 +113,6 @@ def check_data_contracts():
         results = db.query(query)
         if results[0].data()['exist']:
             pass
-            # print("data_contract exists:",item['data_contract'])
         else:
             print("\n---\ndata_contract MISSING :",item['data_contract'])
 
