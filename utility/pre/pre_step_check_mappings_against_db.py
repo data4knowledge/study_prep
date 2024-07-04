@@ -31,8 +31,8 @@ debug = []
 
 def exist_query(query,value):
     db = Neo4jConnection()
-    results = db.query(query)
-    db.close()
+    with db.session() as session:
+        results = session.run(query)
     if results == None:
         print('query did not work"',query)
         exit()
