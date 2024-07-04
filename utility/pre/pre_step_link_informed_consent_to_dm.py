@@ -27,44 +27,47 @@ debug = []
 # =============> DEBUG
 
 def clear_created_nodes(db):
-    query = """
-    MATCH (n)-[r]->(m)
-    WHERE r.fake_crm =  'yes'
-    DELETE r
-    RETURN count(r) as count
-    """
-    # print(query)
-    results = db.query(query)
-    print("Removed fake_crm relationships:",[result.data() for result in results][0]['count'])
+    with db.session() as session:
+        query = """
+        MATCH (n)-[r]->(m)
+        WHERE r.fake_crm =  'yes'
+        DELETE r
+        RETURN count(r) as count
+        """
+        # print(query)
+        results = session.run(query)
+        print("Removed fake_crm relationships:",[result.data() for result in results][0]['count'])
 
 
 def link_dsstdtc_to_dm(db):
     # Copy relationship to study
-    query = f"""
-        MATCH (crm:CRMNode)
-        MATCH (bcp:BiomedicalConceptProperty)
-        WHERE crm.uri = 'https://crm.d4k.dk/dataset/observation/observation_result/result/coding/code'
-        AND  bcp.name = 'DSSTDTC'
-        MERGE (bcp)-[r:IS_A_REL]->(crm)
-        SET r.fake_crm = 'yes'
-        RETURN *
-    """
-    # print(query)
-    results = db.query(query)
+    with db.session() as session:
+        query = f"""
+            MATCH (crm:CRMNode)
+            MATCH (bcp:BiomedicalConceptProperty)
+            WHERE crm.uri = 'https://crm.d4k.dk/dataset/observation/observation_result/result/coding/code'
+            AND  bcp.name = 'DSSTDTC'
+            MERGE (bcp)-[r:IS_A_REL]->(crm)
+            SET r.fake_crm = 'yes'
+            RETURN *
+        """
+        # print(query)
+        results = session.run(query)
 
 def link_rficdtc_to_crm(db):
     # Copy RFICDTC to CRMnode
-    query = f"""
-        MATCH (crm:CRMNode)
-        MATCH (var:Variable)
-        WHERE crm.uri = 'https://crm.d4k.dk/dataset/observation/observation_result/result/coding/code'
-        AND  var.name = 'RFICDTC'
-        MERGE (var)-[r:IS_A_REL]->(crm)
-        SET r.fake_crm = 'yes'
-        RETURN *
-    """
-    print(query)
-    results = db.query(query)
+    with db.session() as session:
+        query = f"""
+            MATCH (crm:CRMNode)
+            MATCH (var:Variable)
+            WHERE crm.uri = 'https://crm.d4k.dk/dataset/observation/observation_result/result/coding/code'
+            AND  var.name = 'RFICDTC'
+            MERGE (var)-[r:IS_A_REL]->(crm)
+            SET r.fake_crm = 'yes'
+            RETURN *
+        """
+        print(query)
+        results = session.run(query)
 
 
 def make_links():
