@@ -96,18 +96,18 @@ def get_bc_properties_dm(db, bc_label, dm_visit):
     else:
         add_issue("visit not found:",dm_visit)
         return []
-    query = f"""
-    MATCH (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp)<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(act_inst)-[:ENCOUNTER_REL]-(enc)
-    WHERE enc.label = '{visit}'
-    AND  bc.label = '{bc_label}'
-    return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, enc.label as ENCOUNTER_LABEL, dc.uri as DC_URI
-    """
-
-    results = db.query(query)
-    if results == None:
-        add_issue("DataContract has errors in it",row['VISIT'],visit,bc_label,query)
-        return []
-    return [result.data() for result in results]
+    with db.session() as session:
+        query = f"""
+        MATCH (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp)<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(act_inst)-[:ENCOUNTER_REL]-(enc)
+        WHERE enc.label = '{visit}'
+        AND  bc.label = '{bc_label}'
+        return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, enc.label as ENCOUNTER_LABEL, dc.uri as DC_URI
+        """
+        results = session.run(query)
+        if results == None:
+            add_issue("DataContract has errors in it",visit,bc_label,query)
+            return []
+        return [result.data() for result in results]
 
 def get_bc_properties_sub_timeline(db, bc_label, tpt, row):
     if row['VISIT'] in DATA_VISITS_TO_ENCOUNTER_LABELS:
@@ -115,21 +115,22 @@ def get_bc_properties_sub_timeline(db, bc_label, tpt, row):
     else:
         add_issue("visit not found:",row['VISIT'])
         return []
-    query = f"""
-        match (msai:ScheduledActivityInstance)<-[:INSTANCES_REL]-(dc:DataContract)-[:INSTANCES_REL]-(ssai:ScheduledActivityInstance)
-        match (msai)-[:ENCOUNTER_REL]->(enc:Encounter)
-        match (ssai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
-        match (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)<-[:PROPERTIES_REL]-(bc:BiomedicalConcept)
-        WHERE enc.label = '{visit}'
-        and    t.value = '{tpt}'
-        AND  bc.label = '{bc_label}'
-        return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, enc.label as ENCOUNTER_LABEL, t.value as TIMEPOINT_VALUE, dc.uri as DC_URI
-    """
-    results = db.query(query)
-    if results == None:
-        add_issue("timeline DataContract query has errors in it",visit,bc_label,tpt,query)
-        return []
-    return [result.data() for result in results]
+    with db.session() as session:
+        query = f"""
+            match (msai:ScheduledActivityInstance)<-[:INSTANCES_REL]-(dc:DataContract)-[:INSTANCES_REL]-(ssai:ScheduledActivityInstance)
+            match (msai)-[:ENCOUNTER_REL]->(enc:Encounter)
+            match (ssai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
+            match (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)<-[:PROPERTIES_REL]-(bc:BiomedicalConcept)
+            WHERE enc.label = '{visit}'
+            and    t.value = '{tpt}'
+            AND  bc.label = '{bc_label}'
+            return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, enc.label as ENCOUNTER_LABEL, t.value as TIMEPOINT_VALUE, dc.uri as DC_URI
+        """
+        results = session.run(query)
+        if results == None:
+            add_issue("timeline DataContract query has errors in it",visit,bc_label,tpt,query)
+            return []
+        return [result.data() for result in results]
 
 def create_data_contracts_lookup():
     global unique_data_contracts
