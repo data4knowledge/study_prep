@@ -45,6 +45,17 @@ def output_csv(path, name, data):
         writer.writeheader()
         writer.writerows(data)
 
+def db_query(query):
+    db = Neo4jConnection()
+    result = []
+    with db.session() as session:
+        response = session.run(query)
+        if response == None:
+            print('query did not work"',query)
+            exit()
+        result = [x.data() for x in response]
+    db.close()
+    return result
 
 def save_file(path: Path, name, data):
     OUTPUT_FILE = path / f"{name}.json"
@@ -59,23 +70,22 @@ def save_file(path: Path, name, data):
     # Check that DC exist and make separate output files for each 
     dc_uris = list(set([x['DC_URI'] for x in data]))
     output_dc_uri_files = {}
-    db = Neo4jConnection()
-    with db.session() as session:
-        for dc_uri in dc_uris:
-            query = f"""
-                match (dc:DataContract)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
-                WHERE dc.uri = '{dc_uri}'
-                return bcp.name as name
-            """
-            results = session.run(query)
-            bcp_names = [result.data() for result in results]
-            if bcp_names:
-                bcp_name = bcp_names[0]['name']
-                output_dc_uri_files[bcp_name] = dc_uri
-            else:
-                print("!!! Data Conctract not found:",dc_uri)
+    for dc_uri in dc_uris:
+        query = f"""
+            match (dc:DataContract)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
+            WHERE dc.uri = '{dc_uri}'
+            return bcp.name as name
+        """
+        bcp_names = db_query(query)
+        if bcp_names:
+            bcp_name = bcp_names[0]['name']
+            output_dc_uri_files[bcp_name] = dc_uri
+        else:
+            print("\n!-!-!-!-!-!-!-!")
+            print("!!! Data Conctract not found:",dc_uri)
 
-    for bcp_name,dc_uri in output_dc_uri_files.items():
+    for bcp_name, dc_uri in output_dc_uri_files.items():
+        # print("matching bcp - uri",bcp_name, dc_uri)
         bcp_data = [item for item in data if item['DC_URI'] == dc_uri]
         output_csv(path,f"{name}-{bcp_name.replace(' ','')}.csv",bcp_data)
 
