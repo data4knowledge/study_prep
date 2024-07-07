@@ -315,9 +315,9 @@ def create_data_contracts_lookup():
     else:
         print("\n-- All data contracts exist",count)
     
-    list_of_dc_bcp = list_dc_bcp_name()
-    add_debug("\n== check DC and BCP name")
-    [add_debug(x) for x in list_of_dc_bcp]
+    # list_of_dc_bcp = list_dc_bcp_name()
+    # add_debug("\n== check DC and BCP name")
+    # [add_debug(x) for x in list_of_dc_bcp]
 
 
     write_debug("step-0-debug-data-contracts-lookup.txt",debug)

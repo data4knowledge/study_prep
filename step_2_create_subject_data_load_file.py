@@ -361,14 +361,17 @@ def create_subject_data_load_file():
             add_issue("Add property_name for DM","Informed Consent",'value',row['RFICDTC'])
 
     # Date of Birth
+    print("dob")
     for row in dm_data:
         item = {}
 
         dm_visit = "Screening 1"
         bc_label = get_bc_label("Date of Birth")
         property_name = get_property_for_variable(bc_label,'value')
+        print("property_name",property_name)
         # debug.append(f"\nbc_label {bc_label} -> {property_name}")
         data_contract = get_data_contract_dm(dm_visit,bc_label,property_name)
+        print("data_contract",data_contract)
         # debug.append("DC_CONTRACT:"+data_contract)
         # debug.append("Should be  "+"https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/1a3e81d0-5534-446e-86d4-5aea6455ded5")
         # debug.append(f"bc_label+prop {property_name}  -> {data_contract}")
