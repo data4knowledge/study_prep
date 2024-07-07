@@ -112,7 +112,7 @@ TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME = {
         'decod': "DSDECOD",
     },
     'Date of Birth': {
-        'value': "Date of Birth",
+        'value': "BRTHDTC",
         # 'value': "Date/Time of Birth",
         'date': "Date Time",
     },
