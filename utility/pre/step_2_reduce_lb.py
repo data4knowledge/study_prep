@@ -44,5 +44,4 @@ def reduce_lb():
     print("done")
 
 if __name__ == "__main__":
-    print("not running as main")
-    # reduce_lb()
+    reduce_lb()

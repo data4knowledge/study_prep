@@ -53,5 +53,4 @@ def reduce_dm():
     print("done")
 
 if __name__ == "__main__":
-    print("not running as main")
-    # reduce_dm()
+    reduce_dm()

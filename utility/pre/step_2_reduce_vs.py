@@ -17,7 +17,7 @@ def reduce_vs():
         "Weight",
         "Temperature",
     ]
-
+ 
     DM_DATA = Path.cwd() / "data" / "input" / "dm.json"
     print("Reading DM_DATA:",DM_DATA)
     assert DM_DATA.exists(), "DM_DATA not found"
@@ -42,5 +42,4 @@ def reduce_vs():
     print("Done")
 
 if __name__ == "__main__":
-    print("not running as main")
-    # reduce_vs()
+    reduce_vs()
