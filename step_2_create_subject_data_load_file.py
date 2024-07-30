@@ -69,6 +69,8 @@ def save_file(path: Path, name, data):
 
     # Check that DC exist and make separate output files for each 
     dc_uris = list(set([x['DC_URI'] for x in data]))
+    TMP_PATH = Path.cwd() / "tmp" / "bc_data_files"
+    assert TMP_PATH.exists(), "TMP_PATH not found"
     output_dc_uri_files = {}
     for dc_uri in dc_uris:
         query = f"""
@@ -87,7 +89,7 @@ def save_file(path: Path, name, data):
     for bcp_name, dc_uri in output_dc_uri_files.items():
         # print("matching bcp - uri",bcp_name, dc_uri)
         bcp_data = [item for item in data if item['DC_URI'] == dc_uri]
-        output_csv(path,f"{name}-{bcp_name.replace(' ','')}.csv",bcp_data)
+        output_csv(TMP_PATH,f"{name}-{bcp_name.replace(' ','')}.csv",bcp_data)
 
 def clean(txt):
     result = ""
@@ -156,6 +158,32 @@ def get_data_contract_dm(encounter,bc_label,property):
         add_issue("get_data_contract_dm Miss BC_LABEL:", bc_label, "BCP_LABEL:",property)
         add_issue("-- Miss BC_LABEL:", bc_label, "BCP_LABEL:",property)
         return None
+
+def get_dm_variable(data, dm_data, data_label,data_property, sdtm_variable):
+    for row in dm_data:
+        item = {}
+        dm_visit = "Screening 1"
+        bc_label = get_bc_label(data_label)
+        property_name = get_property_for_variable(bc_label,data_property)
+        # print("property_name",property_name)
+        # debug.append(f"\nbc_label {bc_label} -> {property_name}")
+        data_contract = get_data_contract_dm(dm_visit,bc_label,property_name)
+        # print("data_contract",data_contract)
+        # debug.append("DC_CONTRACT:"+data_contract)
+        # debug.append("Should be  "+"https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/1a3e81d0-5534-446e-86d4-5aea6455ded5")
+        # debug.append(f"bc_label+prop {property_name}  -> {data_contract}")
+        if property_name:
+            if data_contract:
+                item['USUBJID'] = row['USUBJID']
+                item['DC_URI'] = data_contract
+                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+                item['VALUE'] = f"{row[sdtm_variable]}"
+                data.append(item)
+            else:
+                add_issue(f"No dc RESULT bc_label: {bc_label} - property_name: {property_name} - encounter: {dm_visit}")
+        else:
+            add_issue("Add property_name for DM",data_label,'value',row[sdtm_variable])
+
 
 def create_subject_data_load_file():
     ENROLMENT_DATA = Path.cwd() / "data" / "output" / "enrolment.json"
@@ -275,7 +303,7 @@ def create_subject_data_load_file():
                 add_issue("Ignoring visit", row['VISIT'], "encounter:", encounter)
 
 
-    # print("\nGetting DM data")
+    print("\nGetting DM data")
     DM_DATA = Path.cwd() / "data" / "input" / "dm.json"
     assert DM_DATA.exists(), "DM_DATA not found"
     with open(DM_DATA) as f:
@@ -283,112 +311,22 @@ def create_subject_data_load_file():
 
     # DM does not contain VISIT
     # Sex
-    for row in dm_data:
-        item = {}
-
-        dm_visit = "Screening 1"
-        bc_label = get_bc_label("Sex")
-        property = get_property_for_variable(bc_label,'value')
-        data_contract = get_data_contract_dm(dm_visit,bc_label,property)
-        if property:
-            if data_contract:
-                item['USUBJID'] = row['USUBJID']
-                item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-                item['VALUE'] = f"{row['SEX']}"
-                data.append(item)
-            else:
-                add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {dm_visit}")
-        else:
-            add_issue("Add property for DM","Sex",'value',row['SEX'])
-
+    get_dm_variable(data, dm_data, 'Sex', 'value', 'SEX')
     # Race
-    for row in dm_data:
-        item = {}
-
-        dm_visit = "Screening 1"
-        bc_label = get_bc_label("Race")
-        # print("bc_label",bc_label)
-        property_name = get_property_for_variable(bc_label,'value')
-        # print("  bc_property",property_name)
-        data_contract = get_data_contract_dm(dm_visit,bc_label,property_name)
-        # print("    dc_uri",data_contract)
-        if property_name:
-            if data_contract:
-                item['USUBJID'] = row['USUBJID']
-                item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-                item['VALUE'] = f"{row['RACE']}"
-                data.append(item)
-            else:
-                add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property_name} - encounter: {dm_visit}")
-        else:
-            add_issue("Add property for DM","Race",'value',row['RACE'])
-
+    get_dm_variable(data, dm_data, 'Race', 'value', 'RACE')
     # Informed Consent
-    for row in dm_data:
-        item = {}
+    get_dm_variable(data, dm_data, 'Informed Consent', 'value', 'RFICDTC')
+    get_dm_variable(data, dm_data, 'Informed Consent', 'date', 'RFICDTC')
 
-        dm_visit = "Screening 1"
-        bc_label = get_bc_label("Informed Consent")
-        # print("bc_label",bc_label)
-        property_name = get_property_for_variable(bc_label,'value')
-        # print("  property_name",property_name)
-        data_contract = get_data_contract_dm(dm_visit,bc_label,property_name)
-        # print("    data_contract",data_contract)
-        if property_name:
-            if data_contract:
-                # print("creating data contract Informed Consent (Obtained)")
-                item['USUBJID'] = row['USUBJID']
-                item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-                item['VALUE'] = f"{row['RFICDTC']}"
-                data.append(item)
-
-                # # also add dsdecod
-                # property_name = get_property_for_variable(bc_label,'decod')
-                # # print("decod property_name",property_name)
-                # data_contract = get_data_contract_dm(dm_visit,bc_label,property_name)
-                # # print("decod data_contract",data_contract)
-                # item['USUBJID'] = row['USUBJID']
-                # item['DC_URI'] = data_contract
-                # item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-                # item['VALUE'] = f"Informed Consent Obtained"
-                # data.append(item)
-            else:
-                add_issue(f"No dc RESULT bc_label: {bc_label} - property_name: {property_name} - encounter: {dm_visit}")
-        else:
-            add_issue("Add property_name for DM","Informed Consent",'value',row['RFICDTC'])
+    # "BC_LABEL": "Informed Consent Obtained",
+    # "BCP_NAME": "--DTC",
+    # "BCP_LABEL": "Date Time",
 
     # Date of Birth
-    print("dob")
-    for row in dm_data:
-        item = {}
-
-        dm_visit = "Screening 1"
-        bc_label = get_bc_label("Date of Birth")
-        property_name = get_property_for_variable(bc_label,'value')
-        # print("property_name",property_name)
-        # debug.append(f"\nbc_label {bc_label} -> {property_name}")
-        data_contract = get_data_contract_dm(dm_visit,bc_label,property_name)
-        # print("data_contract",data_contract)
-        # debug.append("DC_CONTRACT:"+data_contract)
-        # debug.append("Should be  "+"https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/1a3e81d0-5534-446e-86d4-5aea6455ded5")
-        # debug.append(f"bc_label+prop {property_name}  -> {data_contract}")
-        if property_name:
-            if data_contract:
-                item['USUBJID'] = row['USUBJID']
-                item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-                item['VALUE'] = f"{row['BRTHDTC']}"
-                data.append(item)
-            else:
-                add_issue(f"No dc RESULT bc_label: {bc_label} - property_name: {property_name} - encounter: {dm_visit}")
-        else:
-            add_issue("Add property_name for DM","Date of Birth",'value',row['BRTHDTC'])
+    get_dm_variable(data, dm_data, 'Date of Birth', 'BRTHDTC')
 
 
-    print("---Datapoint - Data contract matches:",len(matches))
+    print("\n---Datapoint - Data contract matches:",len(matches))
     print("---Non matching Datapoints (e.g. visit not defined)",len(issues))
     print("\nIssues")
     if len(issues) == 0:
