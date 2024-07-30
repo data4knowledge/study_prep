@@ -1,4 +1,5 @@
 from d4kms_service import Neo4jConnection
+import time
 
 # print("\033[H\033[J") # Clears terminal window in vs code
 
@@ -34,6 +35,8 @@ from step_2_create_subject_data_load_file import create_subject_data_load_file
 
 print("\n== Create data contracts")
 create_data_contracts_lookup()
+print("Sleep before continuing ....")
+time.sleep(5)
 print("\n== Create data enrolment")
 create_subject_enrolment_load_file()
 print("\n== Create data datapoints")

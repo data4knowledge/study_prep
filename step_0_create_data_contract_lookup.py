@@ -304,6 +304,9 @@ def create_data_contracts_lookup():
     unique_data_contracts = sorted(unique_data_contracts, key=itemgetter('BC_LABEL','BCP_NAME','BCP_LABEL','ENCOUNTER_LABEL'))
 
     OUTPUT_FILE = OUTPUT_PATH / "data_contracts.json"
+    print("Deleting old file ",OUTPUT_FILE, end="")
+    Path.unlink(OUTPUT_FILE)
+    print(" done")
     print("Saving to ",OUTPUT_FILE, end="")
     with open(OUTPUT_FILE, 'w') as f:
         f.write(json.dumps(unique_data_contracts, indent = 2))
