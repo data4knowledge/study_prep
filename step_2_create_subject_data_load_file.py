@@ -143,7 +143,7 @@ def get_data_contract(encounter,bc_label,property_name,tpt):
         else:
             print("Missing DC_URI", encounter, bc_label)
     else:
-        add_issue("get_data_contract Miss BC_LABEL:", bc_label, "BCP_NAME:",property_name, "ENCOUNTER_LABEL:",encounter,"TPT:",tpt)
+        # add_issue("get_data_contract Miss BC_LABEL:", bc_label, "BCP_NAME:",property_name, "ENCOUNTER_LABEL:",encounter,"TPT:",tpt)
         return None
 
 def get_data_contract_dm(encounter,bc_label,property_name):
@@ -156,7 +156,6 @@ def get_data_contract_dm(encounter,bc_label,property_name):
             print("Missing DC_URI", bc_label, property_name)
     else:
         add_issue("get_data_contract_dm Miss BC_LABEL:", bc_label, "BCP_NAME:",property_name)
-        add_issue("-- Miss BC_LABEL:", bc_label, "BCP_LABEL:",property_name)
         return None
 
 def get_vs_data(data):
@@ -213,6 +212,20 @@ def get_vs_data(data):
                 data.append(item)
             else:
                 add_issue("No dc UNIT bc_label:", bc_label, "- encounter:", encounter, "property:", property)
+
+            # position
+            property = get_property_for_variable(row['VSTEST'],'position')
+            data_contract = get_data_contract(encounter,bc_label,property,tpt)
+            if data_contract:
+                item = {}
+                item['USUBJID'] = row['USUBJID']
+                item['DC_URI'] = data_contract
+                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+                item['VALUE'] = f"{row['VSPOS']}"
+                data.append(item)
+            else:
+                # add_issue("Ignoring position for:", bc_label, "- encounter:", encounter, "property:", property)
+                add_issue("Ignoring position for:", bc_label)
         else:
                 add_issue("Ignoring visit", row['VISIT'], "encounter:", encounter)
 
