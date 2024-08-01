@@ -49,44 +49,54 @@ VS_RESULT_NAME = 'VSORRES'
 LB_RESULT_NAME = 'LBORRES'
 VS_UNIT_NAME = 'VSORRESU'
 LB_UNIT_NAME = 'LBORRESU'
+FINDINGS_DTC = '--DTC'
 TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME = {
     'Weight': {
         'VSORRES': VS_RESULT_NAME,
-        'VSORRESU': VS_UNIT_NAME
+        'VSORRESU': VS_UNIT_NAME,
+        'date': FINDINGS_DTC
     },
     'Height': {
         'VSORRES': VS_RESULT_NAME,
-        'VSORRESU': VS_UNIT_NAME
+        'VSORRESU': VS_UNIT_NAME,
+        'date': FINDINGS_DTC
     },
     'Temperature': {
         'VSORRES': VS_RESULT_NAME,
-        'VSORRESU': VS_UNIT_NAME
+        'VSORRESU': VS_UNIT_NAME,
+        'date': FINDINGS_DTC
     },
     'Diastolic Blood Pressure': {
         'VSORRES': VS_RESULT_NAME,
-        'VSORRESU': VS_UNIT_NAME
+        'VSORRESU': VS_UNIT_NAME,
+        'date': FINDINGS_DTC
     },
     'Systolic Blood Pressure': {
         'VSORRES': VS_RESULT_NAME,
-        'VSORRESU': VS_UNIT_NAME
+        'VSORRESU': VS_UNIT_NAME,
+        'date': FINDINGS_DTC
     },
     'Pulse Rate': {
         'VSORRES': VS_RESULT_NAME,
-        'VSORRESU': VS_UNIT_NAME
+        'VSORRESU': VS_UNIT_NAME,
+        'date': FINDINGS_DTC
     },
     'Aspartate Aminotransferase': {
         'LBORRES': LB_RESULT_NAME,
-        'LBORRESU': LB_UNIT_NAME
+        'LBORRESU': LB_UNIT_NAME,
+        'date': FINDINGS_DTC
     },
     'Alkaline Phosphatase': {
         'LBORRES': LB_RESULT_NAME,
         'LBORRESU': LB_UNIT_NAME,
+        'date': FINDINGS_DTC,
         'LBFAST': 'LBFAST',
         'LBSPEC': 'LBSPEC'
     },
     'Alanine Aminotransferase': {
         'LBORRES': LB_RESULT_NAME,
         'LBORRESU': LB_UNIT_NAME,
+        'date': FINDINGS_DTC,
         'LBFAST': 'LBFAST',
         'LBSPEC': 'LBSPEC'
     },
@@ -108,7 +118,8 @@ TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME = {
     # },
     'Informed Consent Obtained': {
         'value': "DSSTDTC",
-        'date': "Date Time",
+        # 'date': "Date Time",
+        'date': "--DTC",
         'decod': "DSDECOD",
     },
     'Date of Birth': {
