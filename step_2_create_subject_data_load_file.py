@@ -249,9 +249,8 @@ def get_lb_data(data):
                     add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
             else:
                 add_issue("Add property for LBTEST",row['LBTEST'],"LBORRESU",row['LBORRESU'])
+
             # Unit
-            encounter = get_encounter(row)
-            bc_label = get_bc_label(row['LBTEST'])
             property = get_property_for_variable(row['LBTEST'],'LBORRESU')
             if property:
                 data_contract = get_data_contract(encounter,bc_label,property,tpt)
@@ -266,6 +265,23 @@ def get_lb_data(data):
                     add_issue("No dc UNIT bc_label:", bc_label, "- encounter:", encounter, "property:", property)
             else:
                 add_issue("Add property for LBTEST",row['LBTEST'],"LBORRESU",row['LBORRESU'])
+
+            # Date of collection
+            property = get_property_for_variable(row['LBTEST'],'date')
+            if property:
+                data_contract = get_data_contract(encounter,bc_label,property,tpt)
+                if data_contract:
+                    item = {}
+                    item['USUBJID'] = row['USUBJID']
+                    item['DC_URI'] = data_contract
+                    item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+                    item['VALUE'] = f"{row['LBDTC']}"
+                    data.append(item)
+                else:
+                    add_issue("No dc UNIT bc_label:", bc_label, "- encounter:", encounter, "property:", property)
+            else:
+                add_issue("Add property for LBTEST",row['LBTEST'],"LBORRESU",row['LBORRESU'])
+
         else:
                 add_issue("Ignoring visit", row['VISIT'], "encounter:", encounter)
 
