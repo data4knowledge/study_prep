@@ -130,11 +130,11 @@ def get_bc_label(test_label):
         print("Add bc_label:",test_label)
     return bc_label
 
-def get_data_contract(encounter,bc_label,property,tpt):
+def get_data_contract(encounter,bc_label,property_name,tpt):
     if tpt == "":
-        dc_item = next((item for item in data_contracts if item["BC_LABEL"] == bc_label and item['BCP_NAME'] == property and item['ENCOUNTER_LABEL'] == encounter), None)
+        dc_item = next((item for item in data_contracts if item["BC_LABEL"] == bc_label and item['BCP_NAME'] == property_name and item['ENCOUNTER_LABEL'] == encounter), None)
     else:
-        dc_item = next((item for item in data_contracts if item["BC_LABEL"] == bc_label and item['BCP_NAME'] == property and item['ENCOUNTER_LABEL'] == encounter and item['TIMEPOINT_VALUE'] == tpt), None)
+        dc_item = next((item for item in data_contracts if item["BC_LABEL"] == bc_label and item['BCP_NAME'] == property_name and item['ENCOUNTER_LABEL'] == encounter and item['TIMEPOINT_VALUE'] == tpt), None)
 
     if dc_item != None:
         matches.append(dc_item)
@@ -143,71 +143,28 @@ def get_data_contract(encounter,bc_label,property,tpt):
         else:
             print("Missing DC_URI", encounter, bc_label)
     else:
-        add_issue("get_data_contract Miss BC_LABEL:", bc_label, "BCP_LABEL:",property, "ENCOUNTER_LABEL:",encounter,"TPT:",tpt)
+        add_issue("get_data_contract Miss BC_LABEL:", bc_label, "BCP_NAME:",property_name, "ENCOUNTER_LABEL:",encounter,"TPT:",tpt)
         return None
 
-def get_data_contract_dm(encounter,bc_label,property):
-    dc_item = next((item for item in data_contracts if item["BC_LABEL"] == bc_label and item['BCP_NAME'] == property and item['ENCOUNTER_LABEL'] == encounter), None)
+def get_data_contract_dm(encounter,bc_label,property_name):
+    dc_item = next((item for item in data_contracts if item["BC_LABEL"] == bc_label and item['BCP_NAME'] == property_name and item['ENCOUNTER_LABEL'] == encounter), None)
     if dc_item != None:
         matches.append(dc_item)
         if "DC_URI" in dc_item:
             return dc_item['DC_URI']
         else:
-            print("Missing DC_URI", bc_label, property)
+            print("Missing DC_URI", bc_label, property_name)
     else:
-        add_issue("get_data_contract_dm Miss BC_LABEL:", bc_label, "BCP_LABEL:",property)
-        add_issue("-- Miss BC_LABEL:", bc_label, "BCP_LABEL:",property)
+        add_issue("get_data_contract_dm Miss BC_LABEL:", bc_label, "BCP_NAME:",property_name)
+        add_issue("-- Miss BC_LABEL:", bc_label, "BCP_LABEL:",property_name)
         return None
 
-def get_dm_variable(data, dm_data, data_label,data_property, sdtm_variable):
-    for row in dm_data:
-        item = {}
-        dm_visit = "Screening 1"
-        bc_label = get_bc_label(data_label)
-        property_name = get_property_for_variable(bc_label,data_property)
-        # print("property_name",property_name)
-        # debug.append(f"\nbc_label {bc_label} -> {property_name}")
-        data_contract = get_data_contract_dm(dm_visit,bc_label,property_name)
-        # print("data_contract",data_contract)
-        # debug.append("DC_CONTRACT:"+data_contract)
-        # debug.append("Should be  "+"https://study.d4k.dk/study-cdisc-pilot-lzzt/FAKE_UUIDDateofBirth/1a3e81d0-5534-446e-86d4-5aea6455ded5")
-        # debug.append(f"bc_label+prop {property_name}  -> {data_contract}")
-        if property_name:
-            if data_contract:
-                item['USUBJID'] = row['USUBJID']
-                item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-                item['VALUE'] = f"{row[sdtm_variable]}"
-                data.append(item)
-            else:
-                add_issue(f"No dc RESULT bc_label: {bc_label} - property_name: {property_name} - encounter: {dm_visit}")
-        else:
-            add_issue("Add property_name for DM",data_label,'value',row[sdtm_variable])
-
-
-def create_subject_data_load_file():
-    ENROLMENT_DATA = Path.cwd() / "data" / "output" / "enrolment.json"
-    assert ENROLMENT_DATA.exists(), "ENROLMENT_DATA not found"
-    # print("\nGetting subjects from file",ENROLMENT_DATA)
-    with open(ENROLMENT_DATA) as f:
-        enrolment_data = json.load(f)
-
-    OUTPUT_PATH = Path.cwd() / "data" / "output"
-    assert OUTPUT_PATH.exists(), "OUTPUT_PATH not found"
-
-    # Get subjects from the enrolment file
-    subjects = [row['USUBJID'] for row in enrolment_data]
-
-
-    print("\nCreating datapoint and value")
-    data = []
-
+def get_vs_data(data):
     print("\nGetting VS data")
     VS_DATA = Path.cwd() / "data" / "input" / "vs.json"
     assert VS_DATA.exists(), "VS_DATA not found"
     with open(VS_DATA) as f:
         vs_data = json.load(f)
-
 
     for row in vs_data:
         item = {}
@@ -221,9 +178,7 @@ def create_subject_data_load_file():
                 tpt = DATA_TPT_TO_TIMING_LABELS[row['VSTPT']]
 
             property = get_property_for_variable(row['VSTEST'],'VSORRES')
-
             data_contract = get_data_contract(encounter,bc_label,property,tpt)
-
             if data_contract:
                 item['USUBJID'] = row['USUBJID']
                 item['DC_URI'] = data_contract
@@ -234,8 +189,6 @@ def create_subject_data_load_file():
                 add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
 
             # Unit
-            encounter = get_encounter(row)
-            bc_label = get_bc_label(row['VSTEST'])
             property = get_property_for_variable(row['VSTEST'],'VSORRESU')
             data_contract = get_data_contract(encounter,bc_label,property,tpt)
             if data_contract:
@@ -247,10 +200,24 @@ def create_subject_data_load_file():
                 data.append(item)
             else:
                 add_issue("No dc UNIT bc_label:", bc_label, "- encounter:", encounter, "property:", property)
+
+            # Date of collection
+            property = get_property_for_variable(row['VSTEST'],'date')
+            data_contract = get_data_contract(encounter,bc_label,property,tpt)
+            if data_contract:
+                item = {}
+                item['USUBJID'] = row['USUBJID']
+                item['DC_URI'] = data_contract
+                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+                item['VALUE'] = f"{row['VSDTC']}"
+                data.append(item)
+            else:
+                add_issue("No dc UNIT bc_label:", bc_label, "- encounter:", encounter, "property:", property)
         else:
                 add_issue("Ignoring visit", row['VISIT'], "encounter:", encounter)
-            
 
+
+def get_lb_data(data):
     print("\nGetting LB data")
     LB_DATA = Path.cwd() / "data" / "input" / "lb.json"
     assert LB_DATA.exists(), "LB_DATA not found"
@@ -302,7 +269,7 @@ def create_subject_data_load_file():
         else:
                 add_issue("Ignoring visit", row['VISIT'], "encounter:", encounter)
 
-
+def get_dm_data(data):
     print("\nGetting DM data")
     DM_DATA = Path.cwd() / "data" / "input" / "dm.json"
     assert DM_DATA.exists(), "DM_DATA not found"
@@ -316,6 +283,7 @@ def create_subject_data_load_file():
     get_dm_variable(data, dm_data, 'Race', 'value', 'RACE')
     # Informed Consent
     get_dm_variable(data, dm_data, 'Informed Consent', 'value', 'RFICDTC')
+    # Faking Informed consent date
     get_dm_variable(data, dm_data, 'Informed Consent', 'date', 'RFICDTC')
 
     # "BC_LABEL": "Informed Consent Obtained",
@@ -323,8 +291,56 @@ def create_subject_data_load_file():
     # "BCP_LABEL": "Date Time",
 
     # Date of Birth
-    get_dm_variable(data, dm_data, 'Date of Birth', 'BRTHDTC')
+    get_dm_variable(data, dm_data, 'Date of Birth', 'value', 'BRTHDTC')
+    
 
+
+def get_dm_variable(data, dm_data, data_label, data_property, sdtm_variable):
+    for row in dm_data:
+        item = {}
+        dm_visit = "Screening 1"
+        bc_label = get_bc_label(data_label)
+        property_name = get_property_for_variable(bc_label,data_property)
+        # if data_property != 'value':
+        #     print("property_name",property_name)
+        #     print("data_contract",dm_visit,bc_label,property_name)
+        # debug.append(f"\nbc_label {bc_label} -> {property_name}")
+        data_contract = get_data_contract_dm(dm_visit,bc_label,property_name)
+        # debug.append("DC_CONTRACT:"+data_contract)
+        # debug.append(f"bc_label+prop {property_name}  -> {data_contract}")
+        if property_name:
+            if data_contract:
+                item['USUBJID'] = row['USUBJID']
+                item['DC_URI'] = data_contract
+                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+                item['VALUE'] = f"{row[sdtm_variable]}"
+                data.append(item)
+            else:
+                add_issue(f"No dc RESULT bc_label: {bc_label} - property_name: {property_name} - encounter: {dm_visit}")
+        else:
+            add_issue("Add property_name for DM",data_label,'value',row[sdtm_variable])
+
+
+def create_subject_data_load_file():
+    ENROLMENT_DATA = Path.cwd() / "data" / "output" / "enrolment.json"
+    assert ENROLMENT_DATA.exists(), "ENROLMENT_DATA not found"
+    # print("\nGetting subjects from file",ENROLMENT_DATA)
+    with open(ENROLMENT_DATA) as f:
+        enrolment_data = json.load(f)
+
+    OUTPUT_PATH = Path.cwd() / "data" / "output"
+    assert OUTPUT_PATH.exists(), "OUTPUT_PATH not found"
+
+    # Get subjects from the enrolment file
+    subjects = [row['USUBJID'] for row in enrolment_data]
+
+
+    print("\nCreating datapoint and value")
+    data = []
+
+    get_vs_data(data)
+    get_lb_data(data)
+    get_dm_data(data)
 
     print("\n---Datapoint - Data contract matches:",len(matches))
     print("---Non matching Datapoints (e.g. visit not defined)",len(issues))
