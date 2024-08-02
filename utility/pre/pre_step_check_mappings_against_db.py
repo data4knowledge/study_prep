@@ -67,9 +67,11 @@ def check_bc_properties(ok,missing):
             add_debug("    property",data_var, bc_property)
             bc_properties.add(bc_property)
             # add_debug("checking","property",bc_property)
+            # query = f"""
+            #     MATCH (t:BiomedicalConceptProperty {{label: '{bc_property}'}}) RETURN count(t) > 0 as result
+            # """
             query = f"""
-                MATCH (t:BiomedicalConceptProperty {{label: '{bc_property}'}})
-                RETURN count(t) > 0 as result
+                MATCH (t:BiomedicalConceptProperty {{name: '{bc_property}'}}) RETURN count(t) > 0 as result
             """
             result = exist_query(query)
             if result[0]['result']:
