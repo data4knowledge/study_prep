@@ -41,6 +41,10 @@ def reduce_lb():
     with open(LB_DATA, 'w') as f:
         f.write(json.dumps(lb_data, indent = 2))
 
+    LB_CSV = Path.cwd() / "data" / "input" / "lb.csv"
+    df = pd.DataFrame(lb_data)
+    df.to_csv(LB_CSV, index = False)
+
     print("done")
 
 if __name__ == "__main__":

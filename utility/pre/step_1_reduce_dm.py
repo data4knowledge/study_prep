@@ -52,5 +52,9 @@ def reduce_dm():
         f.write(json.dumps(dm_data, indent = 2))
     print("done")
 
+    DM_CSV = Path.cwd() / "data" / "input" / "dm.csv"
+    df = pd.DataFrame(dm_data)
+    df.to_csv(DM_CSV, index = False)
+
 if __name__ == "__main__":
     reduce_dm()

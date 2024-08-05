@@ -39,6 +39,11 @@ def reduce_vs():
     with open(VS_DATA, 'w') as f:
         f.write(json.dumps(vs_data, indent = 2))
 
+    VS_CSV = Path.cwd() / "data" / "input" / "vs.csv"
+    df = pd.DataFrame(vs_data)
+    df.to_csv(VS_CSV, index = False)
+
+
     print("Done")
 
 if __name__ == "__main__":
