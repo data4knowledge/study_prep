@@ -70,7 +70,7 @@ def save_file(path: Path, name, data):
     # Check that DC exist and make separate output files for each 
     dc_uris = list(set([x['DC_URI'] for x in data]))
     TMP_PATH = Path.cwd() / "tmp" / "bc_data_files"
-    assert TMP_PATH.exists(), "TMP_PATH not found"
+    assert TMP_PATH.exists(), f"TMP_PATH not found: {TMP_PATH}"
     output_dc_uri_files = {}
     for dc_uri in dc_uris:
         query = f"""

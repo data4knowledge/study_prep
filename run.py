@@ -12,6 +12,13 @@ from utility.compare.compare_aura_local_bc import compare_bc
 from utility.compare.query_local import query_study_service
 from utility.pre.pre_step_check_mappings_against_db import check_mappings_against_db
 
+from utility.pre.pre_step_add_test_label import do
+
+do()
+
+
+exit()
+
 # query_study_service()
 # exit()
 
