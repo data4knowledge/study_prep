@@ -384,14 +384,57 @@ def get_ae_variable(data, ae_data, data_label, data_property, sdtm_variable):
 
 def get_ae_data(data):
     print("\nGetting AE data")
-    AE_DATA = Path.cwd() / "data" / "input" / "dm.json"
+    AE_DATA = Path.cwd() / "data" / "input" / "ae.json"
     assert AE_DATA.exists(), "EX_DATA not found"
     with open(AE_DATA) as f:
         ae_data = json.load(f)
 
-    # Term
-    get_ex_variable(data, ae_data, 'Sex', 'value', 'SEX')
-    # Sev
+    for row in ae_data[0:2]:
+        item = {}
+        # Result
+        encounter = get_encounter(row)
+        if encounter != "":
+            print("encounter",encounter)
+            bc_label = get_bc_label("AE")
+            print("bc_label",bc_label)
+            property = get_property_for_variable(row['AETERM'],'term')
+            print("property",property)
+            if property:
+                data_contract = get_data_contract(encounter,bc_label,property)
+
+                if data_contract:
+                    item['USUBJID'] = row['USUBJID']
+                    item['DC_URI'] = data_contract
+                    item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+                    item['VALUE'] = f"{row['LBORRES']}"
+                    data.append(item)
+                else:
+                    add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
+            else:
+                add_issue("Add property for AETERM",row['AETERM'])
+
+            # # Date of collection
+            # property = get_property_for_variable(row['LBTEST'],'date')
+            # if property:
+            #     data_contract = get_data_contract(encounter,bc_label,property,tpt)
+            #     if data_contract:
+            #         item = {}
+            #         item['USUBJID'] = row['USUBJID']
+            #         item['DC_URI'] = data_contract
+            #         item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+            #         item['VALUE'] = f"{row['LBDTC']}"
+            #         data.append(item)
+            #     else:
+            #         add_issue("No dc UNIT bc_label:", bc_label, "- encounter:", encounter, "property:", property)
+            # else:
+            #     add_issue("Add property for LBTEST",row['LBTEST'],"LBORRESU",row['LBORRESU'])
+
+        else:
+                add_issue("Ignoring visit", row['VISIT'], "encounter:", encounter)
+
+    # # Term
+    # get_ae_variable(data, ae_data, 'AETERM', 'value', 'TERM')
+    # # Sev
 
 
 def get_ex_variable(data, ex_data, data_label, data_property, sdtm_variable):
@@ -449,10 +492,10 @@ def create_subject_data_load_file():
     print("\nCreating datapoint and value")
     data = []
 
-    get_vs_data(data)
-    get_lb_data(data)
-    get_dm_data(data)
-    # get_ae_data(data)
+    # get_vs_data(data)
+    # get_lb_data(data)
+    # get_dm_data(data)
+    get_ae_data(data)
     # get_ex_data(data) NOT READY
 
     print("\n---Datapoint - Data contract matches:",len(matches))
