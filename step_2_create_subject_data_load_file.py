@@ -298,6 +298,38 @@ def get_lb_data(data):
         else:
                 add_issue("Ignoring visit", row['VISIT'], "encounter:", encounter)
 
+def get_dm_variable(data, dm_data, data_label, data_property, sdtm_variable):
+    fake_value = 0
+    for row in dm_data:
+        item = {}
+        dm_visit = "Screening 1"
+        bc_label = get_bc_label(data_label)
+        property_name = get_property_for_variable(bc_label,data_property)
+        # if data_property != 'value':
+        #     print("property_name",property_name)
+        #     print("data_contract",dm_visit,bc_label,property_name)
+        # debug.append(f"\nbc_label {bc_label} -> {property_name}")
+        data_contract = get_data_contract_dm(dm_visit,bc_label,property_name)
+        if property_name:
+            if data_contract:
+                item['USUBJID'] = row['USUBJID']
+                item['DC_URI'] = data_contract
+                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+                item['VALUE'] = f"{row[sdtm_variable]}"
+                data.append(item)
+                if fake_value == 0 and data_label == 'Race':
+                    item2 = {}
+                    item2['USUBJID'] = row['USUBJID']
+                    item2['DC_URI'] = data_contract
+                    item2['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+                    item2['VALUE'] = "ASIAN"
+                    data.append(item2)
+                    fake_value += 1
+            else:
+                add_issue(f"No dc RESULT bc_label: {bc_label} - property_name: {property_name} - encounter: {dm_visit}")
+        else:
+            add_issue("Add property_name for DM",data_label,'value',row[sdtm_variable])
+
 def get_dm_data(data):
     print("\nGetting DM data")
     DM_DATA = Path.cwd() / "data" / "input" / "dm.json"
@@ -312,7 +344,7 @@ def get_dm_data(data):
     get_dm_variable(data, dm_data, 'Race', 'value', 'RACE')
     # Informed Consent
     get_dm_variable(data, dm_data, 'Informed Consent', 'value', 'RFICDTC')
-    # Faking Informed consent date
+    # ISSUE: Faking Informed consent date
     get_dm_variable(data, dm_data, 'Informed Consent', 'date', 'RFICDTC')
 
     # "BC_LABEL": "Informed Consent Obtained",
@@ -321,11 +353,12 @@ def get_dm_data(data):
 
     # Date of Birth
     get_dm_variable(data, dm_data, 'Date of Birth', 'value', 'BRTHDTC')
+
+    # Ethnicity
+    # get_dm_variable(data, dm_data, 'Ethnicity', 'value', 'BRTHDTC')
     
-
-
-def get_dm_variable(data, dm_data, data_label, data_property, sdtm_variable):
-    for row in dm_data:
+def get_ae_variable(data, ae_data, data_label, data_property, sdtm_variable):
+    for row in ae_data:
         item = {}
         dm_visit = "Screening 1"
         bc_label = get_bc_label(data_label)
@@ -349,6 +382,55 @@ def get_dm_variable(data, dm_data, data_label, data_property, sdtm_variable):
         else:
             add_issue("Add property_name for DM",data_label,'value',row[sdtm_variable])
 
+def get_ae_data(data):
+    print("\nGetting AE data")
+    AE_DATA = Path.cwd() / "data" / "input" / "dm.json"
+    assert AE_DATA.exists(), "EX_DATA not found"
+    with open(AE_DATA) as f:
+        ae_data = json.load(f)
+
+    # Term
+    get_ex_variable(data, ae_data, 'Sex', 'value', 'SEX')
+    # Sev
+
+
+def get_ex_variable(data, ex_data, data_label, data_property, sdtm_variable):
+    pass
+    # for row in ex_data:
+    #     item = {}
+    #     dm_visit = "Screening 1"
+    #     bc_label = get_bc_label(data_label)
+    #     property_name = get_property_for_variable(bc_label,data_property)
+    #     # if data_property != 'value':
+    #     #     print("property_name",property_name)
+    #     #     print("data_contract",dm_visit,bc_label,property_name)
+    #     # debug.append(f"\nbc_label {bc_label} -> {property_name}")
+    #     data_contract = get_data_contract_dm(dm_visit,bc_label,property_name)
+    #     # debug.append("DC_CONTRACT:"+data_contract)
+    #     # debug.append(f"bc_label+prop {property_name}  -> {data_contract}")
+    #     if property_name:
+    #         if data_contract:
+    #             item['USUBJID'] = row['USUBJID']
+    #             item['DC_URI'] = data_contract
+    #             item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+    #             item['VALUE'] = f"{row[sdtm_variable]}"
+    #             data.append(item)
+    #         else:
+    #             add_issue(f"No dc RESULT bc_label: {bc_label} - property_name: {property_name} - encounter: {dm_visit}")
+    #     else:
+    #         add_issue("Add property_name for DM",data_label,'value',row[sdtm_variable])
+
+def get_ex_data(data):
+    print("\nGetting EX data")
+    EX_DATA = Path.cwd() / "data" / "input" / "dm.json"
+    assert EX_DATA.exists(), "EX_DATA not found"
+    with open(EX_DATA) as f:
+        ex_data = json.load(f)
+
+    # Dose
+    get_ex_variable(data, ex_data, 'Sex', 'value', 'SEX')
+    # Dose date
+
 
 def create_subject_data_load_file():
     ENROLMENT_DATA = Path.cwd() / "data" / "output" / "enrolment.json"
@@ -370,6 +452,8 @@ def create_subject_data_load_file():
     get_vs_data(data)
     get_lb_data(data)
     get_dm_data(data)
+    # get_ae_data(data)
+    # get_ex_data(data) NOT READY
 
     print("\n---Datapoint - Data contract matches:",len(matches))
     print("---Non matching Datapoints (e.g. visit not defined)",len(issues))
