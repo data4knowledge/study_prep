@@ -18,6 +18,7 @@ DATA_LABELS_TO_BC_LABELS = {
     'Informed Consent': 'Informed Consent',
     'Informed Consent': 'Informed Consent Obtained',
     'Date of Birth': 'Date of Birth',
+    'AE': 'Adverse Event Prespecified',
 }
 
 # Unknown visits
@@ -131,6 +132,11 @@ TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME = {
     },
     'Date of Birth': {
         'value': "BRTHDTC",
+        # 'value': "Date/Time of Birth",
+        'date': "Date Time",
+    },
+    'AE': {
+        'term': "AETERM",
         # 'value': "Date/Time of Birth",
         'date': "Date Time",
     },

@@ -162,6 +162,32 @@ def get_bc_properties_sub_timeline(bc_label, tpt, row):
     else:
         return results
 
+def get_bc_properties_ae(bc_label):
+    # if dm_visit in DATA_VISITS_TO_ENCOUNTER_LABELS:
+    #     visit = DATA_VISITS_TO_ENCOUNTER_LABELS[dm_visit]
+    # else:
+    #     add_issue("visit not found:",dm_visit)
+    #     return []
+    query = f"""
+        MATCH (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp)<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(act_inst)
+        WHERE bc.label = '{bc_label}'
+        return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, dc.uri as DC_URI
+    """
+    query = f"""
+        match (msai:ScheduledActivityInstance)<-[:INSTANCES_REL]-(dc:DataContract)-[:INSTANCES_REL]-(ssai:ScheduledActivityInstance)
+        match (ssai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
+        match (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)<-[:PROPERTIES_REL]-(bc:BiomedicalConcept)
+        WHERE bc.label = '{bc_label}'
+        return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, dc.uri as DC_URI
+    """
+    print("ae query", query)
+    results = db_query(query)
+    if results == []:
+        add_issue("DataContract has errors in it",bc_label,query)
+        return []
+    return results
+
+
 def create_data_contracts_lookup():
     global unique_data_contracts
     assert OUTPUT_PATH.exists(), "OUTPUT_PATH not found"
@@ -286,6 +312,19 @@ def create_data_contracts_lookup():
             add_debug("DoB adding",property)
             unique_data_contracts.append(property)
 
+    # Add AE stuff
+    properties = get_bc_properties_ae('Adverse Event Prespecified')
+    if properties:
+        matches.append([bc_label,[x['BCP_NAME'] for x in properties]])
+    else:
+        mismatches.append([bc_label])
+    for property in properties:
+        if property in unique_data_contracts:
+            True
+        else:
+            unique_data_contracts.append(property)
+
+
     print("Number of contracts and properties:",len(unique_data_contracts))
     print("Number of matches with data:",len(matches))
     print("Number of mismatches       :",len(mismatches), "(e.g. visit not defined in study)")
@@ -301,7 +340,14 @@ def create_data_contracts_lookup():
     [add_debug(x) for x in matches]
 
     # Sort before saving, so it is easier to spot differences
-    unique_data_contracts = sorted(unique_data_contracts, key=itemgetter('BC_LABEL','BCP_NAME','BCP_LABEL','ENCOUNTER_LABEL'))
+    # unique_data_contracts = sorted(unique_data_contracts, key=itemgetter('BC_LABEL','BCP_NAME','BCP_LABEL','ENCOUNTER_LABEL'))
+    def sortk(item):
+        if 'ENCOUNTER' in item:
+            return (item['BC_LABEL'],item['BCP_NAME'],item['BCP_LABEL'],item['ENCOUNTER_LABEL'])
+        else:
+            return (item['BC_LABEL'],item['BCP_NAME'],item['BCP_LABEL'])
+    unique_data_contracts = sorted(unique_data_contracts, key=sortk)
+    # unique_data_contracts = sorted(unique_data_contracts, key= lambda k: 'ENCOUNTER' not in k ('BC_LABEL','BCP_NAME','BCP_LABEL','ENCOUNTER_LABEL'))
 
     OUTPUT_FILE = OUTPUT_PATH / "data_contracts.json"
     print("Deleting old file ",OUTPUT_FILE, end="")
