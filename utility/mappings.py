@@ -18,6 +18,7 @@ DATA_LABELS_TO_BC_LABELS = {
     'Informed Consent': 'Informed Consent',
     'Informed Consent': 'Informed Consent Obtained',
     'Date of Birth': 'Date of Birth',
+    'Collection date': 'Date Time',
     'AE': 'Adverse Event Prespecified',
 }
 
@@ -110,7 +111,8 @@ TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME = {
     },
     'Sex': {
         'value': "Sex",
-        'date': "Date Time",
+        # 'date': "Date Time",
+        'date': "--DTC",
     },
     'Race': {
         'value': "Race",

@@ -367,7 +367,10 @@ def get_dm_data(data):
     # Date of Birth
     get_dm_variable(data, dm_data, 'Date of Birth', 'value', 'BRTHDTC')
 
-    # Ethnicity
+    # Collection date
+    get_dm_variable(data, dm_data, 'Sex', 'date', 'DMDTC')
+
+    # Ethnicity. No BC
     # get_dm_variable(data, dm_data, 'Ethnicity', 'value', 'BRTHDTC')
     
 def get_ae_variable(data, ae_data, data_label, data_property, sdtm_variable):

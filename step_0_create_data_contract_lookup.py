@@ -1,3 +1,4 @@
+import os
 import csv
 import json
 import pandas as pd
@@ -28,6 +29,19 @@ def write_debug(name, data):
             f.write(str(it))
             f.write('\n')
     print(" ...done")
+
+def output_csv(name, data):
+    OUTPUT_PATH = Path.cwd() / "data" / "output"
+    OUTPUT_FILE = OUTPUT_PATH / name
+    if OUTPUT_FILE.exists():
+        os.unlink(OUTPUT_FILE)
+    print("Saving to",OUTPUT_FILE)
+    # output_variables = list(data[0].keys())
+    output_variables = ['BC_LABEL','BCP_NAME','BCP_LABEL','ENCOUNTER_LABEL','TIMEPOINT_VALUE','DC_URI']
+    with open(OUTPUT_FILE, 'w') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=output_variables)
+        writer.writeheader()
+        writer.writerows(data)
 
 def add_debug(*txts):
     line = ""
@@ -178,7 +192,7 @@ def get_bc_properties_ae(bc_label):
         match (ssai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
         match (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)<-[:PROPERTIES_REL]-(bc:BiomedicalConcept)
         WHERE bc.label = '{bc_label}'
-        return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, dc.uri as DC_URI
+        return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, dc.uri as DC_URI,"" as ENCOUNTER_LABEL
     """
     print("ae query", query)
     results = db_query(query)
@@ -357,6 +371,8 @@ def create_data_contracts_lookup():
     with open(OUTPUT_FILE, 'w') as f:
         f.write(json.dumps(unique_data_contracts, indent = 2))
     print(" done")
+
+    output_csv("data_contracts.csv",unique_data_contracts)
 
     count = check_that_data_contracts_exist()
     if count:

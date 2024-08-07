@@ -1,4 +1,5 @@
 import json
+import re
 # import pandas as pd
 from pathlib import Path
 from neo4j import GraphDatabase
@@ -63,11 +64,89 @@ vs_query = """
 #     order by DOMAIN, USUBJID, test_code, e_order,ord ,VISIT, TPT
 #     """
 
+dm_query = """
+      call {
+        MATCH (sd:StudyDesign)-[:DOMAIN_REL]->(domain:Domain {name:'DM'})
+        MATCH (sd)<-[:STUDY_DESIGNS_REL]-(sv:StudyVersion)
+        MATCH (sv)-[:STUDY_IDENTIFIERS_REL]->(si:StudyIdentifier)-[:STUDY_IDENTIFIER_SCOPE_REL]->(sis:Organization {name:'Eli Lilly'})
+        WITH si, domain
+        MATCH (domain)-[:USING_BC_REL]-(bc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
+        MATCH (bcp)<-[:PROPERTIES_REL]-(dc:DataContract)
+        MATCH (bcp)-[:IS_A_REL]->(crm:CRMNode)
+        MATCH (dc)<-[:FOR_DC_REL]-(dp:DataPoint)
+        MATCH (dp)-[:FOR_SUBJECT_REL]->(subj:Subject)
+        MATCH (subj)-[:ENROLLED_AT_SITE_REL]->(site:StudySite)
+        OPTIONAL MATCH (site)<-[:MANAGES_REL]-(:ResearchOrganization)-[:LEGAL_ADDRESS_REL]->(:Address)-[:COUNTRY_REL]->(country:Code)
+        MATCH (domain)-[:VARIABLE_REL]->(var:Variable)
+        MATCH (dc)-[:INSTANCES_REL]->(act_inst_main:ScheduledActivityInstance)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(tim:Timing)
+        MATCH (act_inst_main)-[:ENCOUNTER_REL]->(e:Encounter)
+        MATCH (act_inst_main)-[:EPOCH_REL]->(epoch:StudyEpoch)
+        WHERE  var.label = bcp.label
+        return
+        si.studyIdentifier as STUDYID
+        , domain.name as DOMAIN
+        , subj.identifier as USUBJID
+        , right(subj.identifier,6) as SUBJECT
+        , var.name as variable
+        , dp.value as value
+        , site.name as SITEID
+        , e.label as VISIT
+        , epoch.label as EPOCH
+        , country.code as COUNTRY
+        union
+        MATCH (sd:StudyDesign)-[:DOMAIN_REL]->(domain:Domain {name:'DM'})
+        MATCH (sd)<-[:STUDY_DESIGNS_REL]-(sv:StudyVersion)
+        MATCH (sv)-[:STUDY_IDENTIFIERS_REL]->(si:StudyIdentifier)-[:STUDY_IDENTIFIER_SCOPE_REL]->(sis:Organization {name:'Eli Lilly'})
+        MATCH (domain)-[:USING_BC_REL]-(bc:BiomedicalConcept {name: "Informed Consent Obtained"})-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty {name:'DSSTDTC'})
+        MATCH (bcp)<-[:PROPERTIES_REL]-(dc:DataContract)<-[:FOR_DC_REL]-(dp:DataPoint)-[:FOR_SUBJECT_REL]->(subj:Subject)
+        MATCH (subj)-[:ENROLLED_AT_SITE_REL]->(site:StudySite)
+        OPTIONAL MATCH (site)<-[:MANAGES_REL]-(:ResearchOrganization)-[:LEGAL_ADDRESS_REL]->(:Address)-[:COUNTRY_REL]->(country:Code)
+        MATCH (dc)-[:INSTANCES_REL]->(act_inst_main:ScheduledActivityInstance)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(tim:Timing)
+        MATCH (act_inst_main)-[:ENCOUNTER_REL]->(e:Encounter)
+        MATCH (act_inst_main)-[:EPOCH_REL]->(epoch:StudyEpoch)
+        return
+        si.studyIdentifier as STUDYID
+        , domain.name as DOMAIN
+        , subj.identifier as USUBJID
+        , right(subj.identifier,6) as SUBJECT
+        , 'RFICDTC' as variable
+        , dp.value as value
+        , site.name as SITEID
+        , e.label as VISIT
+        , epoch.label as EPOCH
+        , country.code as COUNTRY
+      }
+      return STUDYID, DOMAIN, USUBJID, SUBJECT, variable, value, SITEID, VISIT, EPOCH, COUNTRY
+      order by USUBJID
+"""
+
+
+def get_dm_query():
+    study_service_pgm = Path('/Users/johannes/dev/python/github/study_service/model/domain.py')
+    with open(study_service_pgm, 'r') as file:
+        content = file.read()
+    match = re.search('second line\nThis third line', content)
+
 
 def add_to_debug(results):
+    print("isinstance(results)",results.__class__, end="")
     if results:
-        for result in results:
-            debug.append(result)
+        if isinstance(results,str):
+            print("--str")
+            debug.append(results)
+        if isinstance(results,dict):
+            print("--dict")
+            debug.append(results)
+            # for k,v in results.items():
+            #     debug.append(f'{k}:{v}')
+        elif isinstance(results,type({}.keys())):
+            print("--dict_keys")
+            debug.append(results)
+        else:
+            print("--whatever")
+            for result in results:
+                debug.append(result)
+
     else:
         debug.append("No results from local")
         print("No results from local")
@@ -102,6 +181,7 @@ def query_study_service(query):
     print("connected")
     results = _query_study_service(query)
     l = []
+    return results
     # for result in results:
     #     debug.append(result)
 
@@ -151,6 +231,14 @@ def transpose_findings(domain,input):
 
 
 def compare():
+    # dm_query = get_dm_query()
+    print("dm_query",dm_query)
+    dm_data = query_study_service(dm_query)
+    # add_to_debug(dm_data)
+    for row in dm_data:
+        add_to_debug(row)
+    write_debug(debug)
+    return
     neo_vs_raw = query_study_service(vs_query)
     neo_vs_raw = neo_vs_raw[0:20]
     for x in neo_vs_raw[0:1]:
