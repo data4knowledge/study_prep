@@ -371,31 +371,10 @@ def get_dm_data(data):
     # get_dm_variable(data, dm_data, 'Ethnicity', 'value', 'BRTHDTC')
     
 def get_ae_variable(data, ae_data, data_label, data_property, sdtm_variable):
-    for row in ae_data:
-        item = {}
-        dm_visit = "Screening 1"
-        bc_label = get_bc_label(data_label)
-        property_name = get_property_for_variable(bc_label,data_property)
-        # if data_property != 'value':
-        #     print("property_name",property_name)
-        #     print("data_contract",dm_visit,bc_label,property_name)
-        # debug.append(f"\nbc_label {bc_label} -> {property_name}")
-        data_contract = get_data_contract_dm(dm_visit,bc_label,property_name)
-        # debug.append("DC_CONTRACT:"+data_contract)
-        # debug.append(f"bc_label+prop {property_name}  -> {data_contract}")
-        if property_name:
-            if data_contract:
-                item['USUBJID'] = row['USUBJID']
-                item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-                item['VALUE'] = f"{row[sdtm_variable]}"
-                data.append(item)
-            else:
-                add_issue(f"No dc RESULT bc_label: {bc_label} - property_name: {property_name} - encounter: {dm_visit}")
-        else:
-            add_issue("Add property_name for DM",data_label,'value',row[sdtm_variable])
+    return
 
 def get_ae_data(data):
+    return
     print("\nGetting AE data")
     AE_DATA = Path.cwd() / "data" / "input" / "ae.json"
     assert AE_DATA.exists(), "EX_DATA not found"
@@ -422,54 +401,11 @@ def get_ae_data(data):
         else:
             add_issue("Add property for AETERM",row['AETERM'])
 
-        # # Date of collection
-        # property = get_property_for_variable(row['LBTEST'],'date')
-        # if property:
-        #     data_contract = get_data_contract(encounter,bc_label,property,tpt)
-        #     if data_contract:
-        #         item = {}
-        #         item['USUBJID'] = row['USUBJID']
-        #         item['DC_URI'] = data_contract
-        #         item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-        #         item['VALUE'] = f"{row['LBDTC']}"
-        #         data.append(item)
-        #     else:
-        #         add_issue("No dc UNIT bc_label:", bc_label, "- encounter:", encounter, "property:", property)
-        # else:
-        #     add_issue("Add property for LBTEST",row['LBTEST'],"LBORRESU",row['LBORRESU'])
-
-    # # Term
-    # get_ae_variable(data, ae_data, 'AETERM', 'value', 'TERM')
-    # # Sev
-
-
 def get_ex_variable(data, ex_data, data_label, data_property, sdtm_variable):
     pass
-    # for row in ex_data:
-    #     item = {}
-    #     dm_visit = "Screening 1"
-    #     bc_label = get_bc_label(data_label)
-    #     property_name = get_property_for_variable(bc_label,data_property)
-    #     # if data_property != 'value':
-    #     #     print("property_name",property_name)
-    #     #     print("data_contract",dm_visit,bc_label,property_name)
-    #     # debug.append(f"\nbc_label {bc_label} -> {property_name}")
-    #     data_contract = get_data_contract_dm(dm_visit,bc_label,property_name)
-    #     # debug.append("DC_CONTRACT:"+data_contract)
-    #     # debug.append(f"bc_label+prop {property_name}  -> {data_contract}")
-    #     if property_name:
-    #         if data_contract:
-    #             item['USUBJID'] = row['USUBJID']
-    #             item['DC_URI'] = data_contract
-    #             item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-    #             item['VALUE'] = f"{row[sdtm_variable]}"
-    #             data.append(item)
-    #         else:
-    #             add_issue(f"No dc RESULT bc_label: {bc_label} - property_name: {property_name} - encounter: {dm_visit}")
-    #     else:
-    #         add_issue("Add property_name for DM",data_label,'value',row[sdtm_variable])
 
 def get_ex_data(data):
+    return
     print("\nGetting EX data")
     EX_DATA = Path.cwd() / "data" / "input" / "dm.json"
     assert EX_DATA.exists(), "EX_DATA not found"
