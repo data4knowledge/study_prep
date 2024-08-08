@@ -129,24 +129,8 @@ def get_dm_query():
 
 
 def add_to_debug(results):
-    print("isinstance(results)",results.__class__, end="")
     if results:
-        if isinstance(results,str):
-            print("--str")
-            debug.append(results)
-        if isinstance(results,dict):
-            print("--dict")
-            debug.append(results)
-            # for k,v in results.items():
-            #     debug.append(f'{k}:{v}')
-        elif isinstance(results,type({}.keys())):
-            print("--dict_keys")
-            debug.append(results)
-        else:
-            print("--whatever")
-            for result in results:
-                debug.append(result)
-
+        debug.append(results)
     else:
         debug.append("No results from local")
         print("No results from local")

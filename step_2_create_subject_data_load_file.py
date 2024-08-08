@@ -86,10 +86,10 @@ def save_file(path: Path, name, data):
             print("\n!-!-!-!-!-!-!-!")
             print("!!! Data Conctract not found:",dc_uri)
 
-    for bcp_name, dc_uri in output_dc_uri_files.items():
-        # print("matching bcp - uri",bcp_name, dc_uri)
-        bcp_data = [item for item in data if item['DC_URI'] == dc_uri]
-        output_csv(TMP_PATH,f"{name}-{bcp_name.replace(' ','')}.csv",bcp_data)
+    # for bcp_name, dc_uri in output_dc_uri_files.items():
+    #     # print("matching bcp - uri",bcp_name, dc_uri)
+    #     bcp_data = [item for item in data if item['DC_URI'] == dc_uri]
+    #     output_csv(TMP_PATH,f"{name}-{bcp_name.replace(' ','')}.csv",bcp_data)
 
 def clean(txt):
     result = ""
@@ -330,6 +330,7 @@ def get_dm_variable(data, dm_data, data_label, data_property, sdtm_variable):
                 item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
                 item['VALUE'] = f"{row[sdtm_variable]}"
                 data.append(item)
+                debug.append(f"added {row['USUBJID']} {data_label} {data_property} {row[sdtm_variable]} {data_contract}")
                 if fake_value == 0 and data_label == 'Race':
                     item2 = {}
                     item2['USUBJID'] = row['USUBJID']
