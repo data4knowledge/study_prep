@@ -64,6 +64,61 @@ vs_query = """
 #     order by DOMAIN, USUBJID, test_code, e_order,ord ,VISIT, TPT
 #     """
 
+# dm_query = """
+#       call {
+#         MATCH (sd:StudyDesign)-[:DOMAIN_REL]->(domain:Domain {name:'DM'})
+#         MATCH (sd)<-[:STUDY_DESIGNS_REL]-(sv:StudyVersion)
+#         MATCH (sv)-[:STUDY_IDENTIFIERS_REL]->(si:StudyIdentifier)-[:STUDY_IDENTIFIER_SCOPE_REL]->(sis:Organization {name:'Eli Lilly'})
+#         WITH si, domain
+#         MATCH (domain)-[:USING_BC_REL]-(bc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
+#         MATCH (bcp)<-[:PROPERTIES_REL]-(dc:DataContract)
+#         MATCH (bcp)-[:IS_A_REL]->(crm:CRMNode)
+#         MATCH (dc)<-[:FOR_DC_REL]-(dp:DataPoint)
+#         MATCH (dp)-[:FOR_SUBJECT_REL]->(subj:Subject)
+#         MATCH (subj)-[:ENROLLED_AT_SITE_REL]->(site:StudySite)
+#         OPTIONAL MATCH (site)<-[:MANAGES_REL]-(:ResearchOrganization)-[:LEGAL_ADDRESS_REL]->(:Address)-[:COUNTRY_REL]->(country:Code)
+#         MATCH (domain)-[:VARIABLE_REL]->(var:Variable)
+#         MATCH (dc)-[:INSTANCES_REL]->(act_inst_main:ScheduledActivityInstance)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(tim:Timing)
+#         MATCH (act_inst_main)-[:ENCOUNTER_REL]->(e:Encounter)
+#         MATCH (act_inst_main)-[:EPOCH_REL]->(epoch:StudyEpoch)
+#         WHERE  var.label = bcp.label
+#         return
+#         si.studyIdentifier as STUDYID
+#         , domain.name as DOMAIN
+#         , subj.identifier as USUBJID
+#         , right(subj.identifier,6) as SUBJECT
+#         , var.name as variable
+#         , dp.value as value
+#         , site.name as SITEID
+#         , e.label as VISIT
+#         , epoch.label as EPOCH
+#         , country.code as COUNTRY
+#         union
+#         MATCH (sd:StudyDesign)-[:DOMAIN_REL]->(domain:Domain {name:'DM'})
+#         MATCH (sd)<-[:STUDY_DESIGNS_REL]-(sv:StudyVersion)
+#         MATCH (sv)-[:STUDY_IDENTIFIERS_REL]->(si:StudyIdentifier)-[:STUDY_IDENTIFIER_SCOPE_REL]->(sis:Organization {name:'Eli Lilly'})
+#         MATCH (domain)-[:USING_BC_REL]-(bc:BiomedicalConcept {name: "Informed Consent Obtained"})-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty {name:'DSSTDTC'})
+#         MATCH (bcp)<-[:PROPERTIES_REL]-(dc:DataContract)<-[:FOR_DC_REL]-(dp:DataPoint)-[:FOR_SUBJECT_REL]->(subj:Subject)
+#         MATCH (subj)-[:ENROLLED_AT_SITE_REL]->(site:StudySite)
+#         OPTIONAL MATCH (site)<-[:MANAGES_REL]-(:ResearchOrganization)-[:LEGAL_ADDRESS_REL]->(:Address)-[:COUNTRY_REL]->(country:Code)
+#         MATCH (dc)-[:INSTANCES_REL]->(act_inst_main:ScheduledActivityInstance)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(tim:Timing)
+#         MATCH (act_inst_main)-[:ENCOUNTER_REL]->(e:Encounter)
+#         MATCH (act_inst_main)-[:EPOCH_REL]->(epoch:StudyEpoch)
+#         return
+#         si.studyIdentifier as STUDYID
+#         , domain.name as DOMAIN
+#         , subj.identifier as USUBJID
+#         , right(subj.identifier,6) as SUBJECT
+#         , 'RFICDTC' as variable
+#         , dp.value as value
+#         , site.name as SITEID
+#         , e.label as VISIT
+#         , epoch.label as EPOCH
+#         , country.code as COUNTRY
+#       }
+#       return STUDYID, DOMAIN, USUBJID, SUBJECT, variable, value, SITEID, VISIT, EPOCH, COUNTRY
+#       order by USUBJID
+# """
 dm_query = """
       call {
         MATCH (sd:StudyDesign)-[:DOMAIN_REL]->(domain:Domain {name:'DM'})
@@ -81,7 +136,7 @@ dm_query = """
         MATCH (dc)-[:INSTANCES_REL]->(act_inst_main:ScheduledActivityInstance)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(tim:Timing)
         MATCH (act_inst_main)-[:ENCOUNTER_REL]->(e:Encounter)
         MATCH (act_inst_main)-[:EPOCH_REL]->(epoch:StudyEpoch)
-        WHERE  var.label = bcp.label
+        WHERE  var.label = bcp.label or bcp.name = crm.sdtm
         return
         si.studyIdentifier as STUDYID
         , domain.name as DOMAIN

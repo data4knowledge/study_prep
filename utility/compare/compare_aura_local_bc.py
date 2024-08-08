@@ -29,11 +29,33 @@ def query_aura(query):
     return results
 
 
-def query_local(query):
+def query_local_bc(query):
     NEO4J_CONNECTION_URI="bolt://localhost:7687"
     NEO4J_USERNAME="neo4j"
     NEO4J_PASSWORD="adminadmin"
     NEO4J_DB="bc-service-dev"
+
+    # Driver instantiation
+    driver = GraphDatabase.driver(NEO4J_CONNECTION_URI,auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
+
+    # session = self._driver.session(database=self._db_name)
+    # response = list(session.run(query))
+
+    with driver.session(database=NEO4J_DB) as session:
+        results = session.run(query).data()
+        # response = session.run(query)
+        # results = [result.data() for result in response]
+
+    driver.close()
+    
+    # return [result.data() for result in results]
+    return results
+
+def query_local_study_service(query):
+    NEO4J_CONNECTION_URI="bolt://localhost:7687"
+    NEO4J_USERNAME="neo4j"
+    NEO4J_PASSWORD="adminadmin"
+    NEO4J_DB="study-service-dev"
 
     # Driver instantiation
     driver = GraphDatabase.driver(NEO4J_CONNECTION_URI,auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
@@ -83,11 +105,6 @@ def query_both(query):
 # Variable
 # CodeList
 # AssignedTerm
-
-
-    # query = """
-    # call db.labels()
-    # """
 
 def compare_bc():
     print("Connecting to local Neo4j...",end="")
@@ -141,6 +158,32 @@ def compare_bc():
 
     write_tmp("neo4j-result-bc.txt",debug)
 
+def get_bcs():
+    query = """call db.labels()"""
+    query = """match (bc:CDISCGenericInstance) return bc.name, bc.label"""
+    # match (bc:CDISCGenericInstance|CDISCSdtmInstance|D4kInstance)
+    query = """
+        match (bc:CDISCGenericInstance|D4kInstance)
+        where toLower(bc.name) contains "exposure"
+        return labels(bc), bc.name, bc.label
+    """
+    # results = query_aura(query)
+    results = query_local_bc(query)
+    add_to_debug(results)
+    return
+    query = """
+        match (bc:BiomedicalConcept)
+        return bc.name, bc.label
+    """
+    results = query_local_study_service(query)
+    add_to_debug(results)
+    # for d in results:
+    #     add_to_debug(d)
+    # return results
+
+
 
 if __name__ == "__main__":
-    compare_bc()
+    get_bcs()
+    write_tmp("result-bc.txt",debug)
+    # compare_bc()
