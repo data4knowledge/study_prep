@@ -177,16 +177,11 @@ def get_bc_properties_sub_timeline(bc_label, tpt, row):
         return results
 
 def get_bc_properties_ae(bc_label):
-    # if dm_visit in DATA_VISITS_TO_ENCOUNTER_LABELS:
-    #     visit = DATA_VISITS_TO_ENCOUNTER_LABELS[dm_visit]
-    # else:
-    #     add_issue("visit not found:",dm_visit)
-    #     return []
-    query = f"""
-        MATCH (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp)<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(act_inst)
-        WHERE bc.label = '{bc_label}'
-        return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, dc.uri as DC_URI
-    """
+    # query = f"""
+    #     MATCH (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp)<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(act_inst)
+    #     WHERE bc.label = '{bc_label}'
+    #     return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, dc.uri as DC_URI
+    # """
     query = f"""
         match (msai:ScheduledActivityInstance)<-[:INSTANCES_REL]-(dc:DataContract)-[:INSTANCES_REL]-(ssai:ScheduledActivityInstance)
         match (ssai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
@@ -194,7 +189,7 @@ def get_bc_properties_ae(bc_label):
         WHERE bc.label = '{bc_label}'
         return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, dc.uri as DC_URI,"" as ENCOUNTER_LABEL
     """
-    print("ae query", query)
+    # print("ae query", query)
     results = db_query(query)
     if results == []:
         add_issue("DataContract has errors in it",bc_label,query)
@@ -218,6 +213,12 @@ def create_data_contracts_lookup():
     assert LB_DATA.exists(), "LB_DATA not found"
     with open(LB_DATA) as f:
         lb_data = json.load(f)
+
+    EX_DATA = Path.cwd() / "data" / "input" / "ex.json"
+    add_debug("Reading",EX_DATA)
+    assert EX_DATA.exists(), "EX_DATA not found"
+    with open(EX_DATA) as f:
+        ex_data = json.load(f)
 
 
     unique_test_visit = set()
@@ -248,6 +249,12 @@ def create_data_contracts_lookup():
                 unique_labels_visits.append({"TEST":row['LBTEST'],"VISIT":row['VISIT'],"TPT":row['LBTPT']})
             else:
                 unique_labels_visits.append({"TEST":row['LBTEST'],"VISIT":row['VISIT']})
+
+    for row in ex_data:
+        test_visit = f"{clean(row['EXTRT'])}{clean(row['VISIT'])}"
+        if test_visit not in unique_test_visit:
+            unique_test_visit.add(test_visit)
+            unique_labels_visits.append({"TEST":row['EXTRT'],"VISIT":row['VISIT']})
 
     print("Connecting to Neo4j...",end="")
     if db_is_down():
