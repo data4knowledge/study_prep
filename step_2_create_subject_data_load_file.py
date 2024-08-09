@@ -406,19 +406,52 @@ def get_ae_data(data):
             add_issue("Add property for AETERM",row['AETERM'])
 
 def get_ex_variable(data, ex_data, data_label, data_property, sdtm_variable):
-    pass
+    for row in ex_data:
+        item = {}
+        encounter = get_encounter(row)
+        if encounter != "":
+            bc_label = get_bc_label(data_label)
+            tpt = ""
+            property = get_property_for_variable(data_label,data_property)
+            if property:
+                data_contract = get_data_contract(encounter,bc_label,property,tpt)
+
+                if data_contract:
+                    item['USUBJID'] = row['USUBJID']
+                    item['DC_URI'] = data_contract
+                    item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+                    item['VALUE'] = f"{row[sdtm_variable]}"
+                    data.append(item)
+                    # print("adding ex")
+                else:
+                    add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
+            else:
+                add_issue("Add property for EX",data_label)
 
 def get_ex_data(data):
-    return
     print("\nGetting EX data")
-    EX_DATA = Path.cwd() / "data" / "input" / "dm.json"
+    EX_DATA = Path.cwd() / "data" / "input" / "ex.json"
     assert EX_DATA.exists(), "EX_DATA not found"
     with open(EX_DATA) as f:
         ex_data = json.load(f)
 
-    # Dose
-    get_ex_variable(data, ex_data, 'Sex', 'value', 'SEX')
-    # Dose date
+    # EXTRT
+    get_ex_variable(data, ex_data, 'Study Treatment', 'description', 'EXTRT')
+    # EXDOSE
+    get_ex_variable(data, ex_data, 'Study Treatment', 'dose', 'EXDOSE')
+    # EXDOSU
+    get_ex_variable(data, ex_data, 'Study Treatment', 'unit', 'EXDOSU')
+    # EXDOSFRM
+    get_ex_variable(data, ex_data, 'Study Treatment', 'form', 'EXDOSFRM')
+    # EXDOSFRQ
+    get_ex_variable(data, ex_data, 'Study Treatment', 'frequency', 'EXDOSFRQ')
+    # EXSTDTC
+    get_ex_variable(data, ex_data, 'Study Treatment', 'start', 'EXSTDTC')
+    # EXENDTC
+    get_ex_variable(data, ex_data, 'Study Treatment', 'end', 'EXENDTC')
+    # EXROUTE
+    get_ex_variable(data, ex_data, 'Study Treatment', 'route', 'EXROUTE')
+
 
 
 def create_subject_data_load_file():
@@ -441,10 +474,9 @@ def create_subject_data_load_file():
     get_vs_data(data)
     get_lb_data(data)
     get_dm_data(data)
+    get_ex_data(data)
     # Must fix data contracts for event driven
     # get_ae_data(data)
-    # Must fix bc for EX
-    # get_ex_data(data) NOT READY
 
     print("\n---Datapoint - Data contract matches:",len(matches))
     print("---Non matching Datapoints (e.g. visit not defined)",len(issues))
