@@ -20,6 +20,8 @@ DATA_LABELS_TO_BC_LABELS = {
     'Date of Birth': 'Date of Birth',
     'Collection date': 'Date Time',
     'AE': 'Adverse Event Prespecified',
+    'XANOMELINE': 'Exposure Unblinded',
+    'PLACEBO': 'Exposure Unblinded',
 }
 
 # Unknown visits

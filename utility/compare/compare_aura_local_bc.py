@@ -130,7 +130,7 @@ def compare_bc():
         where toLower(n.name) contains "date"
         RETURN n,s,ra LIMIT 25
     """
-    results = query_local(query)
+    results = query_local_bc(query)
     # for x in results:
     #     add_to_debug(f"x.__class__: {x.__class__}")
     add_to_debug([x for x in results])
