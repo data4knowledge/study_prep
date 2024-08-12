@@ -102,7 +102,7 @@ def check_data_contracts():
             RETURN distinct data_row['DC_URI'] as data_contract
         """
         results = session.run(query)
-    items = [result.data() for result in results]
+        items = [result.data() for result in results]
     with db.session() as session:
         for item in items:
             query = f"""
@@ -110,7 +110,7 @@ def check_data_contracts():
                 WITH COUNT(dc) > 0  as dc_exists
                 RETURN dc_exists as exist
             """
-            # print(query)
+            print(query)
             results = session.run(query)
             if results[0].data()['exist']:
                 pass
@@ -123,7 +123,7 @@ def load_datapoints():
     copy_files_to_db_import(import_directory)
     add_identifiers()
     add_datapoints()
-    check_data_contracts()
+    # check_data_contracts()
     # add_identifiers_datapoints()
 
 if __name__ == "__main__":

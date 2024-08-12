@@ -416,18 +416,18 @@ def get_ex_variable(data, ex_data, data_property, sdtm_variable):
             property = get_property_for_variable(bc_label, data_property)
             if property:
                 data_contract = get_data_contract(encounter, bc_label, property,tpt)
-
                 if data_contract:
                     item['USUBJID'] = row['USUBJID']
                     item['DC_URI'] = data_contract
                     item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
                     item['VALUE'] = f"{row[sdtm_variable]}"
                     data.append(item)
-                    # print("adding ex")
                 else:
                     add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
             else:
-                add_issue("Add property for EX",row['EXTRT'])
+                add_issue("Add property for EX",row['EXTRT'], data_property)
+        else:
+            add_issue("Add encounter for EX",row['EXTRT'],row['VISIT'])
 
 def get_ex_data(data):
     print("\nGetting EX data")

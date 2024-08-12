@@ -385,7 +385,8 @@ def create_data_contracts_lookup():
 
     OUTPUT_FILE = OUTPUT_PATH / "data_contracts.json"
     print("Deleting old file ",OUTPUT_FILE, end="")
-    Path.unlink(OUTPUT_FILE)
+    if OUTPUT_FILE.exists():
+        Path.unlink(OUTPUT_FILE)
     print(" done")
     print("Saving to ",OUTPUT_FILE, end="")
     with open(OUTPUT_FILE, 'w') as f:
