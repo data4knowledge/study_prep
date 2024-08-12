@@ -20,9 +20,9 @@ DATA_LABELS_TO_BC_LABELS = {
     'Date of Birth': 'Date of Birth',
     'Collection date': 'Date Time',
     'AE': 'Adverse Event Prespecified',
-    'Study Treatment': 'Exposure Unblinded',
-    # 'XANOMELINE': 'Exposure Unblinded',
-    # 'PLACEBO': 'Exposure Unblinded',
+    # 'Study Treatment': 'Exposure Unblinded',
+    'XANOMELINE': 'Exposure Unblinded',
+    'PLACEBO': 'Exposure Unblinded',
 }
 
 # Unknown visits
@@ -145,7 +145,7 @@ TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME = {
         # 'value': "Date/Time of Birth",
         'date': "Date Time",
     },
-    'Study Treatment': {
+    'Exposure Unblinded': {
         'description': "EXTRT",
         'dose': "EXDOSE",
         'unit': "EXDOSU",

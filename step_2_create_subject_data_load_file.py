@@ -405,16 +405,17 @@ def get_ae_data(data):
         else:
             add_issue("Add property for AETERM",row['AETERM'])
 
-def get_ex_variable(data, ex_data, data_label, data_property, sdtm_variable):
+# def get_ex_variable(data, ex_data, data_label, data_property, sdtm_variable):
+def get_ex_variable(data, ex_data, data_property, sdtm_variable):
     for row in ex_data:
         item = {}
         encounter = get_encounter(row)
         if encounter != "":
-            bc_label = get_bc_label(data_label)
+            bc_label = get_bc_label(row['EXTRT'])
             tpt = ""
-            property = get_property_for_variable(data_label,data_property)
+            property = get_property_for_variable(bc_label, data_property)
             if property:
-                data_contract = get_data_contract(encounter,bc_label,property,tpt)
+                data_contract = get_data_contract(encounter, bc_label, property,tpt)
 
                 if data_contract:
                     item['USUBJID'] = row['USUBJID']
@@ -426,7 +427,7 @@ def get_ex_variable(data, ex_data, data_label, data_property, sdtm_variable):
                 else:
                     add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
             else:
-                add_issue("Add property for EX",data_label)
+                add_issue("Add property for EX",row['EXTRT'])
 
 def get_ex_data(data):
     print("\nGetting EX data")
@@ -436,21 +437,22 @@ def get_ex_data(data):
         ex_data = json.load(f)
 
     # EXTRT
-    get_ex_variable(data, ex_data, 'Study Treatment', 'description', 'EXTRT')
+    # get_ex_variable(data, ex_data, 'Study Treatment', 'description', 'EXTRT')
+    get_ex_variable(data, ex_data, 'description', 'EXTRT')
     # EXDOSE
-    get_ex_variable(data, ex_data, 'Study Treatment', 'dose', 'EXDOSE')
+    get_ex_variable(data, ex_data, 'dose', 'EXDOSE')
     # EXDOSU
-    get_ex_variable(data, ex_data, 'Study Treatment', 'unit', 'EXDOSU')
+    get_ex_variable(data, ex_data, 'unit', 'EXDOSU')
     # EXDOSFRM
-    get_ex_variable(data, ex_data, 'Study Treatment', 'form', 'EXDOSFRM')
+    get_ex_variable(data, ex_data, 'form', 'EXDOSFRM')
     # EXDOSFRQ
-    get_ex_variable(data, ex_data, 'Study Treatment', 'frequency', 'EXDOSFRQ')
+    get_ex_variable(data, ex_data, 'frequency', 'EXDOSFRQ')
     # EXSTDTC
-    get_ex_variable(data, ex_data, 'Study Treatment', 'start', 'EXSTDTC')
+    get_ex_variable(data, ex_data, 'start', 'EXSTDTC')
     # EXENDTC
-    get_ex_variable(data, ex_data, 'Study Treatment', 'end', 'EXENDTC')
+    get_ex_variable(data, ex_data, 'end', 'EXENDTC')
     # EXROUTE
-    get_ex_variable(data, ex_data, 'Study Treatment', 'route', 'EXROUTE')
+    get_ex_variable(data, ex_data, 'route', 'EXROUTE')
 
 
 
