@@ -110,7 +110,7 @@ def check_data_contracts():
                 WITH COUNT(dc) > 0  as dc_exists
                 RETURN dc_exists as exist
             """
-            print(query)
+            # print(query)
             results = session.run(query)
             if results[0].data()['exist']:
                 pass
