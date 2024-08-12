@@ -165,3 +165,5 @@ cython_debug/
 tmp
 .*_env
 /data/usdm
+/data/output
+
