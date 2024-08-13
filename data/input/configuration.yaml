@@ -1,0 +1,8 @@
+---
+study_products_bc:
+  - "Exposure Unblinded"
+disposition:
+  first_exposure: true
+  last_exposure: true
+demography:
+  exposure_dates: true
