@@ -1,8 +1,9 @@
 ---
-study_products_bc:
+name: "Configuration"
+study_products_bcs:
   - "Exposure Unblinded"
 disposition:
-  first_exposure: true
-  last_exposure: true
+  - "first_exposure"
+  - "last_exposure"
 demography:
-  exposure_dates: true
+  - exposure_dates
