@@ -332,19 +332,6 @@ def create_data_contracts_lookup():
         else:
             add_debug("DoB adding",property)
             unique_data_contracts.append(property)
-    # bc_label = "Date of Birth"
-    # properties = get_bc_properties_dm(bc_label,dm_visit)
-    # if properties:
-    #     matches.append([bc_label,[x['BCP_NAME'] for x in properties]])
-    # else:
-    #     mismatches.append([bc_label,dm_visit])
-    # for property in properties:
-    #     if property in unique_data_contracts:
-    #         add_debug("DoB not adding",property)
-    #         True
-    #     else:
-    #         add_debug("DoB adding",property)
-    #         unique_data_contracts.append(property)
 
     # Add AE stuff
     properties = get_bc_properties_ae('Adverse Event Prespecified')
