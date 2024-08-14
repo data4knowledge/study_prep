@@ -3,7 +3,7 @@ import yaml
 from d4kms_service import Node, Neo4jConnection
 from d4kms_generic import ServiceEnvironment
 from uuid import uuid4
-from base_node import BaseNode
+from .base_node import BaseNode
 from typing import List, Literal
 
 class ConfigurationNode(BaseNode):
@@ -18,6 +18,14 @@ class ConfigurationNode(BaseNode):
     with db.session() as session:
       result = session.execute_write(cls._delete_configuration, cls)
       result = session.execute_write(cls._create, cls, params)
+    db.close()
+    return result
+
+  @classmethod
+  def delete(cls):
+    db = Neo4jConnection()
+    with db.session() as session:
+      result = session.execute_write(cls._delete_configuration, cls)
     db.close()
     return result
 
@@ -46,7 +54,9 @@ class ConfigurationNode(BaseNode):
     # print("query",query)
     result = tx.run(query, uuid1=str(uuid4()))
     for row in result:
+      print("Configuration node created",row['a'])
       return cls.wrap(row['a'])
+    print("Failed to create configuration node")
     return None
 
   @staticmethod
@@ -55,22 +65,21 @@ class ConfigurationNode(BaseNode):
       MATCH (a:%s) RETURN a
     """ % (cls.__name__)
     print("query",query)
-    # result = tx.run(query, uuid1=str(uuid4()))
     result = tx.run(query)
     for row in result:
+      print("Configuration node found",row['a'])
       return cls.wrap(row['a'])
-    return None
+    return cls.wrap({'uuid':'Failed to get configuration'})
 
   @staticmethod
   def _delete_configuration(tx, cls):
     query = """
       MATCH (a:%s) detach delete a
-      RETURN count(a)
+      RETURN count(a) as count
     """ % (cls.__name__)
-    print("query",query)
     result = tx.run(query, uuid1=str(uuid4()))
     for row in result:
-      return print("delete row",row)
+      print("Deleted old configuration node(s)",row['count'])
     return None
 
 class Configuration():
@@ -86,14 +95,4 @@ class Configuration():
     with open(filepath, "r") as f:
       data = yaml.load(f, Loader=yaml.FullLoader)
     return data
-
-
-def main():
-  c = Configuration()
-  # print(c._configuration)
-  ConfigurationNode.create(c._configuration)
-  # configuration = ConfigurationNode.get()
-
-if __name__ == '__main__':
-  main()
 
