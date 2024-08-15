@@ -192,6 +192,30 @@ def get_data_contract_ae(bc_label,property_name):
         add_issue("get_data_contract_dm Miss BC_LABEL:", bc_label, "BCP_NAME:",property_name)
         return None
 
+def get_vs_variable(data, row, data_property, sdtm_variable):
+    item = {}
+    encounter = get_encounter(row)
+    if encounter != "":
+        bc_label = get_bc_label(row['VSTEST'])
+        tpt = ""
+        if 'VSTPT' in row and row['VSTPT'] != "":
+            tpt = DATA_TPT_TO_TIMING_LABELS[row['VSTPT']]
+
+        property = get_property_for_variable(row['VSTEST'],data_property)
+        data_contract = get_data_contract(encounter,bc_label,property,tpt)
+        if data_contract:
+            item['USUBJID'] = row['USUBJID']
+            item['DC_URI'] = data_contract
+            item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+            item['VALUE'] = f"{row[sdtm_variable]}"
+            data.append(item)
+            add_row_dp('VS',['USUBJID','VSSEQ'], row, item['DATAPOINT_URI'])
+        else:
+            # add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
+            add_issue(f"Ignoring {data_property} for:", bc_label)
+    else:
+            add_issue("Ignoring visit", row['VISIT'], "encounter:", encounter)
+
 def get_vs_data(data):
     print("\nGetting VS data")
     VS_DATA = Path.cwd() / "data" / "input" / "vs.json"
@@ -201,72 +225,9 @@ def get_vs_data(data):
 
     for row in vs_data:
         add_row_dp('VS',['USUBJID','VSSEQ'], row)
-        item = {}
-
-        # Result
-        encounter = get_encounter(row)
-        if encounter != "":
-            bc_label = get_bc_label(row['VSTEST'])
-            tpt = ""
-            if 'VSTPT' in row and row['VSTPT'] != "":
-                tpt = DATA_TPT_TO_TIMING_LABELS[row['VSTPT']]
-
-            property = get_property_for_variable(row['VSTEST'],'VSORRES')
-            data_contract = get_data_contract(encounter,bc_label,property,tpt)
-            if data_contract:
-                item['USUBJID'] = row['USUBJID']
-                item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-                item['VALUE'] = f"{row['VSORRES']}"
-                data.append(item)
-                add_row_dp('VS',['USUBJID','VSSEQ'], row, item['DATAPOINT_URI'])
-            else:
-                add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
-
-            # Unit
-            property = get_property_for_variable(row['VSTEST'],'VSORRESU')
-            data_contract = get_data_contract(encounter,bc_label,property,tpt)
-            if data_contract:
-                item = {}
-                item['USUBJID'] = row['USUBJID']
-                item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-                item['VALUE'] = f"{row['VSORRESU']}"
-                data.append(item)
-                add_row_dp('VS',['USUBJID','VSSEQ'], row, item['DATAPOINT_URI'])
-            else:
-                add_issue("No dc UNIT bc_label:", bc_label, "- encounter:", encounter, "property:", property)
-
-            # Date of collection
-            property = get_property_for_variable(row['VSTEST'],'date')
-            data_contract = get_data_contract(encounter,bc_label,property,tpt)
-            if data_contract:
-                item = {}
-                item['USUBJID'] = row['USUBJID']
-                item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-                item['VALUE'] = f"{row['VSDTC']}"
-                data.append(item)
-                add_row_dp('VS',['USUBJID','VSSEQ'], row, item['DATAPOINT_URI'])
-            else:
-                add_issue("No dc UNIT bc_label:", bc_label, "- encounter:", encounter, "property:", property)
-
-            # position
-            property = get_property_for_variable(row['VSTEST'],'position')
-            data_contract = get_data_contract(encounter,bc_label,property,tpt)
-            if data_contract:
-                item = {}
-                item['USUBJID'] = row['USUBJID']
-                item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-                item['VALUE'] = f"{row['VSPOS']}"
-                data.append(item)
-                add_row_dp('VS',['USUBJID','VSSEQ'], row, item['DATAPOINT_URI'])
-            else:
-                # add_issue("Ignoring position for:", bc_label, "- encounter:", encounter, "property:", property)
-                add_issue("Ignoring position for:", bc_label)
-        else:
-                add_issue("Ignoring visit", row['VISIT'], "encounter:", encounter)
+        get_vs_variable(data, row, 'VSORRES', 'VSORRES')
+        get_vs_variable(data, row, 'date', 'VSDTC')
+        get_vs_variable(data, row, 'position', 'VSPOS')
 
 
 def get_lb_variable(data, row, data_property, sdtm_variable):
