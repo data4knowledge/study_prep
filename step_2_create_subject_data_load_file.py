@@ -269,6 +269,32 @@ def get_vs_data(data):
                 add_issue("Ignoring visit", row['VISIT'], "encounter:", encounter)
 
 
+def get_lb_variable(data, row, data_property, sdtm_variable):
+    item = {}
+    encounter = get_encounter(row)
+    if encounter != "":
+        bc_label = get_bc_label(row['LBTEST'])
+        tpt = ""
+        if 'LBTPT' in row and row['LBTPT'] != "":
+            tpt = DATA_TPT_TO_TIMING_LABELS[row['LBTPT']]
+
+        property = get_property_for_variable(row['LBTEST'],data_property)
+        if property:
+            data_contract = get_data_contract(encounter,bc_label,property,tpt)
+            if data_contract:
+                item['USUBJID'] = row['USUBJID']
+                item['DC_URI'] = data_contract
+                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+                item['VALUE'] = f"{row[sdtm_variable]}"
+                data.append(item)
+                add_row_dp('LB',['USUBJID','LBSEQ'], row, item['DATAPOINT_URI'])
+            else:
+                add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
+        else:
+            add_issue("Add property for LBTEST",row['LBTEST'],"LBORRESU",row['LBORRESU'])
+    else:
+            add_issue("Ignoring visit", row['VISIT'], "encounter:", encounter)
+
 def get_lb_data(data):
     print("\nGetting LB data")
     LB_DATA = Path.cwd() / "data" / "input" / "lb.json"
@@ -277,69 +303,10 @@ def get_lb_data(data):
         lb_data = json.load(f)
 
     for row in lb_data:
-        item = {}
         add_row_dp('LB',['USUBJID','LBSEQ'], row)
-
-        # Result
-        encounter = get_encounter(row)
-        if encounter != "":
-            bc_label = get_bc_label(row['LBTEST'])
-            tpt = ""
-            if 'LBTPT' in row and row['LBTPT'] != "":
-                tpt = DATA_TPT_TO_TIMING_LABELS[row['LBTPT']]
-
-            property = get_property_for_variable(row['LBTEST'],'LBORRES')
-            if property:
-                data_contract = get_data_contract(encounter,bc_label,property,tpt)
-
-                if data_contract:
-                    item['USUBJID'] = row['USUBJID']
-                    item['DC_URI'] = data_contract
-                    item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-                    item['VALUE'] = f"{row['LBORRES']}"
-                    data.append(item)
-                    add_row_dp('LB',['USUBJID','LBSEQ'], row, item['DATAPOINT_URI'])
-                else:
-                    add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
-            else:
-                add_issue("Add property for LBTEST",row['LBTEST'],"LBORRESU",row['LBORRESU'])
-
-            # Unit
-            property = get_property_for_variable(row['LBTEST'],'LBORRESU')
-            if property:
-                data_contract = get_data_contract(encounter,bc_label,property,tpt)
-                if data_contract:
-                    item = {}
-                    item['USUBJID'] = row['USUBJID']
-                    item['DC_URI'] = data_contract
-                    item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-                    item['VALUE'] = f"{row['LBORRESU']}"
-                    data.append(item)
-                    add_row_dp('LB',['USUBJID','LBSEQ'], row, item['DATAPOINT_URI'])
-                else:
-                    add_issue("No dc UNIT bc_label:", bc_label, "- encounter:", encounter, "property:", property)
-            else:
-                add_issue("Add property for LBTEST",row['LBTEST'],"LBORRESU",row['LBORRESU'])
-
-            # Date of collection
-            property = get_property_for_variable(row['LBTEST'],'date')
-            if property:
-                data_contract = get_data_contract(encounter,bc_label,property,tpt)
-                if data_contract:
-                    item = {}
-                    item['USUBJID'] = row['USUBJID']
-                    item['DC_URI'] = data_contract
-                    item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-                    item['VALUE'] = f"{row['LBDTC']}"
-                    data.append(item)
-                    add_row_dp('LB',['USUBJID','LBSEQ'], row, item['DATAPOINT_URI'])
-                else:
-                    add_issue("No dc UNIT bc_label:", bc_label, "- encounter:", encounter, "property:", property)
-            else:
-                add_issue("Add property for LBTEST",row['LBTEST'],"LBORRESU",row['LBORRESU'])
-
-        else:
-                add_issue("Ignoring visit", row['VISIT'], "encounter:", encounter)
+        get_lb_variable(data, row, 'LBORRES', 'LBORRES')
+        get_lb_variable(data, row, 'LBORRESU', 'LBORRESU')
+        get_lb_variable(data, row, 'date', 'LBDTC')
 
 def get_dm_variable(data, row, data_label, data_property, sdtm_variable):
     # DM does not contain VISIT
@@ -381,19 +348,12 @@ def get_dm_data(data):
 
     for row in dm_data:
         add_row_dp('DM',['USUBJID'],row)
-        # Sex
         get_dm_variable(data, row, 'Sex', 'value', 'SEX')
-        # Race
         get_dm_variable(data, row, 'Race', 'value', 'RACE')
-        # Informed Consent
         get_dm_variable(data, row, 'Informed Consent', 'value', 'RFICDTC')
-        # ISSUE: Faking Informed consent date
+        # NB: Faking Informed consent date
         get_dm_variable(data, row, 'Informed Consent', 'date', 'RFICDTC')
-
-        # Date of Birth
         get_dm_variable(data, row, 'Date of Birth', 'value', 'BRTHDTC')
-
-        # Collection date
         get_dm_variable(data, row, 'Sex', 'date', 'DMDTC')
         # Ethnicity. No BC
    
@@ -427,7 +387,6 @@ def get_ae_data(data):
     bc_label = get_bc_label("AE")
     for row in ae_data[0:3]:
         add_row_dp('AE',['USUBJID','AESEQ'],row)
-        # Result
         get_ae_variable(data, row, bc_label, 'term', 'AETERM')
         get_ae_variable(data, row, bc_label, 'decode', 'AEDECOD')
         get_ae_variable(data, row, bc_label, 'severity', 'AESEV')
@@ -465,21 +424,13 @@ def get_ex_data(data):
 
     for row in ex_data:
         add_row_dp('EX',['USUBJID','EXSEQ'],row)
-        # EXTRT
         get_ex_variable(data, row, 'description', 'EXTRT')
-        # EXDOSE
         get_ex_variable(data, row, 'dose', 'EXDOSE')
-        # EXDOSU
         get_ex_variable(data, row, 'unit', 'EXDOSU')
-        # EXDOSFRM
         get_ex_variable(data, row, 'form', 'EXDOSFRM')
-        # EXDOSFRQ
         get_ex_variable(data, row, 'frequency', 'EXDOSFRQ')
-        # EXSTDTC
         get_ex_variable(data, row, 'start', 'EXSTDTC')
-        # EXENDTC
         get_ex_variable(data, row, 'end', 'EXENDTC')
-        # EXROUTE
         get_ex_variable(data, row, 'route', 'EXROUTE')
 
 
