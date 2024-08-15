@@ -108,7 +108,7 @@ def get_property_for_variable(test,variable):
     if test in TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME and variable in TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME[test]:
         property = TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME[test][variable]
     else:
-        print("Add property",test,variable)
+        print(f"Add property for test:{test} - property/variable:{variable}")
     return property
 
 def get_encounter(row):
@@ -158,12 +158,13 @@ def get_data_contract_dm(encounter,bc_label,property_name):
         add_issue("get_data_contract_dm Miss BC_LABEL:", bc_label, "BCP_NAME:",property_name)
         return None
 
-def get_data_contract_ae(bc_label,property_name,usubjid,seq):
+def get_data_contract_ae(bc_label,property_name):
     dc_item = next((item for item in data_contracts if item["BC_LABEL"] == bc_label and item['BCP_NAME'] == property_name), None)
     if dc_item != None:
         matches.append(dc_item)
         if "DC_URI" in dc_item:
-            return dc_item['DC_URI']+f"/{usubjid}/{seq}"
+            # return dc_item['DC_URI']+f"/{usubjid}/{seq}"
+            return dc_item['DC_URI']
         else:
             print("Missing DC_URI", bc_label, property_name)
             return None
@@ -374,38 +375,41 @@ def get_dm_data(data):
     # Ethnicity. No BC
     # get_dm_variable(data, dm_data, 'Ethnicity', 'value', 'BRTHDTC')
     
-def get_ae_variable(data, ae_data, data_label, data_property, sdtm_variable):
-    return
+# def get_ae_variable(data, row, bc_label, data_label, data_property, sdtm_variable):
+def get_ae_variable(data, row, bc_label, data_label, sdtm_variable):
+    item = {}
+    # property = get_property_for_variable("AE",'term')
+    property = get_property_for_variable(bc_label,data_label)
+    print("property",bc_label,"-",data_label,"-",property)
+    if property:
+        data_contract = get_data_contract_ae(bc_label,property)
+        if data_contract:
+            item['USUBJID'] = row['USUBJID']
+            item['DC_URI'] = data_contract
+            item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['AESEQ']}"
+            item['VALUE'] = f"{row[sdtm_variable]}"
+            data.append(item)
+        else:
+            # add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
+            add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property}")
+    else:
+        add_issue(f"Add property for data_label:{data_label} {data_property}")
 
 def get_ae_data(data):
-    return
     print("\nGetting AE data")
     AE_DATA = Path.cwd() / "data" / "input" / "ae.json"
     assert AE_DATA.exists(), "EX_DATA not found"
     with open(AE_DATA) as f:
         ae_data = json.load(f)
 
-    for row in ae_data[0:2]:
-        item = {}
+    bc_label = get_bc_label("AE")
+    for row in ae_data[0:3]:
         # Result
-        bc_label = get_bc_label("AE")
-        print("bc_label",bc_label)
-        property = get_property_for_variable("AE",'term')
-        print("property",property)
-        if property:
-            data_contract = get_data_contract_ae(bc_label,property,row['USUBJID'],row['AESEQ'])
-            if data_contract:
-                item['USUBJID'] = row['USUBJID']
-                item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-                item['VALUE'] = f"{row['AETERM']}"
-                data.append(item)
-            else:
-                add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
-        else:
-            add_issue("Add property for AETERM",row['AETERM'])
+        get_ae_variable(data, row, bc_label, 'term', 'AETERM')
+        get_ae_variable(data, row, bc_label, 'decode', 'AEDECOD')
+        get_ae_variable(data, row, bc_label, 'severity', 'AESEV')
 
-# def get_ex_variable(data, ex_data, data_label, data_property, sdtm_variable):
+
 def get_ex_variable(data, ex_data, data_property, sdtm_variable):
     for row in ex_data:
         item = {}
@@ -477,8 +481,9 @@ def create_subject_data_load_file():
     get_lb_data(data)
     get_dm_data(data)
     get_ex_data(data)
+
     # Must fix data contracts for event driven
-    # get_ae_data(data)
+    get_ae_data(data)
 
     print("\n---Datapoint - Data contract matches:",len(matches))
     print("---Non matching Datapoints (e.g. visit not defined)",len(issues))

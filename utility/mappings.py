@@ -145,6 +145,13 @@ TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME = {
         # 'value': "Date/Time of Birth",
         'date': "Date Time",
     },
+    'Adverse Event Prespecified': {
+        'term': "AETERM",
+        'decode': "AEDECOD",
+        'severity': "AESEV",
+        # 'value': "Date/Time of Birth",
+        'date': "Date Time",
+    },
     'Exposure Unblinded': {
         'description': "EXTRT",
         'dose': "EXDOSE",
