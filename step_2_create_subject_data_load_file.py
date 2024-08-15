@@ -206,7 +206,7 @@ def get_vs_variable(data, row, data_property, sdtm_variable):
         if data_contract:
             item['USUBJID'] = row['USUBJID']
             item['DC_URI'] = data_contract
-            item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+            item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['VSSEQ']}"
             item['VALUE'] = f"{row[sdtm_variable]}"
             data.append(item)
             add_row_dp('VS',['USUBJID','VSSEQ'], row, item['DATAPOINT_URI'])
@@ -245,7 +245,7 @@ def get_lb_variable(data, row, data_property, sdtm_variable):
             if data_contract:
                 item['USUBJID'] = row['USUBJID']
                 item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['LBSEQ']}"
                 item['VALUE'] = f"{row[sdtm_variable]}"
                 data.append(item)
                 add_row_dp('LB',['USUBJID','LBSEQ'], row, item['DATAPOINT_URI'])
@@ -346,11 +346,12 @@ def get_ae_data(data):
         ae_data = json.load(f)
 
     bc_label = get_bc_label("AE")
-    for row in ae_data[0:3]:
+    for row in ae_data:
         add_row_dp('AE',['USUBJID','AESEQ'],row)
-        get_ae_variable(data, row, bc_label, 'term', 'AETERM')
+        # get_ae_variable(data, row, bc_label, 'term', 'AETERM')
         get_ae_variable(data, row, bc_label, 'decode', 'AEDECOD')
         get_ae_variable(data, row, bc_label, 'severity', 'AESEV')
+        get_ae_variable(data, row, bc_label, 'start', 'AESTDTC')
 
 
 def get_ex_variable(data, row, data_property, sdtm_variable):
@@ -365,7 +366,7 @@ def get_ex_variable(data, row, data_property, sdtm_variable):
             if data_contract:
                 item['USUBJID'] = row['USUBJID']
                 item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['EXSEQ']}"
                 item['VALUE'] = f"{row[sdtm_variable]}"
                 data.append(item)
                 add_row_dp('EX',['USUBJID','EXSEQ'],row, item['DATAPOINT_URI'])
@@ -440,8 +441,18 @@ def create_subject_data_load_file():
         exit()
 
     save_file(OUTPUT_PATH,"datapoints",data)
-    check_dc_in_file(OUTPUT_PATH,"datapoints")
-    # output_csv(OUTPUT_PATH,"row_datapoints",row_datapoints)
+    # check_dc_in_file(OUTPUT_PATH,"datapoints")
+
+    # row datapoints
+    print("\nCreating datapoints relation to row")
+    for_csv = []
+    for key,dps in row_datapoints.items():
+        for dp in dps:
+            item = {}
+            item["key"] = key
+            item['datapoint_uri'] = dp
+            for_csv.append(item)
+    output_csv(OUTPUT_PATH,"row_datapoints.csv",for_csv)
     output_json(OUTPUT_PATH,"row_datapoints",row_datapoints)
     # save_file(OUTPUT_PATH,"row_datapoints",row_datapoints)
 

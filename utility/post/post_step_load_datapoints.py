@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from d4kms_service import Neo4jConnection
 
@@ -39,6 +40,9 @@ def copy_files_to_db_import(import_directory):
     datapoints_file = Path.cwd() / "data" / "output" / "datapoints.csv"
     assert datapoints_file.exists(), f"datapoints_file does not exist: {datapoints_file}"
     copy_file_to_db_import(datapoints_file, import_directory)
+    row_datapoints_file = Path.cwd() / "data" / "output" / "row_datapoints.csv"
+    assert row_datapoints_file.exists(), f"row_datapoints_file does not exist: {row_datapoints_file}"
+    copy_file_to_db_import(row_datapoints_file, import_directory)
 
 def add_identifiers():
     db = Neo4jConnection()
@@ -117,12 +121,36 @@ def check_data_contracts():
             else:
                 print("\n---\ndata_contract MISSING :",item['data_contract'])
 
+def link_row_datapoints():
+    # print("\nGetting row datapoints")
+    # DP_FILE = Path.cwd() / "data" / "output" / "row_datapoints.json"
+    # assert DP_FILE.exists(), "DP_FILE not found"
+    # with open(DP_FILE) as f:
+    #     data = json.load(f)
+
+    db = Neo4jConnection()
+    with db.session() as session:
+        query = """
+            LOAD CSV WITH HEADERS FROM 'file:///row_datapoints.csv'  AS data_row
+            WITH data_row
+            MATCH (dp:DataPoint {uri:data_row['datapoint_uri']})
+            MERGE (record:Record {key:data_row['key']})
+            MERGE (dp)-[:SOURCE]->(record)
+            RETURN count(*)
+        """
+        print("query",query)
+        results = session.run(query)
+        print("results row datapoints",[result.data() for result in results])
+
+
+
 def load_datapoints():
     clear_created_nodes()
     import_directory = get_import_directory()
     copy_files_to_db_import(import_directory)
     add_identifiers()
     add_datapoints()
+    link_row_datapoints()
     # check_data_contracts()
     # add_identifiers_datapoints()
 

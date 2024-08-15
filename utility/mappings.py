@@ -151,6 +151,8 @@ TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME = {
         'severity': "AESEV",
         # 'value': "Date/Time of Birth",
         'date': "Date Time",
+        'start': "AESTDTC",
+        'end': "AEENDTC",
     },
     'Exposure Unblinded': {
         'description': "EXTRT",

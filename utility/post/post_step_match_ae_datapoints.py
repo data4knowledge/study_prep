@@ -1,17 +1,18 @@
 from pathlib import Path
 from d4kms_service import Neo4jConnection
 
+debug = []
 
-def clear_created_nodes():
-  return
-  db = Neo4jConnection()
-  with db.session() as session:
-      query = "match (n:Datapoint|DataPoint) detach delete n return count(n)"
-      results = session.run(query)
-      print("Removing Datapoint/DataPoint",results)
-      query = "match (n:Subject) detach delete n return count(n)"
-      results = session.run(query)
-      print("Removing Subject",results)
+def write_debug(data):
+    TMP_PATH = Path.cwd() / "tmp" / "saved_debug"
+    OUTPUT_FILE = TMP_PATH / "ae-match-debug.txt"
+    print("Writing file...",OUTPUT_FILE.name,OUTPUT_FILE, end="")
+    with open(OUTPUT_FILE, 'w') as f:
+        for it in data:
+            f.write(str(it))
+            f.write('\n')
+    print(" ...done")
+
 
 def set_ae_datapoints_unassigned():
   db = Neo4jConnection()
@@ -29,29 +30,78 @@ def set_ae_datapoints_unassigned():
     print("Set status unassigned",next(results))
   return
 
-def get_visits():
+def get_visit_dates():
   db = Neo4jConnection()
   with db.session() as session:
     query = """
-      MATCH (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
-      MATCH (bcp)<-[:PROPERTIES_REL]->(dc:DataContract)
-      MATCH (dc)<-[:FOR_DC_REL]->(dp:DataPoint)
-      WHERE bc.name = "Adverse Event Prespecified"
-      WITH dp
-      SET dp.status = "unassigned"
-      return count(dp) as count
+      MATCH (:BiomedicalConcept {name:"Adverse Event Prespecified"})-[:PROPERTIES_REL]->(aebcp:BiomedicalConceptProperty)<-[:PROPERTIES_REL]->(aedc:DataContract)
+      MATCH (aedc)<-[:FOR_DC_REL]->(aedp:DataPoint)
+      with aedc, aedp
+      MATCH (aedp)-[:FOR_SUBJECT_REL]->(subj:Subject)
+      MATCH (subj)<-[:FOR_SUBJECT_REL]-(dtcdp:DataPoint)-[:FOR_DC_REL]->(dc:DataContract)
+      MATCH (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)-[:IS_A_REL]-(crm:CRMNode)
+      MATCH (dc)-[:INSTANCES_REL]->(sai:ScheduledActivityInstance)
+      MATCH (sai)-[:ENCOUNTER_REL]->(enc:Encounter)
+      // MATCH (sai)-[:EPOCH_REL]->(epoch:StudyEpoch)
+      where crm.datatype = "date_time"
+      with distinct 
+      subj.identifier as usubjid
+      // ,enc.name as e_name
+      ,enc.label as encounter
+      ,min(dtcdp.value) as start_date
+      ,max(dtcdp.value) as end_date
+      order by usubjid, start_date
+      return distinct 
+      usubjid
+      ,encounter
+      ,start_date
+      ,end_date
     """
     results = session.run(query)
-    items = [result.data() for result in results]
+    return [result.data() for result in results]
 
-def match_ae_datapoints():
+def match_ae_datapoints(visits):
   db = Neo4jConnection()
+  # Get AE "records" start date
   with db.session() as session:
       query = """
-
+        MATCH (bc:BiomedicalConcept {name: "Adverse Event Prespecified"})-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
+        MATCH (bcp)<-[:PROPERTIES_REL]->(dc:DataContract)<-[:FOR_DC_REL]->(dp:DataPoint)-[:SOURCE]->(r:Record)
+        MATCH (dp)-[:FOR_SUBJECT_REL]->(subj:Subject)
+        MATCH (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)-[:IS_A_REL]-(crm:CRMNode)
+        WHERE crm.sdtm = "--STDTC"
+        with subj, r, dp
+        return
+        subj.identifier as usubjid
+        ,r.key as record_key
+        ,dp.value as start_date
       """
+      # print("query",query)
       results = session.run(query)
-      items = [result.data() for result in results]
+      aes = [result.data() for result in results]
+
+  # for ae in aes:
+  #   debug.append(ae)
+
+  subjects = list(set([item['usubjid'] for item in aes]))
+  print("subjects",subjects)
+
+  for subject in subjects:
+    subj_dates = [item['start_date'] for item in visits if item['usubjid'] == subject]
+    # for x in subj_dates:
+    #   debug.append(x)
+    subj_ae = [item for item in aes if item['usubjid'] == subject]
+    for ae in subj_ae:
+      debug.append("")
+      debug.append(ae)
+      debug.append(subj_dates)
+      match = next((date for date in subj_dates if date <= ae['start_date']),None)
+      debug.append(match)
+      if match:
+        visit = next((item for item in visits if item['usubjid'] == subject and item['start_date'] == match),None)
+        debug.append(visit)
+
+  # Match AE records with visits
 
   # with db.session() as session:
   #     for item in items:
@@ -70,4 +120,10 @@ def match_ae_datapoints():
 if __name__ == "__main__":
   # clear_created_nodes()
   set_ae_datapoints_unassigned()
-  # match_ae_datapoints()
+  visits = get_visit_dates()
+  # for x in visits:
+  #    debug.append(x)
+ 
+  match_ae_datapoints(visits)
+
+  write_debug(debug)
