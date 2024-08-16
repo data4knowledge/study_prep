@@ -28,6 +28,7 @@ def set_ae_datapoints_unassigned():
     """
     results = session.run(query)
     print("Set status unassigned",next(results))
+  db.close()
   return
 
 def get_visit_dates():
@@ -58,7 +59,8 @@ def get_visit_dates():
       ,end_date
     """
     results = session.run(query)
-    return [result.data() for result in results]
+    res = [result.data() for result in results]
+  return res
 
 def match_ae_datapoints(visits):
   db = Neo4jConnection()
@@ -79,27 +81,34 @@ def match_ae_datapoints(visits):
       # print("query",query)
       results = session.run(query)
       aes = [result.data() for result in results]
+  db.close()
 
   # for ae in aes:
   #   debug.append(ae)
 
   subjects = list(set([item['usubjid'] for item in aes]))
-  print("subjects",subjects)
+  # print("subjects",subjects)
 
   for subject in subjects:
+    debug.append(f"doing subject {subject}")
+    print("doing subject",subject)
     subj_dates = [item['start_date'] for item in visits if item['usubjid'] == subject]
+    debug.append(subj_dates)
     # for x in subj_dates:
     #   debug.append(x)
     subj_ae = [item for item in aes if item['usubjid'] == subject]
     for ae in subj_ae:
       debug.append("")
       debug.append(ae)
-      debug.append(subj_dates)
-      match = next((date for date in subj_dates if date <= ae['start_date']),None)
-      debug.append(match)
+      match = next((date for date in subj_dates if ae['start_date'] <= date),None)
       if match:
+        idx = subj_dates.index(match)
+        debug.append(f"idx: {idx} {match}")
+        debug.append(f"match:{match} < {ae['start_date']}")
         visit = next((item for item in visits if item['usubjid'] == subject and item['start_date'] == match),None)
         debug.append(visit)
+      else:
+        debug.append("no match")
 
   # Match AE records with visits
 

@@ -12,7 +12,8 @@ def clear_created_nodes():
         query = "match (n:Subject) detach delete n return count(n)"
         results = session.run(query)
         print("Removing Subject",results)
-
+    db.close()
+    
 def get_import_directory():
     db = Neo4jConnection()
     with db.session() as session:
@@ -58,6 +59,7 @@ def add_identifiers():
             RETURN count(*) as count
         """
         results = session.run(query)
+    db.close()
     print("results identifiers/enrolment",results)
 
 def add_datapoints():
@@ -74,6 +76,7 @@ def add_datapoints():
             RETURN count(*) as count
         """
         results = session.run(query)
+    db.close()
     print("results datapoints",results)
 
 def add_identifiers_datapoints():
@@ -96,6 +99,7 @@ def add_identifiers_datapoints():
             RETURN count(*)
         """
         results = session.run(query)
+    db.close()
     print("results datapoints",results)
 
 def check_data_contracts():
@@ -107,6 +111,7 @@ def check_data_contracts():
         """
         results = session.run(query)
         items = [result.data() for result in results]
+    db.close()
     with db.session() as session:
         for item in items:
             query = f"""
@@ -120,7 +125,7 @@ def check_data_contracts():
                 pass
             else:
                 print("\n---\ndata_contract MISSING :",item['data_contract'])
-
+    db.close()
 def link_row_datapoints():
     # print("\nGetting row datapoints")
     # DP_FILE = Path.cwd() / "data" / "output" / "row_datapoints.json"
@@ -141,7 +146,7 @@ def link_row_datapoints():
         print("query",query)
         results = session.run(query)
         print("results row datapoints",[result.data() for result in results])
-
+    db.close()
 
 
 def load_datapoints():
