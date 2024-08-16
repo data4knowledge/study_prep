@@ -326,15 +326,18 @@ def get_ae_variable(data, row, bc_label, data_label, sdtm_variable):
     if property:
         data_contract = get_data_contract_ae(bc_label,property)
         if data_contract:
-            item['USUBJID'] = row['USUBJID']
-            item['DC_URI'] = data_contract
-            item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['AESEQ']}"
-            item['VALUE'] = f"{row[sdtm_variable]}"
-            data.append(item)
-            add_row_dp('AE',['USUBJID','AESEQ'],row, item['DATAPOINT_URI'])
+            if row[sdtm_variable]:
+                item['USUBJID'] = row['USUBJID']
+                item['DC_URI'] = data_contract
+                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['AESEQ']}"
+                item['VALUE'] = f"{row[sdtm_variable]}"
+                data.append(item)
+                add_row_dp('AE',['USUBJID','AESEQ'],row, item['DATAPOINT_URI'])
+            else:
+                add_issue(f"Ignoring missing value value is missing: {sdtm_variable}")
         else:
             # add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
-            add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property}")
+            add_issue(f"-!-!-! No dc RESULT bc_label: {bc_label} - property: {property}")
     else:
         add_issue(f"Add property for data_label:{data_label} {property}")
 
@@ -348,10 +351,43 @@ def get_ae_data(data):
     bc_label = get_bc_label("AE")
     for row in ae_data:
         add_row_dp('AE',['USUBJID','AESEQ'],row)
-        # get_ae_variable(data, row, bc_label, 'term', 'AETERM')
+        get_ae_variable(data, row, bc_label, 'date','AEDTC'),
+        get_ae_variable(data, row, bc_label, 'start', 'AESTDTC')
+        get_ae_variable(data, row, bc_label, 'endtc','AEENDTC'),
+        get_ae_variable(data, row, bc_label, 'term', 'AETERM')
         get_ae_variable(data, row, bc_label, 'decode', 'AEDECOD')
         get_ae_variable(data, row, bc_label, 'severity', 'AESEV')
-        get_ae_variable(data, row, bc_label, 'start', 'AESTDTC')
+
+        get_ae_variable(data, row, bc_label, 'ser','AESER'),
+        get_ae_variable(data, row, bc_label, 'acn','AEACN'),
+        get_ae_variable(data, row, bc_label, 'rel','AEREL'),
+        get_ae_variable(data, row, bc_label, 'out','AEOUT'),
+        get_ae_variable(data, row, bc_label, 'scan','AESCAN'),
+        get_ae_variable(data, row, bc_label, 'scong','AESCONG'),
+        get_ae_variable(data, row, bc_label, 'sdisab','AESDISAB'),
+        get_ae_variable(data, row, bc_label, 'sdth','AESDTH'),
+        get_ae_variable(data, row, bc_label, 'shosp','AESHOSP'),
+        get_ae_variable(data, row, bc_label, 'slife','AESLIFE'),
+        get_ae_variable(data, row, bc_label, 'sod','AESOD'),
+
+
+        # Missing BCP
+        get_ae_variable(data, row, bc_label, 'llt', "AELLT"),
+        # get_ae_variable(data, row, bc_label, 'lltcd': "AELLTCD"),
+        # get_ae_variable(data, row, bc_label, 'ptcd','AEPTCD'),
+        # get_ae_variable(data, row, bc_label, 'hltcd','AEHLTCD'),
+        # get_ae_variable(data, row, bc_label, 'hlgt','AEHLGT'),
+        # get_ae_variable(data, row, bc_label, 'hlgtcd','AEHLGTCD'),
+        # get_ae_variable(data, row, bc_label, 'bodsys','AEBODSYS'),
+        # get_ae_variable(data, row, bc_label, 'bdsycd','AEBDSYCD'),
+        # get_ae_variable(data, row, bc_label, 'soc','AESOC'),
+        # get_ae_variable(data, row, bc_label, 'soccd','AESOCCD'),
+
+        # Derivations - ignore
+        # get_ae_variable(data, row, bc_label, 'stdy','AESTDY'),
+        # get_ae_variable(data, row, bc_label, 'endy','AEENDY'),
+
+
 
 
 def get_ex_variable(data, row, data_property, sdtm_variable):

@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from d4kms_service import Neo4jConnection
+from model.configuration import Configuration, ConfigurationNode
 
 
 def clear_created_nodes():
@@ -59,8 +60,9 @@ def add_identifiers():
             RETURN count(*) as count
         """
         results = session.run(query)
+        res = [result.data() for result in results]
     db.close()
-    print("results identifiers/enrolment",results)
+    print("results datapoints",res)
 
 def add_datapoints():
     db = Neo4jConnection()
@@ -76,8 +78,9 @@ def add_datapoints():
             RETURN count(*) as count
         """
         results = session.run(query)
+        res = [result.data() for result in results]
     db.close()
-    print("results datapoints",results)
+    print("results datapoints",res)
 
 def add_identifiers_datapoints():
     db = Neo4jConnection()
@@ -153,11 +156,17 @@ def load_datapoints():
     clear_created_nodes()
     import_directory = get_import_directory()
     copy_files_to_db_import(import_directory)
-    add_identifiers()
-    add_datapoints()
-    link_row_datapoints()
-    # check_data_contracts()
     # add_identifiers_datapoints()
+    print("\nadd identifiers")
+    add_identifiers()
+    print("\nadd datapoints")
+    add_datapoints()
+    # check_data_contracts()
+    print("\nlink row datatpoints")
+    link_row_datapoints()
+    c = Configuration()
+    # ConfigurationNode.delete()
+    ConfigurationNode.create(c._configuration)
 
 if __name__ == "__main__":
     load_datapoints()

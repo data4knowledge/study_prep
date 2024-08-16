@@ -4,8 +4,8 @@ from model.configuration import Configuration, ConfigurationNode
 
 def main():
   c = Configuration()
-  ConfigurationNode.create(c._configuration)
   # ConfigurationNode.delete()
+  ConfigurationNode.create(c._configuration)
 
 
 if __name__ == "__main__":
