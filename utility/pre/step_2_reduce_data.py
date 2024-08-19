@@ -49,6 +49,11 @@ def save_data(data,domain):
     df.to_csv(OUTPUT_CSV, index = False)
     print("saved csv: ",OUTPUT_CSV)
 
+    OUTPUT_XLSX = OUTPUT_PATH / f"{domain}.csv"
+    df = pd.DataFrame(data)
+    df.to_excel(OUTPUT_XLSX, index = False)
+    print("saved xlsx: ",OUTPUT_XLSX)
+
 
 def reduce_domain(subjects, domain):
     ds_data = get_dataset(domain)
@@ -93,11 +98,11 @@ OUTPUT_PATH = Path('/Users/johannes/Library/CloudStorage/OneDrive-data4knowledge
 if __name__ == "__main__":
     subjects = get_subjects()
     print("len(subjects)",len(subjects))
-    # reduce_lb(subjects)
+    reduce_lb(subjects)
     reduce_vs(subjects)
-    # reduce_domain(subjects, "ae")
-    # reduce_domain(subjects, "suppae")
-    # reduce_domain(subjects, "suppdm")
-    # reduce_domain(subjects, "ex")
-    # reduce_domain(subjects, 'ds')
+    reduce_domain(subjects, "ae")
+    reduce_domain(subjects, "suppae")
+    reduce_domain(subjects, "suppdm")
+    reduce_domain(subjects, "ex")
+    reduce_domain(subjects, 'ds')
     print("Done")

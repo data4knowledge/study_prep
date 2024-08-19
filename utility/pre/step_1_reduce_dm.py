@@ -9,9 +9,11 @@ def get_xpt_data(file):
     data = df.to_dict(orient='records')
     return data
 
+IMPORT_PATH = Path('/Users/johannes/Library/CloudStorage/OneDrive-data4knowledge/shared_mac/pilots/updated_pilot_submission_package/Updated Pilot Submission Package/900172/m5/datasets/cdiscpilot01/tabulations/sdtm')
+OUTPUT_PATH = Path('/Users/johannes/Library/CloudStorage/OneDrive-data4knowledge/shared_mac/pilots')
 
 def reduce_dm():
-    FULL_DM_DATA = Path.cwd() / "tmp" / "dm.xpt"
+    FULL_DM_DATA = IMPORT_PATH / "dm.xpt"
     print("Reading",FULL_DM_DATA)
     assert FULL_DM_DATA.exists(), "FULL_DM_DATA not found"
 
@@ -31,7 +33,6 @@ def reduce_dm():
         '1972-11-22',
     ]
 
-    # dm_data = [x for x in dm[0:10]]
     dm_data = []
     print("N.B! Faking 1) RFICDTC from DMDTC 2) BRTHDTC is hardcoded")
     i = 0
@@ -52,9 +53,15 @@ def reduce_dm():
         f.write(json.dumps(dm_data, indent = 2))
     print("done")
 
-    DM_CSV = Path.cwd() / "data" / "input" / "dm.csv"
+    DM_CSV = OUTPUT_PATH / "dm.csv"
     df = pd.DataFrame(dm_data)
     df.to_csv(DM_CSV, index = False)
+    print("Saving",DM_CSV)
+
+    DM_XLSX = OUTPUT_PATH / "dm.xlsx"
+    df = pd.DataFrame(dm_data)
+    df.to_excel(DM_XLSX, index = False)
+    print("Saving",DM_XLSX)
 
 if __name__ == "__main__":
     reduce_dm()
