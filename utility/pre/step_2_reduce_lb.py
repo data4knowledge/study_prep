@@ -28,6 +28,7 @@ def reduce_lb():
 
     subjects = [x['USUBJID'] for x in dm]
     print("subjects",subjects)
+    print("len(subjects)",len(subjects))
 
     LB_DATA_FULL = Path.cwd() / "tmp" / "lb.xpt"
     assert LB_DATA_FULL.exists(), "LB_DATA_FULL not found"
@@ -37,7 +38,7 @@ def reduce_lb():
     lb_data = [x for x in lb if x['USUBJID'] in subjects and x['LBTEST'] in LABELS]
     print("reduced len(lb_data)",len(lb_data))
 
-    LB_DATA = Path.cwd() / "data" / "input" / "lb.json"
+    LB_DATA = Path.cwd() / "data" / "input" / "lb_old.json"
     with open(LB_DATA, 'w') as f:
         f.write(json.dumps(lb_data, indent = 2))
 
