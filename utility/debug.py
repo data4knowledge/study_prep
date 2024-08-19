@@ -6,7 +6,7 @@ from d4kms_service import Neo4jConnection
 
 # print("\033[H\033[J") # Clears terminal window in vs code
 
-debug = []
+# debug = []
 
 def write_debug(data):
     TMP_PATH = Path.cwd() / "tmp"
@@ -28,6 +28,15 @@ def write_tmp(name, data):
             f.write('\n')
     print(" ...done")
 
+def write_tmp_json(name, data):
+    TMP_PATH = Path.cwd() / "tmp" / "saved_debug"
+    OUTPUT_FILE = TMP_PATH / f"{name}.json"
+    print("Writing file...",OUTPUT_FILE.name,OUTPUT_FILE, end="")
+    json_data = json.dumps(data, indent= 2)
+    with open(OUTPUT_FILE, "w") as json_file:
+        json_file.write(json_data)
+    print(" ...done")
+
 
 def get_xpt_data(file):
     df = pd.read_sas(file,format='xport',encoding='ISO-8859-1')
@@ -37,6 +46,8 @@ def get_xpt_data(file):
 
 
 def to_debug(*txts):
+    global debug
+    print("printilintar")
     list = []
     for x in txts:
         list.append(x)

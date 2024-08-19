@@ -55,43 +55,50 @@ LB_RESULT_NAME = 'LBORRES'
 VS_UNIT_NAME = 'VSORRESU'
 LB_UNIT_NAME = 'LBORRESU'
 VS_POSITION = 'VSPOS'
+VS_LOCATION = 'VSLOC'
 FINDINGS_DTC = '--DTC'
 TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME = {
     'Weight': {
         'VSORRES': VS_RESULT_NAME,
         'VSORRESU': VS_UNIT_NAME,
         'date': FINDINGS_DTC,
-        'position': VS_POSITION
+        'position': VS_POSITION,
+        'location': VS_LOCATION
     },
     'Height': {
         'VSORRES': VS_RESULT_NAME,
         'VSORRESU': VS_UNIT_NAME,
         'date': FINDINGS_DTC,
-        'position': VS_POSITION
+        'position': VS_POSITION,
+        'location': VS_LOCATION
     },
     'Temperature': {
         'VSORRES': VS_RESULT_NAME,
         'VSORRESU': VS_UNIT_NAME,
         'date': FINDINGS_DTC,
-        'position': VS_POSITION
+        'position': VS_POSITION,
+        'location': VS_LOCATION
     },
     'Diastolic Blood Pressure': {
         'VSORRES': VS_RESULT_NAME,
         'VSORRESU': VS_UNIT_NAME,
         'date': FINDINGS_DTC,
-        'position': VS_POSITION
+        'position': VS_POSITION,
+        'location': VS_LOCATION
     },
     'Systolic Blood Pressure': {
         'VSORRES': VS_RESULT_NAME,
         'VSORRESU': VS_UNIT_NAME,
         'date': FINDINGS_DTC,
-        'position': VS_POSITION
+        'position': VS_POSITION,
+        'location': VS_LOCATION
     },
     'Pulse Rate': {
         'VSORRES': VS_RESULT_NAME,
         'VSORRESU': VS_UNIT_NAME,
         'date': FINDINGS_DTC,
-        'position': VS_POSITION
+        'position': VS_POSITION,
+        'location': VS_LOCATION
     },
     'Aspartate Aminotransferase': {
         'LBORRES': LB_RESULT_NAME,

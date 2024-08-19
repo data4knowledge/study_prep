@@ -228,6 +228,7 @@ def get_vs_data(data):
         get_vs_variable(data, row, 'VSORRES', 'VSORRES')
         get_vs_variable(data, row, 'date', 'VSDTC')
         get_vs_variable(data, row, 'position', 'VSPOS')
+        # get_vs_variable(data, row, 'location', 'VSLOC')
 
 
 def get_lb_variable(data, row, data_property, sdtm_variable):
