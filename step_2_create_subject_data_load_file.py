@@ -204,12 +204,13 @@ def get_vs_variable(data, row, data_property, sdtm_variable):
         property = get_property_for_variable(row['VSTEST'],data_property)
         data_contract = get_data_contract(encounter,bc_label,property,tpt)
         if data_contract:
-            item['USUBJID'] = row['USUBJID']
-            item['DC_URI'] = data_contract
-            item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['VSSEQ']}"
-            item['VALUE'] = f"{row[sdtm_variable]}"
-            data.append(item)
-            add_row_dp('VS',['USUBJID','VSSEQ'], row, item['DATAPOINT_URI'])
+            if row[sdtm_variable]:
+                item['USUBJID'] = row['USUBJID']
+                item['DC_URI'] = data_contract
+                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['VSSEQ']}"
+                item['VALUE'] = f"{row[sdtm_variable]}"
+                data.append(item)
+                add_row_dp('VS',['USUBJID','VSSEQ'], row, item['DATAPOINT_URI'])
         else:
             # add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
             add_issue(f"Ignoring {data_property} for:", bc_label)
@@ -228,7 +229,7 @@ def get_vs_data(data):
         get_vs_variable(data, row, 'VSORRES', 'VSORRES')
         get_vs_variable(data, row, 'date', 'VSDTC')
         get_vs_variable(data, row, 'position', 'VSPOS')
-        # get_vs_variable(data, row, 'location', 'VSLOC')
+        get_vs_variable(data, row, 'location', 'VSLOC')
 
 
 def get_lb_variable(data, row, data_property, sdtm_variable):
@@ -244,12 +245,13 @@ def get_lb_variable(data, row, data_property, sdtm_variable):
         if property:
             data_contract = get_data_contract(encounter,bc_label,property,tpt)
             if data_contract:
-                item['USUBJID'] = row['USUBJID']
-                item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['LBSEQ']}"
-                item['VALUE'] = f"{row[sdtm_variable]}"
-                data.append(item)
-                add_row_dp('LB',['USUBJID','LBSEQ'], row, item['DATAPOINT_URI'])
+                if row[sdtm_variable]:
+                    item['USUBJID'] = row['USUBJID']
+                    item['DC_URI'] = data_contract
+                    item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['LBSEQ']}"
+                    item['VALUE'] = f"{row[sdtm_variable]}"
+                    data.append(item)
+                    add_row_dp('LB',['USUBJID','LBSEQ'], row, item['DATAPOINT_URI'])
             else:
                 add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
         else:
@@ -273,29 +275,28 @@ def get_lb_data(data):
 def get_dm_variable(data, row, data_label, data_property, sdtm_variable):
     # DM does not contain VISIT
     dm_visit = "Screening 1"
-    fake_value = 0
     item = {}
     bc_label = get_bc_label(data_label)
     property_name = get_property_for_variable(bc_label,data_property)
     data_contract = get_data_contract_dm(dm_visit,bc_label,property_name)
     if property_name:
         if data_contract:
-            item['USUBJID'] = row['USUBJID']
-            item['DC_URI'] = data_contract
-            item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-            item['VALUE'] = f"{row[sdtm_variable]}"
-            data.append(item)
-            add_row_dp('DM',['USUBJID'], row, item['DATAPOINT_URI'])
-            # Faking multipe race for one subject
-            if row['USUBJID'] == '01-701-1028' and data_label == 'Race':
-                item2 = {}
-                item2['USUBJID'] = row['USUBJID']
-                item2['DC_URI'] = data_contract
-                item2['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-                item2['VALUE'] = "ASIAN"
-                data.append(item2)
-                add_row_dp('DM',['USUBJID'], row, item['DATAPOINT_URI']+"race_supp")
-                fake_value += 1
+            if row[sdtm_variable]:
+                item['USUBJID'] = row['USUBJID']
+                item['DC_URI'] = data_contract
+                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+                item['VALUE'] = f"{row[sdtm_variable]}"
+                data.append(item)
+                add_row_dp('DM',['USUBJID'], row, item['DATAPOINT_URI'])
+                # Faking multipe race for one subject
+                if row['USUBJID'] == '01-701-1028' and data_label == 'Race':
+                    item2 = {}
+                    item2['USUBJID'] = row['USUBJID']
+                    item2['DC_URI'] = data_contract
+                    item2['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+                    item2['VALUE'] = "ASIAN"
+                    data.append(item2)
+                    add_row_dp('DM',['USUBJID'], row, item['DATAPOINT_URI']+"race_supp")
         else:
             add_issue(f"No dc RESULT bc_label: {bc_label} - property_name: {property_name} - encounter: {dm_visit}")
     else:
@@ -401,12 +402,13 @@ def get_ex_variable(data, row, data_property, sdtm_variable):
         if property:
             data_contract = get_data_contract(encounter, bc_label, property,tpt)
             if data_contract:
-                item['USUBJID'] = row['USUBJID']
-                item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['EXSEQ']}"
-                item['VALUE'] = f"{row[sdtm_variable]}"
-                data.append(item)
-                add_row_dp('EX',['USUBJID','EXSEQ'],row, item['DATAPOINT_URI'])
+                if row[sdtm_variable]:
+                    item['USUBJID'] = row['USUBJID']
+                    item['DC_URI'] = data_contract
+                    item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['EXSEQ']}"
+                    item['VALUE'] = f"{row[sdtm_variable]}"
+                    data.append(item)
+                    add_row_dp('EX',['USUBJID','EXSEQ'],row, item['DATAPOINT_URI'])
             else:
                 add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
         else:
