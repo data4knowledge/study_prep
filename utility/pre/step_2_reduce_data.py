@@ -27,11 +27,13 @@ def get_dataset(domain):
     print(f"full len({domain})",len(data))
     return data
 
-def reduce_dataset(data, subjects, labels = None):
-    if labels:
-        data = [x for x in data if x['USUBJID'] in subjects and x['LBTEST'] in labels]
-    else:
-        data = [x for x in data if x['USUBJID'] in subjects]
+def reduce_dataset(data, subjects):
+    data = [x for x in data if x['USUBJID'] in subjects]
+    print("reduced len(data)",len(data))
+    return data
+
+def reduce_dataset_tests(data, subjects, test_labels, var):
+    data = [x for x in data if x['USUBJID'] in subjects and x[var] in test_labels]
     print("reduced len(data)",len(data))
     return data
 
@@ -48,39 +50,41 @@ def save_data(data,domain):
     print("saved csv: ",OUTPUT_CSV)
 
 
-def reduce_ae(subjects):
-    domain = 'ae'
-    ae_data = get_dataset(domain)
-    ae_data = reduce_dataset(ae_data, subjects)
-    save_data(ae_data,domain)
-
-def reduce_ds(subjects):
-    domain = 'ds'
-    ds_data = get_dataset(domain)
-    ds_data = reduce_dataset(ds_data, subjects)
-    save_data(ds_data,domain)
-
-def reduce_domain(subjects):
-    domain = 'ex'
+def reduce_domain(subjects, domain):
     ds_data = get_dataset(domain)
     ds_data = reduce_dataset(ds_data, subjects)
     save_data(ds_data,domain)
 
 def reduce_lb(subjects):
     domain = 'lb'
-    LABELS = [
+    # Ignoring to reduce size 
+    # "Creatinine",
+    # "Potassium",
+    # "Sodium"
+    test_labels = [
         "Alanine Aminotransferase",
         "Hemoglobin A1C",
         "Aspartate Aminotransferase",
         "Alkaline Phosphatase",
     ]
-    print("tests",LABELS)
-        # Ignoring to reduce size 
-        # "Creatinine",
-        # "Potassium",
-        # "Sodium"
+    print("tests",test_labels)
     data = get_dataset(domain)
-    data = reduce_dataset(data, subjects)
+    data = reduce_dataset_tests(data, subjects, test_labels, 'LBTEST')
+    save_data(data,domain)
+
+def reduce_vs(subjects):
+    domain = 'vs'
+    test_labels = [
+        "Height",
+        "Pulse Rate",
+        "Diastolic Blood Pressure",
+        "Systolic Blood Pressure",
+        "Weight",
+        "Temperature",
+    ]
+    print("tests",test_labels)
+    data = get_dataset(domain)
+    data = reduce_dataset_tests(data, subjects, test_labels, 'VSTEST')
     save_data(data,domain)
 
 IMPORT_PATH = Path('/Users/johannes/Library/CloudStorage/OneDrive-data4knowledge/shared_mac/pilots/updated_pilot_submission_package/Updated Pilot Submission Package/900172/m5/datasets/cdiscpilot01/tabulations/sdtm')
@@ -89,8 +93,11 @@ OUTPUT_PATH = Path('/Users/johannes/Library/CloudStorage/OneDrive-data4knowledge
 if __name__ == "__main__":
     subjects = get_subjects()
     print("len(subjects)",len(subjects))
-    # reduce_ae(subjects)
-    # reduce_ds(subjects)
-    reduce_lb(subjects)
-    # reduce_ex(subjects)
+    # reduce_lb(subjects)
+    reduce_vs(subjects)
+    # reduce_domain(subjects, "ae")
+    # reduce_domain(subjects, "suppae")
+    # reduce_domain(subjects, "suppdm")
+    # reduce_domain(subjects, "ex")
+    # reduce_domain(subjects, 'ds')
     print("Done")
