@@ -266,13 +266,13 @@ def get_define_first(domain_uuid):
         MATCH (bcp)-[:RESPONSE_CODES_REL]->(rc:ResponseCode)-[:CODE_REL]->(c:Code)
         WITH bc, bcp, crm, var, c
         ORDER By bc.name, bcp.name, c.decode
-        WITH bc, bcp, crm, var, collect(c.decode) as decode
+        WITH bc, bcp, crm, var, collect({code:c.code,decode:c.decode}) as decodes
         return distinct 
         bc.name as bc,
         bcp.name as bcp,
         crm.sdtm as aa,
         var.name as var,
-        decode as decode
+        decodes as decodes
       """ % (domain_uuid)
       # limit 100
       print("define query", query)
