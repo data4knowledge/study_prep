@@ -2,6 +2,11 @@ import json
 import pandas as pd
 from pathlib import Path
 from d4kms_service import Neo4jConnection
+import xmltodict
+from dicttoxml2 import dicttoxml
+from xml.dom.minidom import parseString
+from json2xml import json2xml
+
 # from neo_utils import db_is_down
 
 # print("\033[H\033[J") # Clears terminal window in vs code
@@ -35,6 +40,46 @@ def write_tmp_json(name, data):
     json_data = json.dumps(data, indent= 2)
     with open(OUTPUT_FILE, "w") as json_file:
         json_file.write(json_data)
+    print(" ...done")
+
+def write_define_json(full_path, data):
+    TMP_PATH = Path.cwd() / "tmp" / "saved_debug"
+    OUTPUT_FILE = Path(full_path)
+    print("Writing file...",OUTPUT_FILE.name,OUTPUT_FILE, end="")
+    json_data = json.dumps(data, indent= 2)
+    with open(OUTPUT_FILE, "w") as json_file:
+        json_file.write(json_data)
+    print(" ...done")
+    return json_data
+
+def write_define_xml(full_path, data):
+    # xml = dicttoxml(data, custom_root='ODM', return_bytes=False, attr_type=False)
+    # xml = dicttoxml(data, root=False, return_bytes=False, attr_type=False)
+    xml = dicttoxml(data, root=False, attr_type=False)
+    # xml = xmltodict.unparse(data,pretty=True)
+    dom = parseString(xml)
+
+    OUTPUT_FILE = Path(full_path)
+    print("Writing file...",OUTPUT_FILE.name,OUTPUT_FILE, end="")
+    json_data = json.dumps(data, indent= 2)
+    with open(OUTPUT_FILE, 'w') as f:
+        # f.write(xml)
+        # f.write('<?xml-stylesheet type="text/xsl" href="../../stylesheets/define2-1.xsl"?>')
+        f.write(dom.toprettyxml())
+        # f.write('\n')
+    print(" ...done")
+
+def write_define_xml2(full_path, data):
+    xml = json2xml.Json2xml(data, attr_type=False).to_xml()
+
+    OUTPUT_FILE = Path(full_path)
+    print("Writing file...",OUTPUT_FILE.name,OUTPUT_FILE, end="")
+    json_data = json.dumps(data, indent= 2)
+    with open(OUTPUT_FILE, 'w') as f:
+        f.write(xml)
+        # f.write('<?xml-stylesheet type="text/xsl" href="../../stylesheets/define2-1.xsl"?>')
+        # f.write(dom.toprettyxml())
+        # f.write('\n')
     print(" ...done")
 
 
