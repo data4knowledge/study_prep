@@ -321,6 +321,19 @@ def get_domains_and_variables(uuid):
 
    return domains
 
+def set_variable_refs(variables):
+    variable_refs = []
+    for v in variables:
+      debug.append(v)
+      ref = {}
+      ref['@ItemOID'] = v['uuid']
+      ref['@Mandatory'] = v['core']
+      ref['@OrderNumber'] = int(v['ordinal'])
+      ref['@KeySequence'] = 'tbc'
+      debug.append(ref)
+      variable_refs.append(ref)
+    return variable_refs
+
 def item_group_defs(domains):
     igd = []
     for d in domains:
@@ -344,18 +357,7 @@ def item_group_defs(domains):
           }
         }
         item['Description'] = description
-        variable_refs = []
-        for v in d['variables']:
-          debug.append(v)
-          ref = {}
-          ref['@ItemOID'] = v['uuid']
-          ref['@Mandatory'] = v['core']
-          ref['@OrderNumber'] = int(v['ordinal'])
-          ref['@KeySequence'] = 'tbc'
-          debug.append(ref)
-          variable_refs.append(ref)
-
-        item['ItemRef'] = variable_refs
+        item['ItemRef'] = set_variable_refs(d['variables'])
 
         igd.append(item)
         # print(item)
