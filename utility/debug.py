@@ -5,7 +5,7 @@ from d4kms_service import Neo4jConnection
 import xmltodict
 from dicttoxml2 import dicttoxml
 from xml.dom.minidom import parseString
-from json2xml import json2xml
+# from json2xml import json2xml
 
 # from neo_utils import db_is_down
 

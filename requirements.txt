@@ -2,3 +2,5 @@ d4kms
 pandas
 openpyxl
 xmltodict
+xmlschema
+# dicttoxml2

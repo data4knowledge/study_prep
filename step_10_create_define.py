@@ -44,7 +44,7 @@ def _add_missing_links_to_crm():
        ,'EXENDTC': 'https://crm.d4k.dk/dataset/common/period/period_end/date_time/value'
        ,'AESTDTC': 'https://crm.d4k.dk/dataset/common/period/period_start/date_time/value'
        ,'AEENDTC': 'https://crm.d4k.dk/dataset/common/period/period_end/date_time/value'
-       ,'AERLDEV'  : 'https://crm.d4k.dk/dataset/adverse_event/causality/device'
+       ,'AERELDEV'  : 'https://crm.d4k.dk/dataset/adverse_event/causality/device'
        ,'AERELNST' : 'https://crm.d4k.dk/dataset/adverse_event/causality/non_study_treatment'
        ,'AEREL'    : 'https://crm.d4k.dk/dataset/adverse_event/causality/related'
        ,'AEACNDEV' : 'https://crm.d4k.dk/dataset/adverse_event/response/concomitant_treatment'
@@ -74,17 +74,8 @@ def _add_missing_links_to_crm():
       else:
         # application_logger.info(f"Info: Failed to create link to CRM for {var}")
         print(f"Warning: Failed to create link to CRM for {var}")
-        print("query",query)
+        # print("query", query)
 
-
-
-def to_debug(*txts):
-    global debug
-    print("printilintar")
-    list = []
-    for x in txts:
-        list.append(x)
-    debug.append(" ".join(list))
 
 # class Define(BaseNode):
 #   name: str = ""
@@ -161,6 +152,24 @@ def get_study_design_uuid():
       results = session.run(query)
       return [r.data() for r in results][0]['uuid']
 
+def check_crm_links():
+    db = Neo4jConnection()
+    with db.session() as session:
+      query = """
+        MATCH (d:Domain)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
+        MATCH (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
+        MATCH (bcp)-[:IS_A_REL]->(crm:CRMNode)
+        MATCH (v:Variable)-[:IS_A_REL]->(crm)
+        MATCH (d:Domain)-[:VARIABLE_REL]->(v)
+        RETURN distinct d.name as domain, bcp.name as bcp, crm.sdtm as crm, v.name as variable
+        order by domain, variable
+      """
+      print("crm",query)
+      results = session.run(query)
+      crm_links = [r.data() for r in results]
+      for x in crm_links:
+        debug.append([v for k,v in x.items()])
+
 def get_domains(uuid):
     db = Neo4jConnection()
     with db.session() as session:
@@ -190,7 +199,7 @@ def get_variables(uuid):
         MATCH (d:Domain {uuid: '%s'})-[]->(v:Variable)-[:IS_A_REL]->(:CRMNode) RETURN v
         ORDER BY v.name
       """ % (uuid)
-      print("variables query", query)
+      # print("variables query", query)
       results = session.run(query)
       vars_in_use = [r['v'] for r in results]
       return vars_in_use
@@ -270,27 +279,44 @@ def get_define_first(domain_uuid):
         return distinct 
         bc.name as bc,
         bcp.name as bcp,
-        crm.sdtm as aa,
+        crm.sdtm as crm_sdtm,
         var.name as var,
+        var.uuid as uuid,
+        var.core as core,
+        var.ordinal as ordinal,
         decodes as decodes
       """ % (domain_uuid)
       # limit 100
-      print("define query", query)
+      # print("define query", query)
       results = session.run(query)
-      return [r.data() for r in results]
+      # return [r.data() for r in results]
+      return [r for r in results.data()]
    
 
 
 def get_domains_and_variables(uuid):
-   domains = get_domains(uuid)
-   for d in domains:
-      print("domain",d['name'])
+   domains = []
+   raw_domains = get_domains(uuid)
+   for d in raw_domains:
+      debug.append("--")
+      # debug.append(f"type(d) {type(d)}")
+      # debug.append(f"d._properties {d._properties}")
+      # for x in d:
+      #    debug.append(x)
+      # debug.append(d['name'])
+      item = {}
+      for k,v in d._properties.items():
+         item[k] = v
+      debug.append(item)
+      # print("domain",d['name'])
       variables = get_variables(d['uuid'])
-      print("len(variables)", len(variables))
+      # print("len(variables)", len(variables))
       define_metadata = get_define_first(d['uuid'])
       print("len(define_metadata)", len(define_metadata))
-      for x in define_metadata:
-        debug.append(x)
+      # for x in define_metadata:
+      #   debug.append(x)
+      item['variables'] = define_metadata
+      domains.append(item)
 
 
    return domains
@@ -298,15 +324,39 @@ def get_domains_and_variables(uuid):
 def item_group_defs(domains):
     igd = []
     for d in domains:
+        debug.append(d)
         item = {}
         item['@OID'] = d['uuid']
         item['@Domain'] = d['name']
         item['@Name'] = d['name']
         item['@Repeating'] = 'tbc'
         item['@IsReferenceData'] = 'tbc'
+        item['@SASDatasetName'] = d['name']
         item['@def:Structure'] = 'tbc'
         item['@Purpose'] = 'Tabulation'
         item['@def:StandardOID'] = 'STD.1'
+        item['@def:ArchiveLocationID'] = '"tbc"'
+        item['@def:ArchiveLocationID'] = '"tbc"'
+        description = {
+          'TranslatedText': {
+            '@xml:lang': 'en',
+            '#text': d['label']
+          }
+        }
+        item['Description'] = description
+        variable_refs = []
+        for v in d['variables']:
+          debug.append(v)
+          ref = {}
+          ref['@ItemOID'] = v['uuid']
+          ref['@Mandatory'] = v['core']
+          ref['@OrderNumber'] = int(v['ordinal'])
+          ref['@KeySequence'] = 'tbc'
+          debug.append(ref)
+          variable_refs.append(ref)
+
+        item['ItemRef'] = variable_refs
+
         igd.append(item)
         # print(item)
         # "@Name": "DM",
@@ -338,8 +388,6 @@ def main():
   define['ODM']['Study']['MetaDataVersion'] = metadata
 
   sd_uuid = get_study_design_uuid()
-  print("sd_uuid", sd_uuid)
-
   domains = get_domains_and_variables(sd_uuid)
 
   igd = item_group_defs(domains)
@@ -365,6 +413,7 @@ def check_define():
     # pprint(schema.to_dict(define_file))
 
 if __name__ == "__main__":
+    # check_crm_links()
     _add_missing_links_to_crm()
     main()
     # check_define()
