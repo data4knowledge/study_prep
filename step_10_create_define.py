@@ -6,6 +6,7 @@ from model.base_node import BaseNode
 from utility.debug import write_debug, write_tmp, write_tmp_json, write_define_json, write_define_xml, write_define_xml2
 import xmlschema
 
+# ISSUE: Should be in DB. Could add to configuration
 ORDER_OF_DOMAINS = [
   'TRIAL DESIGN',
   'SPECIAL PURPOSE',
@@ -17,6 +18,7 @@ ORDER_OF_DOMAINS = [
   'STUDY REFERENCE',
 ]
 
+# ISSUE: Should be in DB
 DOMAIN_CLASS = {
   'Events'          :['AE', 'BE', 'CE', 'DS', 'DV', 'HO', 'MH'],
   'Findings'        :['BS', 'CP', 'CV', 'DA', 'DD', 'EG', 'FT', 'GF', 'IE', 'IS', 'LB', 'MB', 'MI', 'MK', 'MS', 'NV', 'OE', 'PC', 'PE', 'PP', 'QS', 'RE', 'RP', 'RS', 'SC', 'SS', 'TR', 'TU', 'UR', 'VS'],
@@ -28,6 +30,7 @@ DOMAIN_CLASS = {
   'Trial Design'    :['TA', 'TD', 'TE', 'TI', 'TM', 'TS', 'TV'],
 }
 
+# ISSUE: Fix proper links when loading
 def _add_missing_links_to_crm():
   db = Neo4jConnection()
   with db.session() as session:
@@ -175,7 +178,7 @@ def check_crm_links():
         RETURN distinct d.name as domain, bcp.name as bcp, crm.sdtm as crm, v.name as variable
         order by domain, variable
       """
-      print("crm",query)
+      # print("crm",query)
       results = session.run(query)
       crm_links = [r.data() for r in results]
       for x in crm_links:
@@ -290,12 +293,14 @@ def get_define_first(domain_uuid):
         return distinct 
         bc.name as bc,
         bcp.name as bcp,
-        crm.sdtm as crm_sdtm,
-        var.name as var,
+        crm.datatype as datatype,
         var.uuid as uuid,
+        var.label as label,
+        var.name as name,
         var.core as core,
         var.ordinal as ordinal,
         decodes as decodes
+        order by ordinal
       """ % (domain_uuid)
       # limit 100
       # print("define query", query)
@@ -309,24 +314,25 @@ def get_domains_and_variables(uuid):
    domains = []
    raw_domains = get_domains(uuid)
    for d in raw_domains:
-      debug.append("--")
-      # debug.append(f"type(d) {type(d)}")
-      # debug.append(f"d._properties {d._properties}")
-      # for x in d:
-      #    debug.append(x)
-      # debug.append(d['name'])
       item = {}
       for k,v in d._properties.items():
          item[k] = v
-      debug.append(item)
       # print("domain",d['name'])
       variables = get_variables(d['uuid'])
       # print("len(variables)", len(variables))
       define_metadata = get_define_first(d['uuid'])
       print(d['name'],"len(define_metadata)", len(define_metadata))
-      # for x in define_metadata:
-      #   debug.append(x)
-      item['variables'] = define_metadata
+      unique_vars = []
+      for v in define_metadata:
+          v.pop('bc')
+          v.pop('decodes')
+          unique_vars.append(v)
+      unique_vars = list({v['uuid']:v for v in unique_vars}.values())
+      print(unique_vars)
+      vlm = define_metadata
+
+      item['vlm'] = vlm
+      item['variables'] = unique_vars
       domains.append(item)
 
 
@@ -335,20 +341,17 @@ def get_domains_and_variables(uuid):
 def set_variable_refs(variables):
     variable_refs = []
     for v in variables:
-      debug.append(v)
       ref = {}
       ref['@ItemOID'] = v['uuid']
       ref['@Mandatory'] = v['core']
       ref['@OrderNumber'] = int(v['ordinal'])
       ref['@KeySequence'] = 'tbc'
-      debug.append(ref)
       variable_refs.append(ref)
     return variable_refs
 
 def item_group_defs(domains):
     igd = []
     for d in domains:
-        debug.append(d)
         item = {}
         item['@OID'] = d['uuid']
         item['@Domain'] = d['name']
@@ -378,6 +381,59 @@ def item_group_defs(domains):
         igd.append(item)
     return igd
 
+
+def item_defs(domains):
+    idfs = []
+    for d in domains:
+        for v in d['variables']:
+          debug.append(v)
+          item = {}
+          item['@OID'] = v['uuid']
+          item['@Name'] = v['name']
+          item['@DataType'] = v['datatype']
+          item['@Length'] = 'tbc'
+          item['@SASFieldName'] = v['name']
+          item['Description'] = {
+              "TranslatedText":
+              {
+                  "@xml:lang": "en",
+                  "#text": v['label']
+              }
+          },
+          item['def:Origin'] = {
+              "@Type": "tbc",
+              "@Source": "Sponsor"
+          }
+          # debug.append(item)
+          idfs.append(item)
+    return idfs
+
+def where_clause_defs(domains):
+    wcds = []
+    for d in domains:
+        for v in d['vlm']:
+          debug.append(v)
+          item = {}
+          # item['@OID'] = v['uuid']
+          # item['@Name'] = v['name']
+          # item['@DataType'] = v['datatype']
+          # item['@Length'] = 'tbc'
+          # item['@SASFieldName'] = v['name']
+          # item['Description'] = {
+          #     "TranslatedText":
+          #     {
+          #         "@xml:lang": "en",
+          #         "#text": v['label']
+          #     }
+          # },
+          # item['def:Origin'] = {
+          #     "@Type": "tbc",
+          #     "@Source": "Sponsor"
+          # }
+          debug.append(item)
+          wcds.append(item)
+    return wcds
+
 DEFINE_JSON = Path.cwd() / "tmp" / "define.json"
 DEFINE_XML = Path.cwd() / "tmp" / "define.xml"
 
@@ -393,8 +449,23 @@ def main():
   sd_uuid = get_study_design_uuid()
   domains = get_domains_and_variables(sd_uuid)
 
+  # ItemGroupDef
   igd = item_group_defs(domains)
   define['ODM']['Study']['MetaDataVersion']['ItemGroupDef'] = igd
+
+  # ItemGroupDef
+  idfs = item_defs(domains)
+  define['ODM']['Study']['MetaDataVersion']['ItemDef'] = idfs
+
+  # def:WhereClauseDef
+  wcds = where_clause_defs(domains)
+  define['ODM']['Study']['MetaDataVersion']['def:WhereClauseDef'] = wcds
+  # def:ValueListDef
+  # CodeList
+  # MethodDef
+  # def:CommentDef
+  # def:leaf
+
 
   write_tmp("define-debug.txt",debug)
 
