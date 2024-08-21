@@ -17,6 +17,17 @@ ORDER_OF_DOMAINS = [
   'STUDY REFERENCE',
 ]
 
+DOMAIN_CLASS = {
+  'Events'          :['AE', 'BE', 'CE', 'DS', 'DV', 'HO', 'MH'],
+  'Findings'        :['BS', 'CP', 'CV', 'DA', 'DD', 'EG', 'FT', 'GF', 'IE', 'IS', 'LB', 'MB', 'MI', 'MK', 'MS', 'NV', 'OE', 'PC', 'PE', 'PP', 'QS', 'RE', 'RP', 'RS', 'SC', 'SS', 'TR', 'TU', 'UR', 'VS'],
+  'Findings About'  :['FA', 'SR'],
+  'Interventions'   :['AG', 'CM', 'EC', 'EX', 'ML', 'PR', 'SU'],
+  'Relationship'    :['RELREC', 'RELSPEC', 'RELSUB', 'SUPPQUAL'],
+  'Special-Purpose' :['CO', 'DM', 'SE', 'SM', 'SV'],
+  'Study Reference' :['OI'],
+  'Trial Design'    :['TA', 'TD', 'TE', 'TI', 'TM', 'TS', 'TV'],
+}
+
 def _add_missing_links_to_crm():
   db = Neo4jConnection()
   with db.session() as session:
@@ -312,7 +323,7 @@ def get_domains_and_variables(uuid):
       variables = get_variables(d['uuid'])
       # print("len(variables)", len(variables))
       define_metadata = get_define_first(d['uuid'])
-      print("len(define_metadata)", len(define_metadata))
+      print(d['name'],"len(define_metadata)", len(define_metadata))
       # for x in define_metadata:
       #   debug.append(x)
       item['variables'] = define_metadata
@@ -357,24 +368,14 @@ def item_group_defs(domains):
           }
         }
         item['Description'] = description
+        item['def:Class'] = {'@Name': next((x for x,y in DOMAIN_CLASS.items() if d['name'] in y), "Fix")}
         item['ItemRef'] = set_variable_refs(d['variables'])
-
+        item['def:leaf'] = {
+                            "@ID": "tbc",
+                            "@xlink:href": d['name'].lower()+".xpt",
+                            "def:title": d['name'].lower()+".xpt"
+                           }
         igd.append(item)
-        # print(item)
-        # "@Name": "DM",
-        # "@Repeating": "No",
-        # "@IsReferenceData": "No",
-        # "@SASDatasetName": "DM",
-        # "@def:Structure": "One record per subject",
-        # "@Purpose": "Tabulation",
-        # "@def:StandardOID": "STD.1",
-        # "@def:CommentOID": "COM.DOMAIN.DM",
-        # "@def:ArchiveLocationID": "LF.DM",
-        # "Description": {
-        #   "TranslatedText": {
-        #     "@xml:lang": "en",
-        #     "#text": "Demographics"
-        #   }
     return igd
 
 DEFINE_JSON = Path.cwd() / "tmp" / "define.json"
