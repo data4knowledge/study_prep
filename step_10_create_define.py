@@ -7,6 +7,27 @@ from utility.debug import write_debug, write_tmp, write_tmp_json, write_define_j
 import xmlschema
 import xml.etree.ElementTree as ET
 
+import odm as ODM
+
+class Define:
+    """ Generate a Define-XML v2.1 file from the SDTM Metadata Worksheet Example Excel file """
+    def __init__(self, excel_file, define_file, is_check=False):
+        """
+        :param excel_file: str - the path and filename for the SDTM metadata worksheet excel input file
+        :param define_file: str - the path and filename for the Define-XML v2.0 file to be generated
+        :param is_check: boolean - flag that indicates if the conformance checks should be executed
+        """
+        # self.excel_file = excel_file
+        self.define_file = define_file
+        # self.is_check_conformance = is_check
+        # self._check_file_existence()
+        # self.workbook = load_workbook(filename=self.excel_file, read_only=True, data_only=True)
+        self.lang = "en"
+        self.acrf = "LF.acrf"
+        self.define_objects = {}
+
+
+
 # ISSUE: Should be in DB. Could add to configuration
 ORDER_OF_DOMAINS = [
   'TRIAL DESIGN',
@@ -100,20 +121,20 @@ def _add_missing_links_to_crm():
 
 debug = []
 
-def odm_properties(odm_file):
-  odm_file['xmlns'] = "http://www.cdisc.org/ns/odm/v1.3" ,
-  odm_file['xmlns:xlink'] = "http://www.w3.org/1999/xlink",
-  odm_file['xmlns:def'] = "http://www.cdisc.org/ns/def/v2.1",
-  odm_file['ODMVersion'] = "1.3.2",
-  odm_file['FileOID'] = "www.cdisc.org/StudyCDISC01_1/1/Define-XML_2.1.0",
-  odm_file['FileType'] = "Snapshot",
-  odm_file['CreationDateTime'] = "",
-  odm_file['Originator'] = "Study Service",
-  odm_file['SourceSystem'] = "Study service",
-  odm_file['SourceSystemVersion'] = "Alpha1",
-  odm_file['def:Context'] = "USDM",
+def odm_properties(root):
+  root.set('xmlns',"http://www.cdisc.org/ns/odm/v1.3")
+  root.set('xmlns:xlink',"http://www.w3.org/1999/xlink")
+  root.set('xmlns:def',"http://www.cdisc.org/ns/def/v2.1")
+  root.set('ODMVersion',"1.3.2")
+  root.set('FileOID',"www.cdisc.org/StudyCDISC01_1/1/Define-XML_2.1.0")
+  root.set('FileType',"Snapshot")
+  root.set('CreationDateTime',"")
+  root.set('Originator',"Study Service")
+  root.set('SourceSystem',"Study service")
+  root.set('SourceSystemVersion',"Alpha1")
+  root.set('def:Context',"USDM")
 
-def odm_properties():
+def odm_dict_properties():
   properties = {
     'xmlns':"http://www.cdisc.org/ns/odm/v1.3" ,
     'xmlns:xlink':"http://www.w3.org/1999/xlink",
@@ -129,15 +150,12 @@ def odm_properties():
   }
   return properties
 
-def study(oid= 'tbd', study_name = 'tbd', description = 'tbd', protocol_name = 'tbd'):
-  study = {
-    '@OID': oid,
-    'StudyName': study_name,
-    'StudyDescription': description,
-    'ProtocolName': protocol_name,
-
-  }
-  return study
+def study(root, oid= 'tbd', study_name = 'tbd', description = 'tbd', protocol_name = 'tbd'):
+  study = ET.SubElement(root, 'Study')
+  study.set('@OID',study_name)
+  study.set('StudyName', study_name)
+  study.set('StudyDescription', description)
+  study.set('ProtocolName', protocol_name)
 
 def metadata_version(oid = 'tbd', name = 'tbd', description = 'tbd'):
   metadata = {
@@ -259,32 +277,32 @@ def get_define_first(domain_uuid):
 
 
 def get_domains_and_variables(uuid):
-   domains = []
-   raw_domains = get_domains(uuid)
-   for d in raw_domains:
-      item = {}
-      for k,v in d._properties.items():
-         item[k] = v
-      # print("domain",d['name'])
-      variables = get_variables(d['uuid'])
-      # print("len(variables)", len(variables))
-      define_metadata = get_define_first(d['uuid'])
-      print(d['name'],"len(define_metadata)", len(define_metadata))
-      unique_vars = []
-      for v in define_metadata:
-          v.pop('bc')
-          v.pop('decodes')
-          unique_vars.append(v)
-      unique_vars = list({v['uuid']:v for v in unique_vars}.values())
-      print(unique_vars)
-      vlm = define_metadata
+  domains = []
+  raw_domains = get_domains(uuid)
+  for d in raw_domains:
+    item = {}
+    for k,v in d._properties.items():
+        item[k] = v
+    # print("domain",d['name'])
+    variables = get_variables(d['uuid'])
+    # print("len(variables)", len(variables))
+    define_metadata = get_define_first(d['uuid'])
+    print(d['name'],"len(define_metadata)", len(define_metadata))
+    unique_vars = []
+    for v in define_metadata:
+        v.pop('bc')
+        v.pop('decodes')
+        unique_vars.append(v)
+    unique_vars = list({v['uuid']:v for v in unique_vars}.values())
+    print(unique_vars)
+    vlm = define_metadata
 
-      item['vlm'] = vlm
-      item['variables'] = unique_vars
-      domains.append(item)
+    item['vlm'] = vlm
+    item['variables'] = unique_vars
+    domains.append(item)
 
 
-   return domains
+  return domains
 
 def set_variable_refs(variables):
     variable_refs = []
@@ -460,35 +478,37 @@ DEFINE_XML = Path.cwd() / "tmp" / "define.xml"
 
 def main():
   define = {}
-  # odm_properties(define)
-  define['ODM'] = odm_properties()
-  define['ODM']['Study'] = study()
-  metadata = metadata_version()
-
-  define['ODM']['Study']['MetaDataVersion'] = metadata
+  root = ET.Element('ODM')
+  odm_properties(root)
+  study(root)
 
   sd_uuid = get_study_design_uuid()
   domains = get_domains_and_variables(sd_uuid)
 
   # ItemGroupDef
   igd = item_group_defs(domains)
-  define['ODM']['Study']['MetaDataVersion']['ItemGroupDef'] = igd
+  # define['ODM']['Study']['MetaDataVersion']['ItemGroupDef'] = igd
 
-  # ItemGroupDef
-  idfs = item_defs(domains)
-  define['ODM']['Study']['MetaDataVersion']['ItemDef'] = idfs
+  # # Build dict
+  # define['ODM']['Study'] = study()
+  # metadata = metadata_version()
+  # define['ODM']['Study']['MetaDataVersion'] = metadata
 
-  # def:ValueListDef
-  vlds = value_list_defs(domains)
-  define['ODM']['Study']['MetaDataVersion']['def:ValueListDef'] = vlds
+  # # ItemGroupDef
+  # idfs = item_defs(domains)
+  # define['ODM']['Study']['MetaDataVersion']['ItemDef'] = idfs
 
-  # def:WhereClauseDef
-  wcds = where_clause_defs(domains)
-  define['ODM']['Study']['MetaDataVersion']['def:WhereClauseDef'] = wcds
-  # CodeList
-  # MethodDef
-  # def:CommentDef
-  # def:leaf
+  # # def:ValueListDef
+  # vlds = value_list_defs(domains)
+  # define['ODM']['Study']['MetaDataVersion']['def:ValueListDef'] = vlds
+
+  # # def:WhereClauseDef
+  # wcds = where_clause_defs(domains)
+  # define['ODM']['Study']['MetaDataVersion']['def:WhereClauseDef'] = wcds
+  # # CodeList
+  # # MethodDef
+  # # def:CommentDef
+  # # def:leaf
 
 
   write_tmp("define-debug.txt",debug)
@@ -497,6 +517,9 @@ def main():
   # debug.append(define)
   write_tmp_json("define-debug",define)
   json_data = write_define_json(DEFINE_JSON,define)
+  tree = ET.ElementTree(root)
+  ET.indent(tree, space="\t", level=0)
+  tree.write(DEFINE_XML, encoding="utf-8")
   # write_define_xml(DEFINE_XML,define)
   # write_define_xml(DEFINE_XML,json_data)
   # write_define_xml1(DEFINE_XML,define)
