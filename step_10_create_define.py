@@ -5,6 +5,7 @@ from model.configuration import Configuration, ConfigurationNode
 from model.base_node import BaseNode
 from utility.debug import write_debug, write_tmp, write_tmp_json, write_define_json, write_define_xml, write_define_xml2
 import xmlschema
+import xml.etree.ElementTree as ET
 
 # ISSUE: Should be in DB. Could add to configuration
 ORDER_OF_DOMAINS = [
@@ -222,59 +223,6 @@ def get_variables(uuid):
 def get_define_first(domain_uuid):
     db = Neo4jConnection()
     with db.session() as session:
-      # query = """
-      # MATCH (sd:StudyDesign)-[:DOMAIN_REL]->(domain:Domain {uuid:'%s'})
-      # MATCH (sd)<-[:STUDY_DESIGNS_REL]-(sv:StudyVersion)
-      # MATCH (sv)-[:STUDY_IDENTIFIERS_REL]->(si:StudyIdentifier)-[:STUDY_IDENTIFIER_SCOPE_REL]->(sis:Organization {name:'Eli Lilly'})
-      # WITH si, domain
-      # MATCH (domain)-[:USING_BC_REL]-(bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
-      # MATCH (bcp)<-[:PROPERTIES_REL]->(dc:DataContract)
-      # MATCH (dc)<-[:FOR_DC_REL]-(:DataPoint)-[:SOURCE]->(r:Record)
-      # WITH si, domain, dc, r
-      # MATCH (r)<-[:SOURCE]-(dp:DataPoint)-[:FOR_SUBJECT_REL]->(subj:Subject)
-      # MATCH (dp)-[:FOR_DC_REL]->(dc:DataContract)
-      # MATCH (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)<-[:PROPERTIES_REL]-(bc:BiomedicalConcept)
-      # return
-      # si.studyIdentifier as STUDYID
-      # , domain.name as DOMAIN
-      # , r.key as key
-      # , CASE bcp.name WHEN '--DTC' THEN 'AEDTC' ELSE bcp.name END as variable
-      # , dp.value as value
-      # // , site.name as SITEID
-      # // , e.label as VISIT
-      # // , epoch.label as EPOCH
-      # , bc.uuid as bc_uuid
-      # order by key
-      # limit 100
-      # """ % (domain_uuid)
-
-      #       query = """
-      #       MATCH (sd:StudyDesign {uuid:'%s'})-[:DOMAIN_REL]->(domain:Domain)
-      #       MATCH (sd)<-[:STUDY_DESIGNS_REL]-(sv:StudyVersion)
-      #       MATCH (sv)-[:STUDY_IDENTIFIERS_REL]->(si:StudyIdentifier)-[:STUDY_IDENTIFIER_SCOPE_REL]->(sis:Organization {name:'Eli Lilly'})
-      #       WITH si, domain
-      #       MATCH (domain)-[:USING_BC_REL]-(bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
-      #       MATCH (bcp)<-[:PROPERTIES_REL]->(dc:DataContract)
-      #       MATCH (dc)<-[:FOR_DC_REL]-(:DataPoint)-[:SOURCE]->(r:Record)
-      #       WITH si, domain, dc, r
-      #       MATCH (r)<-[:SOURCE]-(dp:DataPoint)-[:FOR_SUBJECT_REL]->(subj:Subject)
-      #       MATCH (dp)-[:FOR_DC_REL]->(dc:DataContract)
-      #       MATCH (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)<-[:PROPERTIES_REL]-(bc:BiomedicalConcept)
-      #       return
-      #       si.studyIdentifier as STUDYID
-      #       , domain.name as DOMAIN
-      # //      , subj.identifier as USUBJID
-      # //      , right(subj.identifier,6) as SUBJECT
-      #       , r.key as key
-      #       , CASE bcp.name WHEN '--DTC' THEN 'AEDTC' ELSE bcp.name END as variable
-      #       , dp.value as value
-      #       // , site.name as SITEID
-      #       // , e.label as VISIT
-      #       // , epoch.label as EPOCH
-      #       , bc.uuid as bc_uuid
-      #       order by key
-      #       """ % (sd_uuid)
-
       query = """
         MATCH (sd:StudyDesign)-[:DOMAIN_REL]->(domain:Domain {uuid:'%s'})
         MATCH (sd)<-[:STUDY_DESIGNS_REL]-(sv:StudyVersion)
@@ -347,6 +295,15 @@ def set_variable_refs(variables):
       ref['@OrderNumber'] = int(v['ordinal'])
       ref['@KeySequence'] = 'tbc'
       variable_refs.append(ref)
+
+    for v in variables:
+      ref = {}
+      ref['@ItemOID'] = v['uuid']
+      ref['@Mandatory'] = v['core']
+      ref['@OrderNumber'] = int(v['ordinal'])
+      ref['@KeySequence'] = 'tbc'
+      variable_refs.append(ref)
+
     return variable_refs
 
 def item_group_defs(domains):
@@ -386,7 +343,7 @@ def item_defs(domains):
     idfs = []
     for d in domains:
         for v in d['variables']:
-          debug.append(v)
+          # debug.append(v)
           item = {}
           item['@OID'] = v['uuid']
           item['@Name'] = v['name']
@@ -408,28 +365,92 @@ def item_defs(domains):
           idfs.append(item)
     return idfs
 
+def value_list_defs(domains):
+    vlds = []
+    for d in domains:
+        debug.append(f"\ndomain: {d['name']}")
+        for v in d['variables']:
+          vlms  = [x for x in d['vlm'] if x['uuid'] == v['uuid']]
+          if vlms:
+            debug.append(f"len(vlm): {len(vlms)}")
+            item = {}
+            item['@OID'] = f"VL.{v['name']}.{v['uuid']}"
+            item_refs = []
+            for vlm in vlms:
+              ref = {}
+              ref['@ItemOID'] = vlm['uuid']
+              ref['@OrderNumber'] = 'tbc'
+              ref['@Mandatory'] = vlm['uuid']
+              ref['def:WhereClauseRef'] = {
+                "def:WhereClauseRef":
+                      {
+                          "@WhereClauseOID": "FIX"
+                      }
+              }
+              item_refs.append(ref)
+
+            item['ItemRef'] = item_refs
+            debug.append(item)
+            vlds.append(item)
+    return vlds
+
 def where_clause_defs(domains):
     wcds = []
     for d in domains:
-        for v in d['vlm']:
-          debug.append(v)
+        debug.append(f"\ndomain: {d['name']}")
+        for v in d['variables']:
+          vlms  = [x for x in d['vlm'] if x['uuid'] == v['uuid']]
+          debug.append(f"len(vlm): {len(vlms)}")
           item = {}
-          # item['@OID'] = v['uuid']
-          # item['@Name'] = v['name']
-          # item['@DataType'] = v['datatype']
-          # item['@Length'] = 'tbc'
-          # item['@SASFieldName'] = v['name']
-          # item['Description'] = {
-          #     "TranslatedText":
-          #     {
-          #         "@xml:lang": "en",
-          #         "#text": v['label']
-          #     }
-          # },
-          # item['def:Origin'] = {
-          #     "@Type": "tbc",
-          #     "@Source": "Sponsor"
-          # }
+          item['@OID'] = f"VL.{v['name']}.{v['uuid']}"
+          item_refs = []
+                # "def:WhereClauseDef":
+                # [
+                #     {
+                #         "@OID": "WC.LB.LBTESTCD.SET1.LBSPEC.BLOOD",
+                #         "RangeCheck":
+                #         [
+                #             {
+                #                 "@Comparator": "IN",
+                #                 "@SoftHard": "Soft",
+                #                 "@def:ItemOID": "IT.LB.LBTESTCD",
+                #                 "CheckValue":
+                #                 [
+                #                     "BILI",
+                #                     "GLUC"
+                #                 ]
+                #             },
+                #             {
+                #                 "@Comparator": "EQ",
+                #                 "@SoftHard": "Soft",
+                #                 "@def:ItemOID": "IT.LB.LBSPEC",
+                #                 "CheckValue": "BLOOD"
+                #             }
+                #         ]
+                #     },
+                #     {
+                #         "@OID": "WC.LB.LBTESTCD.SET2.LBSPEC.BLOOD",
+                #         "RangeCheck":
+                #         [
+                #             {
+                #                 "@Comparator": "IN",
+                #                 "@SoftHard": "Soft",
+                #                 "@def:ItemOID": "IT.LB.LBTESTCD",
+                #                 "CheckValue":
+                #                 [
+                #                     "BUN",
+                #                     "HGB",
+                #                     "LYM"
+                #                 ]
+                #             },
+                #             {
+                #                 "@Comparator": "EQ",
+                #                 "@SoftHard": "Soft",
+                #                 "@def:ItemOID": "IT.LB.LBSPEC",
+                #                 "CheckValue": "BLOOD"
+                #             }
+                #         ]
+                #     },
           debug.append(item)
           wcds.append(item)
     return wcds
@@ -457,10 +478,13 @@ def main():
   idfs = item_defs(domains)
   define['ODM']['Study']['MetaDataVersion']['ItemDef'] = idfs
 
+  # def:ValueListDef
+  vlds = value_list_defs(domains)
+  define['ODM']['Study']['MetaDataVersion']['def:ValueListDef'] = vlds
+
   # def:WhereClauseDef
   wcds = where_clause_defs(domains)
   define['ODM']['Study']['MetaDataVersion']['def:WhereClauseDef'] = wcds
-  # def:ValueListDef
   # CodeList
   # MethodDef
   # def:CommentDef
