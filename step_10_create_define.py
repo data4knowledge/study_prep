@@ -4,6 +4,7 @@ from d4kms_service import Neo4jConnection
 from model.configuration import Configuration, ConfigurationNode
 from model.base_node import BaseNode
 from utility.debug import write_debug, write_tmp, write_tmp_json, write_define_json, write_define_xml, write_define_xml2
+from datetime import datetime
 import xmlschema
 import xml.etree.ElementTree as ET
 
@@ -122,58 +123,62 @@ def _add_missing_links_to_crm():
 debug = []
 
 def odm_properties(root):
+  # now = datetime.now().replace(tzinfo=datetime.timezone.utc).isoformat()
+  now = datetime.now().isoformat()
   root.set('xmlns',"http://www.cdisc.org/ns/odm/v1.3")
   root.set('xmlns:xlink',"http://www.w3.org/1999/xlink")
   root.set('xmlns:def',"http://www.cdisc.org/ns/def/v2.1")
   root.set('ODMVersion',"1.3.2")
   root.set('FileOID',"www.cdisc.org/StudyCDISC01_1/1/Define-XML_2.1.0")
   root.set('FileType',"Snapshot")
-  root.set('CreationDateTime',"")
+  root.set('CreationDateTime',now)
   root.set('Originator',"Study Service")
   root.set('SourceSystem',"Study service")
   root.set('SourceSystemVersion',"Alpha1")
-  root.set('def:Context',"USDM")
+  root.set('def:Context',"Other")
 
-def odm_dict_properties():
-  properties = {
-    'xmlns':"http://www.cdisc.org/ns/odm/v1.3" ,
-    'xmlns:xlink':"http://www.w3.org/1999/xlink",
-    'xmlns:def':"http://www.cdisc.org/ns/def/v2.1",
-    'ODMVersion':"1.3.2",
-    'FileOID':"www.cdisc.org/StudyCDISC01_1/1/Define-XML_2.1.0",
-    'FileType':"Snapshot",
-    'CreationDateTime':"",
-    'Originator':"Study Service",
-    'SourceSystem':"Study service",
-    'SourceSystemVersion':"Alpha1",
-    'def:Context':"USDM",
-  }
-  return properties
+def _study(oid= 'tbd', study_name = 'tbd', description = 'tbd', protocol_name = 'tbd'):
+  study = ET.Element('Study')
+  study.set('OID',study_name)
+  # study.set('StudyName', study_name)
+  # study.set('StudyDescription', description)
+  # study.set('ProtocolName', protocol_name)
+  return study
 
-def study(root, oid= 'tbd', study_name = 'tbd', description = 'tbd', protocol_name = 'tbd'):
-  study = ET.SubElement(root, 'Study')
-  study.set('@OID',study_name)
-  study.set('StudyName', study_name)
-  study.set('StudyDescription', description)
-  study.set('ProtocolName', protocol_name)
+# ISSUE: Hardcoded
+def globalvariables():
+  global_variables = ET.Element('GlobalVariables')
+  element = ET.Element('StudyName')
+  element.text = 'Study name'
+  global_variables.append(element)
+  element = ET.Element('StudyDescription')
+  element.text = 'Study Description'
+  global_variables.append(element)
+  element = ET.Element('ProtocolName')
+  element.text = 'Protocol Name'
+  global_variables.append(element)
+  return global_variables
+
+# ISSUE: Hardcoded
+def standards():
+  standards = ET.Element('def:Standards')
+
+  standard1 = ET.Element('def:Standard')
+  standard1.set("OID", "STD.1")
+  standard1.set("Name", "SDTMIG")
+  standard1.set("Type", "IG")
+  standard1.set("Version", "3.4")
+  standard1.set("Status", "Final")
+  standards.append(standard1)
+
+  return standards
 
 def metadata_version(oid = 'tbd', name = 'tbd', description = 'tbd'):
-  metadata = {
-    "@OID": oid,
-    "@Name": name,
-    "@Description": description,
-    "@def:DefineVersion": "2.1.7",
-    "def:Standards": [
-       {
-        "@OID": "STD.1",
-        "@Name": "SDTMIG",
-        "@Type": "IG",
-        "@Version": "3.4",
-        "@Status": "Final",          
-       }
-    ]
-  }
-      # "@def:CommentOID": "COM.STD1"
+  metadata = ET.Element('MetaDataVersion')
+  metadata.set("OID", oid)
+  metadata.set("Name", name)
+  metadata.set("Description", description)
+  metadata.set("def:DefineVersion", "2.1.7")
   return metadata
 
 def get_study_design_uuid():
@@ -294,7 +299,7 @@ def get_domains_and_variables(uuid):
         v.pop('decodes')
         unique_vars.append(v)
     unique_vars = list({v['uuid']:v for v in unique_vars}.values())
-    print(unique_vars)
+    # print(unique_vars)
     vlm = define_metadata
 
     item['vlm'] = vlm
@@ -307,54 +312,50 @@ def get_domains_and_variables(uuid):
 def set_variable_refs(variables):
     variable_refs = []
     for v in variables:
-      ref = {}
-      ref['@ItemOID'] = v['uuid']
-      ref['@Mandatory'] = v['core']
-      ref['@OrderNumber'] = int(v['ordinal'])
-      ref['@KeySequence'] = 'tbc'
+      ref = ET.Element('ItemRef')
+      ref.set('ItemOID', v['uuid'])
+      ref.set('Mandatory', v['core'])
+      # ref.set('OrderNumber', int(v['ordinal']))
+      ref.set('OrderNumber', v['ordinal'])
+      ref.set('KeySequence', 'tbc')
       variable_refs.append(ref)
-
-    for v in variables:
-      ref = {}
-      ref['@ItemOID'] = v['uuid']
-      ref['@Mandatory'] = v['core']
-      ref['@OrderNumber'] = int(v['ordinal'])
-      ref['@KeySequence'] = 'tbc'
-      variable_refs.append(ref)
-
     return variable_refs
 
 def item_group_defs(domains):
-    igd = []
+    igds = []
     for d in domains:
-        item = {}
-        item['@OID'] = d['uuid']
-        item['@Domain'] = d['name']
-        item['@Name'] = d['name']
-        item['@Repeating'] = 'tbc'
-        item['@IsReferenceData'] = 'tbc'
-        item['@SASDatasetName'] = d['name']
-        item['@def:Structure'] = 'tbc'
-        item['@Purpose'] = 'Tabulation'
-        item['@def:StandardOID'] = 'STD.1'
-        item['@def:ArchiveLocationID'] = '"tbc"'
-        item['@def:ArchiveLocationID'] = '"tbc"'
-        description = {
-          'TranslatedText': {
-            '@xml:lang': 'en',
-            '#text': d['label']
-          }
-        }
-        item['Description'] = description
-        item['def:Class'] = {'@Name': next((x for x,y in DOMAIN_CLASS.items() if d['name'] in y), "Fix")}
-        item['ItemRef'] = set_variable_refs(d['variables'])
-        item['def:leaf'] = {
-                            "@ID": "tbc",
-                            "@xlink:href": d['name'].lower()+".xpt",
-                            "def:title": d['name'].lower()+".xpt"
-                           }
-        igd.append(item)
-    return igd
+        igd = ET.Element('ItemGroupDef')
+        igd.set('OID', d['uuid'])
+        igd.set('Domain', d['name'])
+        igd.set('Name', d['name'])
+        igd.set('Repeating', 'No')
+        igd.set('IsReferenceData', 'No')
+        igd.set('SASDatasetName', d['name'])
+        igd.set('def:Structure', 'tbc')
+        igd.set('Purpose', 'Tabulation')
+        igd.set('def:StandardOID', 'STD.1')
+        igd.set('def:ArchiveLocationID', 'tbc')
+        description = ET.Element('Description')
+        translated_text = ET.SubElement(description,'TranslatedText')
+        translated_text.set('xml:lang','en')
+        translated_text.text = d['label']
+        igd.append(description)
+        goc = next((x for x,y in DOMAIN_CLASS.items() if d['name'] in y), "Fix")
+        ET.SubElement(igd,'def:Class', {'Name': goc})
+        # ET.SubElement(igd,'def:Class').text = goc
+        # goc_e.text = goc
+        refs = set_variable_refs(d['variables'])
+        for ref in refs:
+          igd.append(ref)
+        leaf = ET.SubElement(igd,'def:leaf')
+        leaf.set("ID", "tbc")
+        leaf.set("xlink:href", d['name'].lower()+".xpt")
+        title = ET.SubElement(leaf, 'def:title')
+        title.text = d['name'].lower()+".xpt"
+        leaf.append(title)
+        igd.append(leaf)
+        igds.append(igd)
+    return igds
 
 
 def item_defs(domains):
@@ -480,13 +481,22 @@ def main():
   define = {}
   root = ET.Element('ODM')
   odm_properties(root)
-  study(root)
+  study = _study()
+  # Study -------->
+  study.append(globalvariables())
+
+  # MetadataVersion -------->
+  metadata = metadata_version()
+  metadata.append(standards())
+  
 
   sd_uuid = get_study_design_uuid()
   domains = get_domains_and_variables(sd_uuid)
 
   # ItemGroupDef
-  igd = item_group_defs(domains)
+  igds = item_group_defs(domains)
+  for igd in igds:
+     metadata.append(igd)
   # define['ODM']['Study']['MetaDataVersion']['ItemGroupDef'] = igd
 
   # # Build dict
@@ -509,6 +519,11 @@ def main():
   # # MethodDef
   # # def:CommentDef
   # # def:leaf
+
+  # MetadataVersion <--------
+  # Study <--------
+  study.append(metadata)
+  root.append(study)
 
 
   write_tmp("define-debug.txt",debug)
