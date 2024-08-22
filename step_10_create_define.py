@@ -427,25 +427,29 @@ def value_list_defs(domains):
           vlms  = [x for x in d['vlm'] if x['uuid'] == v['uuid']]
           if vlms:
             debug.append(f"len(vlm): {len(vlms)}")
-            item = {}
-            item['@OID'] = f"VL.{v['name']}.{v['uuid']}"
+            vld = ET.Element('def:ValueListDef')
+            vld.set('OID', f"VL.{v['name']}.{v['uuid']}")
             item_refs = []
+            i = 1
             for vlm in vlms:
-              ref = {}
-              ref['@ItemOID'] = vlm['uuid']
-              ref['@OrderNumber'] = 'tbc'
-              ref['@Mandatory'] = vlm['uuid']
-              ref['def:WhereClauseRef'] = {
-                "def:WhereClauseRef":
-                      {
-                          "@WhereClauseOID": "FIX"
-                      }
-              }
-              item_refs.append(ref)
-
-            item['ItemRef'] = item_refs
-            debug.append(item)
-            vlds.append(item)
+              item_ref = ET.Element('ItemRef')
+              item_ref.set('ItemOID', f"{i}.{vlm['uuid']}")
+              item_ref.set('OrderNumber', str(i))
+              item_ref.set('Mandatory', 'No')
+              # item_ref.set('def:WhereClauseRef'], {)
+              #   "def:WhereClauseRef":
+              #         {
+              #             "@WhereClauseOID": "FIX"
+              #         }
+              # }
+              # item_refs.append(ref)
+              i += 1
+              item_refs.append(item_ref)
+              # vld.append(item_ref)
+            debug.append(ET.dump(vld))
+            for ref in item_refs:
+               vld.append(ref)
+            vlds.append(vld)
     return vlds
 
 def where_clause_defs(domains):
@@ -524,9 +528,13 @@ def main():
   metadata = metadata_version()
   metadata.append(standards())
   
-
   sd_uuid = get_study_design_uuid()
   domains = get_domains_and_variables(sd_uuid)
+
+  # def:ValueListDef
+  vlds = value_list_defs(domains)
+  for vld in vlds:
+     metadata.append(vld)
 
   # ItemGroupDef
   igds = item_group_defs(domains)
@@ -538,9 +546,6 @@ def main():
   for idf in idfs:
      metadata.append(idf)
 
-  # def:ValueListDef
-  # vlds = value_list_defs(domains)
-  # define['ODM']['Study']['MetaDataVersion']['def:ValueListDef'] = vlds
 
   # # def:WhereClauseDef
   # wcds = where_clause_defs(domains)
