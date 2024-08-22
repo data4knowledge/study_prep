@@ -8,7 +8,24 @@ from datetime import datetime
 import xmlschema
 import xml.etree.ElementTree as ET
 
-import odm as ODM
+# import odm as ODM
+
+# ISSUE: Length
+
+# ISSUE: Origin. Needs study builder
+# ['Assigned', 'Collected', 'Derived', 'Not Available', 'Other', 'Predecessor', 'Protocol']
+# ['Investigator', 'Sponsor', 'Subject', 'Vendor']
+
+# ISSUE: DataType in DB: coding
+# define-xml datatypes:
+# ['integer', 'float', 'date', 'datetime', 'time', 'text', 'string', 'double', 'URI', 'boolean', 'hexBinary', 'base64Binary', 'hexFloat', 'base64Float', 'partialDate', 'partialTime', 'partialDatetime', 'durationDatetime', 'intervalDatetime', 'incompleteDatetime', 'incompleteDate', 'incompleteTime']
+
+
+DATATYPES = {
+   'coding': 'string',
+   'quantity': 'float',
+}
+
 
 class Define:
     """ Generate a Define-XML v2.1 file from the SDTM Metadata Worksheet Example Excel file """
@@ -41,16 +58,19 @@ ORDER_OF_DOMAINS = [
   'STUDY REFERENCE',
 ]
 
+# All possible classes
+# ['ADAM OTHER', 'BASIC DATA STRUCTURE', 'DEVICE LEVEL ANALYSIS DATASET', 'EVENTS', 'FINDINGS', 'FINDINGS ABOUT', 'INTERVENTIONS', 'MEDICAL DEVICE BASIC DATA STRUCTURE', 'MEDICAL DEVICE OCCURRENCE DATA STRUCTURE', 'OCCURRENCE DATA STRUCTURE', 'REFERENCE DATA STRUCTURE', 'RELATIONSHIP', 'SPECIAL PURPOSE', 'STUDY REFERENCE', 'SUBJECT LEVEL ANALYSIS DATASET', 'TRIAL DESIGN']
 # ISSUE: Should be in DB
+# ISSUE: 'SPECIAL-PURPOSE' -> 'SPECIAL PURPOSE'
 DOMAIN_CLASS = {
-  'Events'          :['AE', 'BE', 'CE', 'DS', 'DV', 'HO', 'MH'],
-  'Findings'        :['BS', 'CP', 'CV', 'DA', 'DD', 'EG', 'FT', 'GF', 'IE', 'IS', 'LB', 'MB', 'MI', 'MK', 'MS', 'NV', 'OE', 'PC', 'PE', 'PP', 'QS', 'RE', 'RP', 'RS', 'SC', 'SS', 'TR', 'TU', 'UR', 'VS'],
-  'Findings About'  :['FA', 'SR'],
-  'Interventions'   :['AG', 'CM', 'EC', 'EX', 'ML', 'PR', 'SU'],
-  'Relationship'    :['RELREC', 'RELSPEC', 'RELSUB', 'SUPPQUAL'],
-  'Special-Purpose' :['CO', 'DM', 'SE', 'SM', 'SV'],
-  'Study Reference' :['OI'],
-  'Trial Design'    :['TA', 'TD', 'TE', 'TI', 'TM', 'TS', 'TV'],
+  'EVENTS'          :['AE', 'BE', 'CE', 'DS', 'DV', 'HO', 'MH'],
+  'FINDINGS'        :['BS', 'CP', 'CV', 'DA', 'DD', 'EG', 'FT', 'GF', 'IE', 'IS', 'LB', 'MB', 'MI', 'MK', 'MS', 'NV', 'OE', 'PC', 'PE', 'PP', 'QS', 'RE', 'RP', 'RS', 'SC', 'SS', 'TR', 'TU', 'UR', 'VS'],
+  'FINDINGS ABOUT'  :['FA', 'SR'],
+  'INTERVENTIONS'   :['AG', 'CM', 'EC', 'EX', 'ML', 'PR', 'SU'],
+  'RELATIONSHIP'    :['RELREC', 'RELSPEC', 'RELSUB', 'SUPPQUAL'],
+  'SPECIAL PURPOSE' :['CO', 'DM', 'SE', 'SM', 'SV'],
+  'STUDY REFERENCE' :['OI'],
+  'TRIAL DESIGN'    :['TA', 'TD', 'TE', 'TI', 'TM', 'TS', 'TV'],
 }
 
 # ISSUE: Fix proper links when loading
@@ -112,6 +132,7 @@ def _add_missing_links_to_crm():
         # application_logger.info(f"Info: Failed to create link to CRM for {var}")
         print(f"Warning: Failed to create link to CRM for {var}")
         # print("query", query)
+  db.close()
 
 
 # class Define(BaseNode):
@@ -188,7 +209,9 @@ def get_study_design_uuid():
         MATCH (sd:StudyDesign) RETURN sd.uuid as uuid
       """
       results = session.run(query)
-      return [r.data() for r in results][0]['uuid']
+      data = [r.data() for r in results][0]['uuid']
+    db.close()
+    return data
 
 def check_crm_links():
     db = Neo4jConnection()
@@ -207,6 +230,8 @@ def check_crm_links():
       crm_links = [r.data() for r in results]
       for x in crm_links:
         debug.append([v for k,v in x.items()])
+    db.close()
+
 
 def get_domains(uuid):
     db = Neo4jConnection()
@@ -218,7 +243,7 @@ def get_domains(uuid):
       # print("domains query", query)
       results = session.run(query)
       return [r['d'] for r in results]
-
+    db.close()
 
 def get_variables(uuid):
     db = Neo4jConnection()
@@ -240,7 +265,8 @@ def get_variables(uuid):
       # print("variables query", query)
       results = session.run(query)
       vars_in_use = [r['v'] for r in results]
-      return vars_in_use
+    db.close()
+    return vars_in_use
 
 
 def get_define_first(domain_uuid):
@@ -277,7 +303,9 @@ def get_define_first(domain_uuid):
       # print("define query", query)
       results = session.run(query)
       # return [r.data() for r in results]
-      return [r for r in results.data()]
+      data = [r for r in results.data()]
+    db.close()
+    return data
    
 
 
@@ -309,15 +337,41 @@ def get_domains_and_variables(uuid):
 
   return domains
 
+def translated_text(language, text):
+    translated_text = ET.Element('TranslatedText')
+    translated_text.set('xml:lang',language)
+    translated_text.text = text
+    return translated_text
+
+def description(language, text_str):
+    description = ET.Element('Description')
+    description.append(translated_text(language, text_str))
+    return description
+
+def origin(type, source):
+    origin = ET.Element('def:Origin')
+    origin.set('Type', type)
+    origin.set('Source', source)
+    return origin
+
+def leaf(id, href, text_str):
+    leaf = ET.Element('def:leaf')
+    leaf.set("ID", id)
+    leaf.set("xlink:href", href)
+    title = ET.SubElement(leaf, 'def:title')
+    title.text = text_str
+    return leaf
+
 def set_variable_refs(variables):
     variable_refs = []
     for v in variables:
       ref = ET.Element('ItemRef')
       ref.set('ItemOID', v['uuid'])
-      ref.set('Mandatory', v['core'])
-      # ref.set('OrderNumber', int(v['ordinal']))
-      ref.set('OrderNumber', v['ordinal'])
-      ref.set('KeySequence', 'tbc')
+      mandatory = 'No' if v['core'] == 'Perm' else 'Yes'
+      ref.set('Mandatory', mandatory)
+      order = int(v['ordinal'])
+      ref.set('OrderNumber', str(order))
+      # ref.set('KeySequence', "1")
       variable_refs.append(ref)
     return variable_refs
 
@@ -335,53 +389,34 @@ def item_group_defs(domains):
         igd.set('Purpose', 'Tabulation')
         igd.set('def:StandardOID', 'STD.1')
         igd.set('def:ArchiveLocationID', 'tbc')
-        description = ET.Element('Description')
-        translated_text = ET.SubElement(description,'TranslatedText')
-        translated_text.set('xml:lang','en')
-        translated_text.text = d['label']
-        igd.append(description)
+        igd.append(description('en',d['label']))
+        # ISSUE/Question: Why does the order matter? Had to move refs after description
+        refs = set_variable_refs(d['variables'])
+        for ref in refs:
+          igd.append(ref)
         goc = next((x for x,y in DOMAIN_CLASS.items() if d['name'] in y), "Fix")
         ET.SubElement(igd,'def:Class', {'Name': goc})
         # ET.SubElement(igd,'def:Class').text = goc
         # goc_e.text = goc
-        refs = set_variable_refs(d['variables'])
-        for ref in refs:
-          igd.append(ref)
-        leaf = ET.SubElement(igd,'def:leaf')
-        leaf.set("ID", "tbc")
-        leaf.set("xlink:href", d['name'].lower()+".xpt")
-        title = ET.SubElement(leaf, 'def:title')
-        title.text = d['name'].lower()+".xpt"
-        leaf.append(title)
-        igd.append(leaf)
+        igd.append(leaf(f"tbc.{d['name']}", d['name'].lower()+".xpt", d['name'].lower()+".xpt"))
         igds.append(igd)
     return igds
-
 
 def item_defs(domains):
     idfs = []
     for d in domains:
         for v in d['variables']:
           # debug.append(v)
-          item = {}
-          item['@OID'] = v['uuid']
-          item['@Name'] = v['name']
-          item['@DataType'] = v['datatype']
-          item['@Length'] = 'tbc'
-          item['@SASFieldName'] = v['name']
-          item['Description'] = {
-              "TranslatedText":
-              {
-                  "@xml:lang": "en",
-                  "#text": v['label']
-              }
-          },
-          item['def:Origin'] = {
-              "@Type": "tbc",
-              "@Source": "Sponsor"
-          }
-          # debug.append(item)
-          idfs.append(item)
+          idf = ET.Element('ItemDef')
+          idf.set('OID', v['uuid'])
+          idf.set('Name', v['name'])
+          datatype = DATATYPES[v['datatype']]
+          idf.set('DataType', datatype)
+          idf.set('Length', '8')
+          idf.set('SASFieldName', v['name'])
+          idf.append(description('en',v['label']))
+          idf.append(origin('Collected','Sponsor'))
+          idfs.append(idf)
     return idfs
 
 def value_list_defs(domains):
@@ -497,18 +532,13 @@ def main():
   igds = item_group_defs(domains)
   for igd in igds:
      metadata.append(igd)
-  # define['ODM']['Study']['MetaDataVersion']['ItemGroupDef'] = igd
 
-  # # Build dict
-  # define['ODM']['Study'] = study()
-  # metadata = metadata_version()
-  # define['ODM']['Study']['MetaDataVersion'] = metadata
+  # ItemDef
+  idfs = item_defs(domains)
+  for idf in idfs:
+     metadata.append(idf)
 
-  # # ItemGroupDef
-  # idfs = item_defs(domains)
-  # define['ODM']['Study']['MetaDataVersion']['ItemDef'] = idfs
-
-  # # def:ValueListDef
+  # def:ValueListDef
   # vlds = value_list_defs(domains)
   # define['ODM']['Study']['MetaDataVersion']['def:ValueListDef'] = vlds
 
@@ -525,20 +555,23 @@ def main():
   study.append(metadata)
   root.append(study)
 
-
   write_tmp("define-debug.txt",debug)
 
-
-  # debug.append(define)
-  write_tmp_json("define-debug",define)
-  json_data = write_define_json(DEFINE_JSON,define)
-  tree = ET.ElementTree(root)
-  ET.indent(tree, space="\t", level=0)
-  tree.write(DEFINE_XML, encoding="utf-8")
-  # write_define_xml(DEFINE_XML,define)
-  # write_define_xml(DEFINE_XML,json_data)
-  # write_define_xml1(DEFINE_XML,define)
-  # write_define_xml2(DEFINE_XML,json_data)
+  try:
+    # debug.append(define)
+    write_tmp_json("define-debug",define)
+    json_data = write_define_json(DEFINE_JSON,define)
+    tree = ET.ElementTree(root)
+    # ET.indent(tree, space="\t", level=0)
+    ET.indent(tree, space="   ", level=0)
+    tree.write(DEFINE_XML, encoding="utf-8")
+    # write_define_xml(DEFINE_XML,define)
+    # write_define_xml(DEFINE_XML,json_data)
+    # write_define_xml1(DEFINE_XML,define)
+    # write_define_xml2(DEFINE_XML,json_data)
+  except Exception as e:
+     print("Error",e)
+     debug.append(f"Error: {e}")
 
 def check_define():
     from pprint import pprint
