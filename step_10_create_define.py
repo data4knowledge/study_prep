@@ -313,8 +313,8 @@ def get_define_first(domain_uuid):
       """ % (domain_uuid)
       # limit 100
       # print("define query", query)
-      debug.append("define query")
-      debug.append(query)
+      # debug.append("define query")
+      # debug.append(query)
       results = session.run(query)
       # return [r.data() for r in results]
       data = [r for r in results.data()]
@@ -455,6 +455,9 @@ def value_list_defs(domains):
               item_ref.set('ItemOID', f"{i}.{vlm['uuid']}")
               item_ref.set('OrderNumber', str(i))
               item_ref.set('Mandatory', 'No')
+              wcd = ET.Element("def:WhereClauseRef")
+              wcd.set('WhereClauseOID', where_clause_oid(d['name'], v['name'], v['testcd'])) 
+              item_ref.append(wcd)
               # TODO: WhereClauseRef
               # item_ref.set('def:WhereClauseRef'], {)
               #   "def:WhereClauseRef":
@@ -495,11 +498,11 @@ def where_clause_defs(domains):
           debug.append(f"v['name']: {v['name']}")
           debug.append(f"len(vlms): {len(vlms)}")
           for vlm in vlms:
-            debug.append(vlm)
+            # debug.append(vlm)
             wcd = ET.Element('def:WhereClauseDef')
             wcd.set('OID',where_clause_oid(d['name'], v['name'], v['testcd']))
             wcd.append(range_check(vlm['decodes'], 'IN', 'Soft', v['uuid']))
-          debug.append(wcd)
+          # debug.append(wcd)
           wcds.append(wcd)
     return wcds
 
