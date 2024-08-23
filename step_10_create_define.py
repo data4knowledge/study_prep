@@ -1,4 +1,5 @@
 import json
+import copy
 from pathlib import Path
 from d4kms_service import Neo4jConnection
 from model.configuration import Configuration, ConfigurationNode
@@ -289,6 +290,7 @@ def get_define_first(domain_uuid):
         WITH bc, bcp, crm, var, collect({code:c.code,decode:c.decode}) as decodes
         return distinct 
         bc.name as bc,
+        bc.uuid as bc_uuid,
         bcp.name as bcp,
         crm.datatype as datatype,
         var.uuid as uuid,
@@ -301,12 +303,23 @@ def get_define_first(domain_uuid):
       """ % (domain_uuid)
       # limit 100
       # print("define query", query)
+      debug.append("define query")
+      debug.append(query)
       results = session.run(query)
       # return [r.data() for r in results]
       data = [r for r in results.data()]
     db.close()
     return data
    
+def get_unique_vars(vars):
+  unique_vars = []
+  for v in vars:
+      v.pop('bc')
+      v.pop('bc_uuid')
+      v.pop('decodes')
+      unique_vars.append(v)
+  unique_vars = list({v['uuid']:v for v in unique_vars}.values())
+  return unique_vars
 
 
 def get_domains_and_variables(uuid):
@@ -316,24 +329,17 @@ def get_domains_and_variables(uuid):
     item = {}
     for k,v in d._properties.items():
         item[k] = v
-    # print("domain",d['name'])
-    variables = get_variables(d['uuid'])
-    # print("len(variables)", len(variables))
+    all_variables = get_variables(d['uuid'])
+    debug.append(f"domain {d['name']}")
     define_metadata = get_define_first(d['uuid'])
+    # vlm = define_metadata
+    item['vlm'] = list(define_metadata)
     print(d['name'],"len(define_metadata)", len(define_metadata))
-    unique_vars = []
-    for v in define_metadata:
-        v.pop('bc')
-        v.pop('decodes')
-        unique_vars.append(v)
-    unique_vars = list({v['uuid']:v for v in unique_vars}.values())
+    unique_vars = get_unique_vars(copy.deepcopy(define_metadata))
     # print(unique_vars)
-    vlm = define_metadata
 
-    item['vlm'] = vlm
     item['variables'] = unique_vars
     domains.append(item)
-
 
   return domains
 
@@ -436,6 +442,7 @@ def value_list_defs(domains):
               item_ref.set('ItemOID', f"{i}.{vlm['uuid']}")
               item_ref.set('OrderNumber', str(i))
               item_ref.set('Mandatory', 'No')
+              # TODO: WhereClauseRef
               # item_ref.set('def:WhereClauseRef'], {)
               #   "def:WhereClauseRef":
               #         {
@@ -446,7 +453,7 @@ def value_list_defs(domains):
               i += 1
               item_refs.append(item_ref)
               # vld.append(item_ref)
-            debug.append(ET.dump(vld))
+            # debug.append(ET.dump(vld))
             for ref in item_refs:
                vld.append(ref)
             vlds.append(vld)
@@ -456,12 +463,19 @@ def where_clause_defs(domains):
     wcds = []
     for d in domains:
         debug.append(f"\ndomain: {d['name']}")
-        for v in d['variables']:
+        for v in d['vlm']:
           vlms  = [x for x in d['vlm'] if x['uuid'] == v['uuid']]
-          debug.append(f"len(vlm): {len(vlms)}")
-          item = {}
-          item['@OID'] = f"VL.{v['name']}.{v['uuid']}"
+          debug.append(f"v['name']: {v['name']}")
+          debug.append(f"len(vlms): {len(vlms)}")
+          for vlm in vlms:
+            debug.append(vlm)
+            wcd = ET.Element('def:WhereClauseDef')
+            wcd.set('OID',f"WC.{d['name']}.{v['name']}.{v['bc_uuid']}")
+          # item['@OID'] = f"VL.{v['name']}.{v['uuid']}"
           item_refs = []
+          debug.append(wcd)
+          wcds.append(wcd)
+    return wcds
                 # "def:WhereClauseDef":
                 # [
                 #     {
@@ -509,9 +523,6 @@ def where_clause_defs(domains):
                 #             }
                 #         ]
                 #     },
-          debug.append(item)
-          wcds.append(item)
-    return wcds
 
 DEFINE_JSON = Path.cwd() / "tmp" / "define.json"
 DEFINE_XML = Path.cwd() / "tmp" / "define.xml"
@@ -536,6 +547,11 @@ def main():
   for vld in vlds:
      metadata.append(vld)
 
+  # def:WhereClauseDef
+  wcds = where_clause_defs(domains)
+  for wcd in wcds:
+     metadata.append(wcd)
+
   # ItemGroupDef
   igds = item_group_defs(domains)
   for igd in igds:
@@ -547,9 +563,6 @@ def main():
      metadata.append(idf)
 
 
-  # # def:WhereClauseDef
-  # wcds = where_clause_defs(domains)
-  # define['ODM']['Study']['MetaDataVersion']['def:WhereClauseDef'] = wcds
   # # CodeList
   # # MethodDef
   # # def:CommentDef
