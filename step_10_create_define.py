@@ -1,5 +1,6 @@
 import json
 import copy
+import traceback
 from pathlib import Path
 from d4kms_service import Neo4jConnection
 from model.configuration import Configuration, ConfigurationNode
@@ -167,25 +168,25 @@ def odm_properties(root):
   root.set('SourceSystemVersion',"Alpha1")
   root.set('def:Context',"Other")
 
-def _study(oid= 'tbd', study_name = 'tbd', description = 'tbd', protocol_name = 'tbd'):
+def set_study_info(oid= 'tbd', study_name = 'tbd', description = 'tbd', protocol_name = 'tbd'):
   study = ET.Element('Study')
   study.set('OID',study_name)
-  # study.set('StudyName', study_name)
+  study.set('StudyName', study_name)
   # study.set('StudyDescription', description)
   # study.set('ProtocolName', protocol_name)
   return study
 
 # ISSUE: Hardcoded
-def globalvariables():
+def set_globalvariables(study_name = None, study_description = "Not set", protocol_name = "Not set"):
   global_variables = ET.Element('GlobalVariables')
   element = ET.Element('StudyName')
-  element.text = 'Study name'
+  element.text = study_name
   global_variables.append(element)
   element = ET.Element('StudyDescription')
-  element.text = 'Study Description'
+  element.text = study_description
   global_variables.append(element)
   element = ET.Element('ProtocolName')
-  element.text = 'Protocol Name'
+  element.text = protocol_name
   global_variables.append(element)
   return global_variables
 
@@ -203,7 +204,7 @@ def standards():
 
   return standards
 
-def metadata_version(oid = 'tbd', name = 'tbd', description = 'tbd'):
+def metadata_version(oid = 'Not set', name = 'Not set', description = 'Not set'):
   metadata = ET.Element('MetaDataVersion')
   metadata.set("OID", oid)
   metadata.set("Name", name)
@@ -211,16 +212,41 @@ def metadata_version(oid = 'tbd', name = 'tbd', description = 'tbd'):
   metadata.set("def:DefineVersion", "2.1.7")
   return metadata
 
+# {'sd': {'instanceType': 'StudyDesign', 'name': 'Study Design 1', 'description': 'The main design for the study', 'id': 'StudyDesign_1', 'label': '', 'uuid': '39309ff3-546c-4439-aa6f-74f16ad36f8f', 'rationale': 'The discontinuation rate associated with this oral dosing regimen was 58.6% in previous studies, and alternative clinical strategies have been sought to improve tolerance for the compound. To that end, development of a Transdermal Therapeutic System (TTS) has been initiated.'},
+#  'si': {'instanceType': 'StudyIdentifier', 'id': 'StudyIdentifier_1', 'studyIdentifier': 'H2Q-MC-LZZT', 'uuid': '224be614-0648-440e-b8ae-2cb0c642c1f1'},
+#  'sv': {'versionIdentifier': '2', 'instanceType': 'StudyVersion', 'id': 'StudyVersion_1', 'uuid': 'f347c6df-94ea-406e-a5df-c3e6d6942dbd', 'rationale': 'The discontinuation rate associated with this oral dosing regimen was 58.6% in previous studies, and alternative clinical strategies have been sought to improve tolerance for the compound. To that end, development of a Transdermal Therapeutic System (TTS) has been initiated.'}}
+
 def get_study_design_uuid():
     db = Neo4jConnection()
     with db.session() as session:
       query = """
-        MATCH (sd:StudyDesign) RETURN sd.uuid as uuid
-      """
+        MATCH (sd:StudyDesign)<-[:STUDY_DESIGNS_REL]-(sv:StudyVersion)
+        MATCH (sv)-[:STUDY_IDENTIFIERS_REL]->(si:StudyIdentifier)-[:STUDY_IDENTIFIER_SCOPE_REL]->(:Organization {name:'Eli Lilly'})
+        MATCH (sv)-[:DOCUMENT_VERSION_REL]->(spdv:StudyProtocolDocumentVersion)<-[:VERSIONS_REL]->(spd:StudyProtocolDocument)
+        return *
+        """
       results = session.run(query)
-      data = [r.data() for r in results][0]['uuid']
+      data = [r.data() for r in results]
+      debug.append("hejsan")
+      for x in data:
+         debug.append(x)
+      debug.append("svejsan")
+      query = """
+        MATCH (sd:StudyDesign)<-[:STUDY_DESIGNS_REL]-(sv:StudyVersion)
+        MATCH (sv)-[:STUDY_IDENTIFIERS_REL]->(si:StudyIdentifier)-[:STUDY_IDENTIFIER_SCOPE_REL]->(:Organization {name:'Eli Lilly'})
+        MATCH (sv)-[:DOCUMENT_VERSION_REL]->(spdv:StudyProtocolDocumentVersion)<-[:VERSIONS_REL]->(spd:StudyProtocolDocument)
+        return 
+        sd.uuid as uuid,
+        si.studyIdentifier as study_name,
+        sd.description as description,
+        sv.rationale as rationale,
+        spd.name as protocol_name
+        """
+      results = session.run(query)
+      debug.append(query)
+      data = [r.data() for r in results]
     db.close()
-    return data
+    return data[0]
 
 def check_crm_links():
     db = Neo4jConnection()
@@ -259,11 +285,12 @@ def get_variables(uuid):
     with db.session() as session:
       query = """
         MATCH (d:Domain {uuid: '%s'})-[]->(v:Variable) RETURN v
-        ORDER BY v.name
+        ORDER BY v.ordinal
       """ % (uuid)
       # print("variables query", query)
       results = session.run(query)
-      all_variables = [r['v'] for r in results]
+      # all_variables = [r['v'] for r in results]
+      all_variables = [r['v'] for r in results.data()]
       required_variables = [v for v in all_variables if v['core'] == 'Req']
 
       # CRM linked vars
@@ -273,9 +300,10 @@ def get_variables(uuid):
       """ % (uuid)
       # print("variables query", query)
       results = session.run(query)
-      vars_in_use = [r['v'] for r in results]
+      vars_in_use = [r['v'] for r in results.data()]
     db.close()
-    return vars_in_use
+    # return vars_in_use
+    return all_variables
 
 
 def get_define_first(domain_uuid):
@@ -339,19 +367,32 @@ def get_domains_and_variables(uuid):
   domains = []
   raw_domains = get_domains(uuid)
   for d in raw_domains:
+    debug.append(f"domain {d['name']}")
     item = {}
     for k,v in d._properties.items():
         item[k] = v
     all_variables = get_variables(d['uuid'])
-    debug.append(f"domain {d['name']}")
+    # for v in all_variables:
+    #    debug.append(v)
     define_metadata = get_define_first(d['uuid'])
     # vlm = define_metadata
     item['vlm'] = list(define_metadata)
+    for m in define_metadata:
+      debug.append(f"check var {m['name']}")
+      vs = [v for v in all_variables if v['name'] == m['name']]
+      for v in vs:
+        # debug.append(f"   {v['name']}")
+        debug.append(f"   {v}")
+      debug.append(f"   {m}")
+          
+      #  if next((v for v in all_variables if v['name'] == m['name']), None):
+      #     debug.append("yes, a hit")
     print(d['name'],"len(define_metadata)", len(define_metadata))
     unique_vars = get_unique_vars(copy.deepcopy(define_metadata))
     # print(unique_vars)
 
-    item['variables'] = unique_vars
+    # item['variables'] = unique_vars
+    item['variables'] = all_variables
     domains.append(item)
 
   return domains
@@ -429,14 +470,23 @@ def item_defs(domains):
           idf = ET.Element('ItemDef')
           idf.set('OID', v['uuid'])
           idf.set('Name', v['name'])
-          datatype = DATATYPES[v['datatype']]
+          datatype = DATATYPES[v['datatype']] if 'datatype' in v else ""
           idf.set('DataType', datatype)
           idf.set('Length', '8')
           idf.set('SASFieldName', v['name'])
           idf.append(description('en',v['label']))
           idf.append(origin('Collected','Sponsor'))
+          if next((x for x in d['vlm'] if x['uuid'] == v['uuid']), None):
+            vl_ref = ET.Element('def:ValueListRef')
+            vl_ref.set('ValueListOID', value_list_oid(v['name'], v['uuid']))
+            idf.append(vl_ref)
+          # <def:ValueListRef ValueListOID="VL.LB.LBORRES"/>
+
           idfs.append(idf)
     return idfs
+
+def value_list_oid(variable, uuid):
+    return f"VL.{variable}.{uuid}"
 
 def value_list_defs(domains):
     vlds = []
@@ -445,18 +495,20 @@ def value_list_defs(domains):
         for v in d['variables']:
           vlms  = [x for x in d['vlm'] if x['uuid'] == v['uuid']]
           if vlms:
+            debug.append(f"\nVariable: {v['name']}")
             debug.append(f"len(vlm): {len(vlms)}")
             vld = ET.Element('def:ValueListDef')
-            vld.set('OID', f"VL.{v['name']}.{v['uuid']}")
+            vld.set('OID', value_list_oid(v['name'], v['uuid']))
             item_refs = []
             i = 1
             for vlm in vlms:
+              debug.append(f"vlm: {vlm}")
               item_ref = ET.Element('ItemRef')
               item_ref.set('ItemOID', f"{i}.{vlm['uuid']}")
               item_ref.set('OrderNumber', str(i))
               item_ref.set('Mandatory', 'No')
               wcd = ET.Element("def:WhereClauseRef")
-              wcd.set('WhereClauseOID', where_clause_oid(d['name'], v['name'], v['testcd'])) 
+              wcd.set('WhereClauseOID', where_clause_oid(d['name'], vlm['name'], vlm['testcd'])) 
               item_ref.append(wcd)
               # TODO: WhereClauseRef
               # item_ref.set('def:WhereClauseRef'], {)
@@ -510,54 +562,56 @@ DEFINE_JSON = Path.cwd() / "tmp" / "define.json"
 DEFINE_XML = Path.cwd() / "tmp" / "define.xml"
 
 def main():
-  define = {}
-  root = ET.Element('ODM')
-  odm_properties(root)
-  study = _study()
-  # Study -------->
-  study.append(globalvariables())
-
-  # MetadataVersion -------->
-  metadata = metadata_version()
-  metadata.append(standards())
-  
-  sd_uuid = get_study_design_uuid()
-  domains = get_domains_and_variables(sd_uuid)
-
-  # def:ValueListDef
-  vlds = value_list_defs(domains)
-  for vld in vlds:
-     metadata.append(vld)
-
-  # def:WhereClauseDef
-  wcds = where_clause_defs(domains)
-  for wcd in wcds:
-     metadata.append(wcd)
-
-  # ItemGroupDef
-  igds = item_group_defs(domains)
-  for igd in igds:
-     metadata.append(igd)
-
-  # ItemDef
-  idfs = item_defs(domains)
-  for idf in idfs:
-     metadata.append(idf)
-
-
-  # # CodeList
-  # # MethodDef
-  # # def:CommentDef
-  # # def:leaf
-
-  # MetadataVersion <--------
-  # Study <--------
-  study.append(metadata)
-  root.append(study)
-
-  write_tmp("define-debug.txt",debug)
-
   try:
+    study_info = get_study_design_uuid()
+    domains = get_domains_and_variables(study_info['uuid'])
+    debug.append(f"study_info {study_info}")
+
+    define = {}
+    root = ET.Element('ODM')
+    odm_properties(root)
+    study = set_study_info(study_name=study_info['study_name'])
+    # Study -------->
+    study.append(set_globalvariables(study_name=study_info['study_name'], study_description=study_info['rationale'], protocol_name=study_info['protocol_name']))
+
+    # MetadataVersion -------->
+    metadata = metadata_version(oid=study_info['uuid'], name=study_info['study_name'],description="This is some kind of description")
+    metadata.append(standards())
+    
+
+    # def:ValueListDef
+    vlds = value_list_defs(domains)
+    for vld in vlds:
+      metadata.append(vld)
+
+    # def:WhereClauseDef
+    wcds = where_clause_defs(domains)
+    for wcd in wcds:
+      metadata.append(wcd)
+
+    # ItemGroupDef
+    igds = item_group_defs(domains)
+    for igd in igds:
+      metadata.append(igd)
+
+    # ItemDef
+    idfs = item_defs(domains)
+    for idf in idfs:
+      metadata.append(idf)
+
+
+    # # CodeList
+    # # MethodDef
+    # # def:CommentDef
+    # # def:leaf
+
+    # MetadataVersion <--------
+    # Study <--------
+    study.append(metadata)
+    root.append(study)
+
+    write_tmp("define-debug.txt",debug)
+
     # debug.append(define)
     write_tmp_json("define-debug",define)
     json_data = write_define_json(DEFINE_JSON,define)
@@ -582,8 +636,10 @@ def main():
     # write_define_xml1(DEFINE_XML,define)
     # write_define_xml2(DEFINE_XML,json_data)
   except Exception as e:
-     print("Error",e)
-     debug.append(f"Error: {e}")
+    write_tmp("define-debug.txt",debug)
+    print("Error",e)
+    print(traceback.format_exc())
+    debug.append(f"Error: {e}")
 
 def check_define():
     from pprint import pprint
