@@ -9,18 +9,23 @@ from datetime import datetime
 import xmlschema
 import xml.etree.ElementTree as ET
 
-# import odm as ODM
+# NOTE: Length
 
-# ISSUE: Length
-
-# ISSUE: Origin. Needs study builder
+# NOTE: Origin. Needs study builder
 # ['Assigned', 'Collected', 'Derived', 'Not Available', 'Other', 'Predecessor', 'Protocol']
 # ['Investigator', 'Sponsor', 'Subject', 'Vendor']
 
-# ISSUE: DataType in DB: coding
+# NOTE: DataType in DB: coding
 # define-xml datatypes:
 # ['integer', 'float', 'date', 'datetime', 'time', 'text', 'string', 'double', 'URI', 'boolean', 'hexBinary', 'base64Binary', 'hexFloat', 'base64Float', 'partialDate', 'partialTime', 'partialDatetime', 'durationDatetime', 'intervalDatetime', 'incompleteDatetime', 'incompleteDate', 'incompleteTime']
 
+# NOTE: code, decode (TESTCD, TEST) seems to be in different places
+# Adverse Event Prespecified:
+#   - BC.name/label = Adverse Event Prespecified
+#   - BC-[:CODE_REL]-(alias)-[:STANDARD_CODE_REL]-(code).decode = Solicited Adverse Event
+# Systolic Blood Pressure: 
+#   - BC.name/label = Systolic Blood Pressure
+#   - BC-[:CODE_REL]-(alias)-[:STANDARD_CODE_REL]-(code).decode = SYSBP
 
 DATATYPES = {
    'coding': 'string',
@@ -74,7 +79,7 @@ DOMAIN_CLASS = {
   'TRIAL DESIGN'    :['TA', 'TD', 'TE', 'TI', 'TM', 'TS', 'TV'],
 }
 
-# ISSUE: Fix proper links when loading
+# NOTE: Fix proper links when loading
 def _add_missing_links_to_crm():
   db = Neo4jConnection()
   with db.session() as session:
@@ -143,6 +148,9 @@ def _add_missing_links_to_crm():
 #   demography: List[str]= []
 
 debug = []
+
+def pretty_string(text):
+   return text.replace(' ','_')
 
 def odm_properties(root):
   # now = datetime.now().replace(tzinfo=datetime.timezone.utc).isoformat()
@@ -279,18 +287,20 @@ def get_define_first(domain_uuid):
         MATCH (sv)-[:STUDY_IDENTIFIERS_REL]->(si:StudyIdentifier)-[:STUDY_IDENTIFIER_SCOPE_REL]->(:Organization {name:'Eli Lilly'})
         WITH si, domain
         MATCH (domain)-[:USING_BC_REL]-(bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
+        MATCH (bc)-[:CODE_REL]-(:AliasCode)-[:STANDARD_CODE_REL]->(cd:Code)
         WHERE EXISTS {
             (bcp)<-[:PROPERTIES_REL]->(dc:DataContract)
         }
-        WITH bc, bcp, domain
+        WITH bc, cd, bcp, domain
         MATCH (bcp)-[:IS_A_REL]->(crm:CRMNode)<-[:IS_A_REL]-(var:Variable)<-[:VARIABLE_REL]-(domain)
         MATCH (bcp)-[:RESPONSE_CODES_REL]->(rc:ResponseCode)-[:CODE_REL]->(c:Code)
-        WITH bc, bcp, crm, var, c
-        ORDER By bc.name, bcp.name, c.decode
-        WITH bc, bcp, crm, var, collect({code:c.code,decode:c.decode}) as decodes
+        WITH bc, cd, bcp, crm, var, c
+        ORDER By bc.name, cd.decode, bcp.name, c.decode
+        WITH bc, cd, bcp, crm, var, collect({code:c.code,decode:c.decode}) as decodes
         return distinct 
         bc.name as bc,
-        bc.uuid as bc_uuid,
+        // bc.uuid as bc_uuid,
+        cd.decode as testcd,
         bcp.name as bcp,
         crm.datatype as datatype,
         var.uuid as uuid,
@@ -308,6 +318,8 @@ def get_define_first(domain_uuid):
       results = session.run(query)
       # return [r.data() for r in results]
       data = [r for r in results.data()]
+      for d in data:
+         debug.append(d)
     db.close()
     return data
    
@@ -315,7 +327,8 @@ def get_unique_vars(vars):
   unique_vars = []
   for v in vars:
       v.pop('bc')
-      v.pop('bc_uuid')
+      if 'bc_uuid' in v:
+        v.pop('bc_uuid')
       v.pop('decodes')
       unique_vars.append(v)
   unique_vars = list({v['uuid']:v for v in unique_vars}.values())
@@ -459,6 +472,20 @@ def value_list_defs(domains):
             vlds.append(vld)
     return vlds
 
+def where_clause_oid(domain, variable, test):
+    return f"WC.{domain}.{variable}.{pretty_string(test)}"
+
+def range_check(decodes,comparator, soft_hard, item_oid):
+    range_check = ET.Element('RangeCheck')
+    range_check.set('Comparator', comparator)
+    range_check.set('SoftHard', soft_hard)
+    range_check.set('def:ItemOID', item_oid)
+    for decode in decodes:
+      check_value = ET.Element('CheckValue')
+      check_value.text = decode['decode']
+      range_check.append(check_value)
+    return range_check
+
 def where_clause_defs(domains):
     wcds = []
     for d in domains:
@@ -470,59 +497,11 @@ def where_clause_defs(domains):
           for vlm in vlms:
             debug.append(vlm)
             wcd = ET.Element('def:WhereClauseDef')
-            wcd.set('OID',f"WC.{d['name']}.{v['name']}.{v['bc_uuid']}")
-          # item['@OID'] = f"VL.{v['name']}.{v['uuid']}"
-          item_refs = []
+            wcd.set('OID',where_clause_oid(d['name'], v['name'], v['testcd']))
+            wcd.append(range_check(vlm['decodes'], 'IN', 'Soft', v['uuid']))
           debug.append(wcd)
           wcds.append(wcd)
     return wcds
-                # "def:WhereClauseDef":
-                # [
-                #     {
-                #         "@OID": "WC.LB.LBTESTCD.SET1.LBSPEC.BLOOD",
-                #         "RangeCheck":
-                #         [
-                #             {
-                #                 "@Comparator": "IN",
-                #                 "@SoftHard": "Soft",
-                #                 "@def:ItemOID": "IT.LB.LBTESTCD",
-                #                 "CheckValue":
-                #                 [
-                #                     "BILI",
-                #                     "GLUC"
-                #                 ]
-                #             },
-                #             {
-                #                 "@Comparator": "EQ",
-                #                 "@SoftHard": "Soft",
-                #                 "@def:ItemOID": "IT.LB.LBSPEC",
-                #                 "CheckValue": "BLOOD"
-                #             }
-                #         ]
-                #     },
-                #     {
-                #         "@OID": "WC.LB.LBTESTCD.SET2.LBSPEC.BLOOD",
-                #         "RangeCheck":
-                #         [
-                #             {
-                #                 "@Comparator": "IN",
-                #                 "@SoftHard": "Soft",
-                #                 "@def:ItemOID": "IT.LB.LBTESTCD",
-                #                 "CheckValue":
-                #                 [
-                #                     "BUN",
-                #                     "HGB",
-                #                     "LYM"
-                #                 ]
-                #             },
-                #             {
-                #                 "@Comparator": "EQ",
-                #                 "@SoftHard": "Soft",
-                #                 "@def:ItemOID": "IT.LB.LBSPEC",
-                #                 "CheckValue": "BLOOD"
-                #             }
-                #         ]
-                #     },
 
 DEFINE_JSON = Path.cwd() / "tmp" / "define.json"
 DEFINE_XML = Path.cwd() / "tmp" / "define.xml"
