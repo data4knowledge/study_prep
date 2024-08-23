@@ -407,7 +407,7 @@ def item_group_defs(domains):
         igd.set('def:Structure', 'tbc')
         igd.set('Purpose', 'Tabulation')
         igd.set('def:StandardOID', 'STD.1')
-        igd.set('def:ArchiveLocationID', 'tbc')
+        igd.set('def:ArchiveLocationID', f"LI.{d['name']}")
         igd.append(description('en',d['label']))
         # ISSUE/Question: Why does the order matter? Had to move refs after description
         refs = set_variable_refs(d['variables'])
@@ -417,7 +417,7 @@ def item_group_defs(domains):
         ET.SubElement(igd,'def:Class', {'Name': goc})
         # ET.SubElement(igd,'def:Class').text = goc
         # goc_e.text = goc
-        igd.append(leaf(f"tbc.{d['name']}", d['name'].lower()+".xpt", d['name'].lower()+".xpt"))
+        igd.append(leaf(f"LI.{d['name']}", d['name'].lower()+".xpt", d['name'].lower()+".xpt"))
         igds.append(igd)
     return igds
 
@@ -565,6 +565,18 @@ def main():
     # ET.indent(tree, space="\t", level=0)
     ET.indent(tree, space="   ", level=0)
     tree.write(DEFINE_XML, encoding="utf-8")
+    # add stylesheet
+    with open(DEFINE_XML,'r') as f:
+      lines = f.readlines()
+    stuff = """<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="stylesheets/define2-1.xsl"?>
+"""
+    lines.insert(0,stuff) 
+    with open(DEFINE_XML,'w') as f:
+      for line in lines:
+         f.write(line)
+      # lines = f.readlines()
+
     # write_define_xml(DEFINE_XML,define)
     # write_define_xml(DEFINE_XML,json_data)
     # write_define_xml1(DEFINE_XML,define)
