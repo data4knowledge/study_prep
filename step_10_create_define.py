@@ -202,6 +202,16 @@ def standards():
   standard1.set("Status", "Final")
   standards.append(standard1)
 
+  # <def:Standard OID="STD.3" Name="CDISC/NCI" Type="CT" PublishingSet="SDTM" Version="2011-12-09" Status="Final" def:CommentOID="COM.CT1"/>
+  standard1 = ET.Element('def:Standard')
+  standard1.set("OID", "STD.2")
+  standard1.set("Name", "CDISC/NCI")
+  standard1.set("Type", "CT")
+  standard1.set("Version", "2023-12-09")
+  standard1.set("Status", "Final")
+  standards.append(standard1)
+
+
   return standards
 
 def metadata_version(oid = 'Not set', name = 'Not set', description = 'Not set'):
@@ -219,23 +229,21 @@ def metadata_version(oid = 'Not set', name = 'Not set', description = 'Not set')
 def get_study_info():
     db = Neo4jConnection()
     with db.session() as session:
-      query = """
-        MATCH (sd:StudyDesign)<-[:STUDY_DESIGNS_REL]-(sv:StudyVersion)
-        MATCH (sv)-[:STUDY_IDENTIFIERS_REL]->(si:StudyIdentifier)-[:STUDY_IDENTIFIER_SCOPE_REL]->(:Organization {name:'Eli Lilly'})
-        MATCH (sv)-[:DOCUMENT_VERSION_REL]->(spdv:StudyProtocolDocumentVersion)<-[:VERSIONS_REL]->(spd:StudyProtocolDocument)
-        return *
-        """
-      results = session.run(query)
-      data = [r.data() for r in results]
-      debug.append("hejsan")
-      for x in data:
-        #  debug.append(x)
-         for k,v in x.items():
-          debug.append(f"{k}")
-          for k1,v1 in v.items():
-            debug.append(f"  {k1}: {v1}")
+      # query = """
+      #   MATCH (sd:StudyDesign)<-[:STUDY_DESIGNS_REL]-(sv:StudyVersion)
+      #   MATCH (sv)-[:STUDY_IDENTIFIERS_REL]->(si:StudyIdentifier)-[:STUDY_IDENTIFIER_SCOPE_REL]->(:Organization {name:'Eli Lilly'})
+      #   MATCH (sv)-[:DOCUMENT_VERSION_REL]->(spdv:StudyProtocolDocumentVersion)<-[:VERSIONS_REL]->(spd:StudyProtocolDocument)
+      #   return *
+      #   """
+      # results = session.run(query)
+      # data = [r.data() for r in results]
+      # for x in data:
+      #   #  debug.append(x)
+      #    for k,v in x.items():
+      #     debug.append(f"{k}")
+      #     for k1,v1 in v.items():
+      #       debug.append(f"  {k1}: {v1}")
             
-      debug.append("svejsan")
       query = """
         MATCH (sd:StudyDesign)<-[:STUDY_DESIGNS_REL]-(sv:StudyVersion)
         MATCH (sv)-[:STUDY_IDENTIFIERS_REL]->(si:StudyIdentifier)-[:STUDY_IDENTIFIER_SCOPE_REL]->(:Organization {name:'Eli Lilly'})
@@ -247,8 +255,8 @@ def get_study_info():
         sv.rationale as rationale,
         spd.name as protocol_name
         """
+      # debug.append(query)
       results = session.run(query)
-      debug.append(query)
       data = [r.data() for r in results]
     db.close()
     return data[0]
@@ -331,8 +339,8 @@ def get_define_vlm(domain_uuid):
         ORDER By bc.name, cd.decode, bcp.name, c.decode
         WITH bc, cd, bcp, crm, var, collect({code:c.code,decode:c.decode}) as decodes
         return distinct 
+        bc.uuid as bc_uuid,
         bc.name as bc,
-        // bc.uuid as bc_uuid,
         cd.decode as testcd,
         bcp.name as bcp,
         crm.datatype as datatype,
@@ -342,17 +350,60 @@ def get_define_vlm(domain_uuid):
         var.core as core,
         var.ordinal as ordinal,
         decodes as decodes
-        order by ordinal
+//        order by bc_uuid, ordinal
       """ % (domain_uuid)
       # limit 100
-      # print("define query", query)
-      # debug.append("define query")
+      # print("vlm query", query)
+      results = session.run(query)
+      data = [r for r in results.data()]
+      # debug.append("vlm query")
       # debug.append(query)
+      # debug.append("vlm--->")
+      # for d in data:
+      #    debug.append(d)
+      # debug.append("vlm<---")
+    db.close()
+    return data
+
+def get_define_codelist(domain_uuid):
+    db = Neo4jConnection()
+    with db.session() as session:
+      query = """
+        MATCH (sd:StudyDesign)-[:DOMAIN_REL]->(domain:Domain {uuid:'%s'})
+        MATCH (sd)<-[:STUDY_DESIGNS_REL]-(sv:StudyVersion)
+        MATCH (sv)-[:STUDY_IDENTIFIERS_REL]->(si:StudyIdentifier)-[:STUDY_IDENTIFIER_SCOPE_REL]->(:Organization {name:'Eli Lilly'})
+        WITH si, domain
+        MATCH (domain)-[:USING_BC_REL]-(bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
+        MATCH (bc)-[:CODE_REL]-(:AliasCode)-[:STANDARD_CODE_REL]->(bc_cd:Code)
+        WITH bc, bc_cd, bcp, domain
+        MATCH (bcp)-[:IS_A_REL]->(crm:CRMNode)<-[:IS_A_REL]-(var:Variable)<-[:VARIABLE_REL]-(domain)
+        MATCH (bcp)-[:RESPONSE_CODES_REL]->(rc:ResponseCode)-[:CODE_REL]->(c:Code)
+        // WHERE  var.label = bcp.label
+        // or bcp.name = crm.sdtm
+        WITH bc, bc_cd, bcp, crm, var, c
+        ORDER By bc.name, bc_cd.decode, bcp.name, c.decode
+        WITH bc, bc_cd, bcp, crm, var, collect({code:c.code,decode:c.decode}) as decodes
+        return distinct 
+        // bc.uuid as bc_uuid,
+        bc.name as bc,
+        bc_cd.decode as testcd,
+        var.uuid as uuid,
+        var.label as label,
+        var.name as name,
+        crm.datatype as datatype,
+        var.ordinal as ordinal,
+        decodes as decodes
+        order by name
+      """ % (domain_uuid)
+      debug.append("codelist query")
+      debug.append(query)
       results = session.run(query)
       # return [r.data() for r in results]
       data = [r for r in results.data()]
+      debug.append("codelist--->")
       for d in data:
          debug.append(d)
+      debug.append("codelist<---")
     db.close()
     return data
    
@@ -379,21 +430,24 @@ def get_domains_and_variables(uuid):
     all_variables = get_variables(d['uuid'])
     # for v in all_variables:
     #    debug.append(v)
-    define_metadata = get_define_vlm(d['uuid'])
-    # vlm = define_metadata
-    item['vlm'] = list(define_metadata)
-    for m in define_metadata:
-      debug.append(f"check var {m['name']}")
+    codelist_metadata = get_define_codelist(d['uuid'])
+    vlm_metadata = get_define_vlm(d['uuid'])
+    # vlm = vlm_metadata
+    item['vlm'] = list(vlm_metadata)
+    item['codelist'] = codelist_metadata
+    for m in vlm_metadata:
+      # debug.append(f"check var {m['name']}")
       vs = [v for v in all_variables if v['name'] == m['name']]
-      for v in vs:
-        # debug.append(f"   {v['name']}")
-        debug.append(f"   {v}")
-      debug.append(f"   {m}")
+
+      # debug.append(f"   {m}")
+      # for v in vs:
+      #   # debug.append(f"   {v['name']}")
+      #   debug.append(f"   {v}")
           
       #  if next((v for v in all_variables if v['name'] == m['name']), None):
       #     debug.append("yes, a hit")
-    print(d['name'],"len(define_metadata)", len(define_metadata))
-    unique_vars = get_unique_vars(copy.deepcopy(define_metadata))
+    print(d['name'],"len(vlm_metadata)", len(vlm_metadata))
+    unique_vars = get_unique_vars(copy.deepcopy(vlm_metadata))
     # print(unique_vars)
 
     # item['variables'] = unique_vars
@@ -489,6 +543,48 @@ def item_defs(domains):
 
           idfs.append(idf)
     return idfs
+
+def codelist_oid(variable, uuid):
+    # return f"CL.{variable}.{uuid}"
+    return f"CL.{variable}"
+
+def alias(context, code):
+    a = ET.Element('Alias')
+    a.set('Context', context)
+    a.set('Name', code)
+    return a
+
+def enumerated_item(code, context, value):
+    e = ET.Element('EnumeratedItem')
+    e.set('CodedValue', value)
+    e.append(alias(context, code))
+    return e
+
+def codelist_name(item):
+   return f"CL {item['name']} {item['testcd']} ({item['bc']}"
+
+def codelist_defs(domains):
+    codelists = []
+    for d in domains:
+        for item in d['codelist']:
+          debug.append(f"codelist {item}")
+          cl = ET.Element('CodeList')
+          # cl.set('OID', codelist_oid(item['name'], item['uuid']))
+          cl.set('OID', codelist_oid(item['testcd'], item['uuid']))
+          cl.set('Name', codelist_name(item))
+          cl.set('def:StandardOID', "STD.2")
+          datatype = DATATYPES[item['datatype']] if 'datatype' in item else ""
+          cl.set('DataType', datatype)
+          for x in item['decodes']:
+            cl.append(enumerated_item(x['code'], "nci:ExtCodeID",x['decode']))
+          # if next((x for x in d['vlm'] if x['uuid'] == v['uuid']), None):
+          #   vl_ref = ET.Element('def:ValueListRef')
+          #   vl_ref.set('ValueListOID', value_list_oid(v['name'], v['uuid']))
+          #   cl.append(vl_ref)
+          # # <def:ValueListRef ValueListOID="VL.LB.LBORRES"/>
+
+          codelists.append(cl)
+    return codelists
 
 def value_list_oid(variable, uuid):
     return f"VL.{variable}.{uuid}"
@@ -604,8 +700,11 @@ def main():
     for idf in idfs:
       metadata.append(idf)
 
+    # CodeList
+    codelists = codelist_defs(domains)
+    for codelist in codelists:
+      metadata.append(codelist)
 
-    # # CodeList
     # # MethodDef
     # # def:CommentDef
     # # def:leaf
