@@ -216,7 +216,7 @@ def metadata_version(oid = 'Not set', name = 'Not set', description = 'Not set')
 #  'si': {'instanceType': 'StudyIdentifier', 'id': 'StudyIdentifier_1', 'studyIdentifier': 'H2Q-MC-LZZT', 'uuid': '224be614-0648-440e-b8ae-2cb0c642c1f1'},
 #  'sv': {'versionIdentifier': '2', 'instanceType': 'StudyVersion', 'id': 'StudyVersion_1', 'uuid': 'f347c6df-94ea-406e-a5df-c3e6d6942dbd', 'rationale': 'The discontinuation rate associated with this oral dosing regimen was 58.6% in previous studies, and alternative clinical strategies have been sought to improve tolerance for the compound. To that end, development of a Transdermal Therapeutic System (TTS) has been initiated.'}}
 
-def get_study_design_uuid():
+def get_study_info():
     db = Neo4jConnection()
     with db.session() as session:
       query = """
@@ -229,7 +229,12 @@ def get_study_design_uuid():
       data = [r.data() for r in results]
       debug.append("hejsan")
       for x in data:
-         debug.append(x)
+        #  debug.append(x)
+         for k,v in x.items():
+          debug.append(f"{k}")
+          for k1,v1 in v.items():
+            debug.append(f"  {k1}: {v1}")
+            
       debug.append("svejsan")
       query = """
         MATCH (sd:StudyDesign)<-[:STUDY_DESIGNS_REL]-(sv:StudyVersion)
@@ -563,7 +568,7 @@ DEFINE_XML = Path.cwd() / "tmp" / "define.xml"
 
 def main():
   try:
-    study_info = get_study_design_uuid()
+    study_info = get_study_info()
     domains = get_domains_and_variables(study_info['uuid'])
     debug.append(f"study_info {study_info}")
 
