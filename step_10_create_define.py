@@ -311,7 +311,7 @@ def get_variables(uuid):
     return all_variables
 
 
-def get_define_first(domain_uuid):
+def get_define_vlm(domain_uuid):
     db = Neo4jConnection()
     with db.session() as session:
       query = """
@@ -379,7 +379,7 @@ def get_domains_and_variables(uuid):
     all_variables = get_variables(d['uuid'])
     # for v in all_variables:
     #    debug.append(v)
-    define_metadata = get_define_first(d['uuid'])
+    define_metadata = get_define_vlm(d['uuid'])
     # vlm = define_metadata
     item['vlm'] = list(define_metadata)
     for m in define_metadata:
