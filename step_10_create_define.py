@@ -32,6 +32,8 @@ import xml.etree.ElementTree as ET
 DATATYPES = {
    'coding': 'string',
    'quantity': 'float',
+   'Char': 'text',
+   'Num': 'integer',
 }
 
 
@@ -428,20 +430,28 @@ def item_group_defs(domains):
 def item_defs(domains):
     idfs = []
     for d in domains:
-        for v in d['variables']:
-          # debug.append(v)
+        for item in d['variables']:
+          debug.append(f"2 item {item}")
           idf = ET.Element('ItemDef')
-          idf.set('OID', v['uuid'])
-          idf.set('Name', v['name'])
-          datatype = DATATYPES[v['datatype']] if 'datatype' in v else ""
+          idf.set('OID', item['uuid'])
+          idf.set('Name', item['name'])
+          datatype = DATATYPES[item['datatype']] if 'datatype' in item else ""
+          if datatype == "":
+            # NOTE: Using SDTM datatype. Not always correct e.g. VISITNUM
+            datatype = DATATYPES[item['data_type']]
           idf.set('DataType', datatype)
           idf.set('Length', '8')
-          idf.set('SASFieldName', v['name'])
-          idf.append(description('en',v['label']))
+          idf.set('SASFieldName', item['name'])
+          idf.append(description('en',item['label']))
           idf.append(origin('Collected','Sponsor'))
-          if next((x for x in d['vlm'] if x['uuid'] == v['uuid']), None):
+          if next((x for x in d['codelist'] if x['uuid'] == item['uuid']), None):
+             print("found codelist", d['name'], item['name'])
+             cl_ref = ET.Element('CodeListRef')
+             cl_ref.set('CodeListOID', codelist_oid(item['name'], item['uuid']))
+             idf.append(cl_ref)
+          if next((x for x in d['vlm'] if x['uuid'] == item['uuid']), None):
             vl_ref = ET.Element('def:ValueListRef')
-            vl_ref.set('ValueListOID', value_list_oid(v['name'], v['uuid']))
+            vl_ref.set('ValueListOID', value_list_oid(item['name'], item['uuid']))
             idf.append(vl_ref)
           # <def:ValueListRef ValueListOID="VL.LB.LBORRES"/>
 
@@ -449,8 +459,8 @@ def item_defs(domains):
     return idfs
 
 def codelist_oid(variable, uuid):
-    # return f"CL.{variable}.{uuid}"
-    return f"CL.{variable}"
+    return f"CL.{pretty_string(variable)}.{uuid}"
+    # return f"CL.{variable}"
 
 def alias(context, code):
     a = ET.Element('Alias')
@@ -471,10 +481,10 @@ def codelist_defs(domains):
     codelists = []
     for d in domains:
         for item in d['codelist']:
-          debug.append(f"codelist {item}")
+          debug.append(f"1 codelist {item}")
           cl = ET.Element('CodeList')
-          # cl.set('OID', codelist_oid(item['name'], item['uuid']))
-          cl.set('OID', codelist_oid(item['testcd'], item['uuid']))
+          cl.set('OID', codelist_oid(item['name'], item['uuid']))
+          # cl.set('OID', codelist_oid(item['testcd'], item['uuid']))
           cl.set('Name', codelist_name(item))
           cl.set('def:StandardOID', "STD.2")
           datatype = DATATYPES[item['datatype']] if 'datatype' in item else ""
@@ -591,7 +601,7 @@ def main():
 
     # def:WhereClauseDef
     wcds = where_clause_defs(domains)
-    for wcd in wcds:
+    for wcd in wcds:  
       metadata.append(wcd)
 
     # ItemGroupDef

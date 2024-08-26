@@ -83,6 +83,7 @@ def define_vlm_query(domain_uuid):
       crm.datatype as datatype,
       var.uuid as uuid,
       var.label as label,
+      var.datatype as var_datatype,
       var.name as name,
       var.core as core,
       var.ordinal as ordinal,
