@@ -6,7 +6,7 @@ from model.configuration import Configuration, ConfigurationNode
 from d4kms_service import Neo4jConnection
 from model.base_node import BaseNode
 from utility.debug import write_debug, write_tmp, write_tmp_json, write_define_json, write_define_xml, write_define_xml2
-from utility.define_query import define_vlm_query, crm_link_query, _add_missing_links_to_crm_query, study_info_query, domains_query, domain_variables_query, variables_crm_link_query, define_codelist_query
+from utility.define_query import define_vlm_query, crm_link_query, _add_missing_links_to_crm_query, study_info_query, domains_query, domain_variables_query, variables_crm_link_query, define_codelist_query, define_test_codes_query, find_ct_query
 from datetime import datetime
 import xmlschema
 import xml.etree.ElementTree as ET
@@ -214,10 +214,40 @@ def get_define_codelist(domain_uuid):
       debug.append(query)
       results = session.run(query)
       data = [r for r in results.data()]
-      debug.append("codelist--->")
+      # debug.append("codelist--->")
+      # for d in data:
+      #    debug.append(d)
+      # debug.append("codelist<---")
+    db.close()
+    return data
+
+def get_concept_info(identifier):
+    db = Neo4jConnection()
+    with db.session() as session:
+      query = find_ct_query(identifier)
+      debug.append("ct_find query")
+      debug.append(query)
+      results = session.run(query)
+      data = [r for r in results.data()]
+      # debug.append("codelist--->")
+      # for d in data:
+      #    debug.append(d)
+      # debug.append("codelist<---")
+    db.close()
+    return data
+
+def get_define_test_codes(domain_uuid):
+    db = Neo4jConnection()
+    with db.session() as session:
+      query = define_test_codes_query(domain_uuid)
+      debug.append("test_codes query")
+      debug.append(query)
+      results = session.run(query)
+      data = [r for r in results.data()]
+      debug.append("test_codes--->")
       for d in data:
          debug.append(d)
-      debug.append("codelist<---")
+      debug.append("test_codes<---")
     db.close()
     return data
 
@@ -337,10 +367,16 @@ def get_domains_and_variables(uuid):
     # for v in all_variables:
     #    debug.append(v)
     codelist_metadata = get_define_codelist(d['uuid'])
-    vlm_metadata = get_define_vlm(d['uuid'])
-    # vlm = vlm_metadata
-    item['vlm'] = vlm_metadata
     item['codelist'] = codelist_metadata
+    goc = next((x for x,y in DOMAIN_CLASS.items() if d['name'] in y), "Fix")
+    if goc in ['FINDINGS','FINDINGS ABOUT']:
+      test_codes = get_define_test_codes(d['uuid'])
+      for k in test_codes:
+         debug.append(f"tc {k}")
+      item['test_codes'] = test_codes
+    vlm_metadata = get_define_vlm(d['uuid'])
+    item['vlm'] = vlm_metadata
+    # vlm = vlm_metadata
     for m in vlm_metadata:
       # debug.append(f"check var {m['name']}")
       vs = [v for v in all_variables if v['name'] == m['name']]
@@ -431,7 +467,7 @@ def item_defs(domains):
     idfs = []
     for d in domains:
         for item in d['variables']:
-          debug.append(f"2 item {item}")
+          # debug.append(f"2 item {item}")
           idf = ET.Element('ItemDef')
           idf.set('OID', item['uuid'])
           idf.set('Name', item['name'])
@@ -462,6 +498,10 @@ def codelist_oid(variable, uuid):
     return f"CL.{pretty_string(variable)}.{uuid}"
     # return f"CL.{variable}"
 
+def codelist_test_oid(domain, variable):
+    return f"CL.{domain}.{pretty_string(variable)}"
+    # return f"CL.{variable}"
+
 def alias(context, code):
     a = ET.Element('Alias')
     a.set('Context', context)
@@ -473,6 +513,23 @@ def enumerated_item(code, context, value):
     e.set('CodedValue', value)
     e.append(alias(context, code))
     return e
+
+def codelist_item(short, context, long, code = None):
+    debug.append(f"short {short}, context {context}, long {long}, code {code}")
+    e = ET.Element('CodeListItem')
+    e.set('CodedValue', short)
+    e.append(translated_text(long))
+    if code:
+      e.append(alias(context, code))
+    ET.dump(e)
+
+    return e
+        # <CodeListItem CodedValue="Y">
+        #   <Decode>
+        #     <TranslatedText xml:lang="en">Yes</TranslatedText>
+        #   </Decode>
+        #   <Alias Context="nci:ExtCodeID" Name="C49488"/>
+        # </CodeListItem>
 
 def codelist_name(item):
    return f"CL {item['name']} {item['testcd']} ({item['bc']}"
@@ -490,15 +547,39 @@ def codelist_defs(domains):
           datatype = DATATYPES[item['datatype']] if 'datatype' in item else ""
           cl.set('DataType', datatype)
           for x in item['decodes']:
-            cl.append(enumerated_item(x['code'], "nci:ExtCodeID",x['decode']))
-          # if next((x for x in d['vlm'] if x['uuid'] == v['uuid']), None):
-          #   vl_ref = ET.Element('def:ValueListRef')
-          #   vl_ref.set('ValueListOID', value_list_oid(v['name'], v['uuid']))
-          #   cl.append(vl_ref)
-          # # <def:ValueListRef ValueListOID="VL.LB.LBORRES"/>
-
+            # NOTE: Need to care for enumerated item?
+            # cl.append(enumerated_item(x['code'], "nci:ExtCodeID",x['decode']))
+            debug.append(f" vlm codelist {item}")
+            cl.append(codelist_item(x['code'], "nci:ExtCodeID",x['decode']))
           codelists.append(cl)
     return codelists
+
+def test_codelist_name(item):
+   return f"CL {item['domain']} {item['domain']+'TESTCD'}"
+
+def test_codes_defs(domains):
+    test_codes = []
+    for d in domains:
+        debug.append(f"-1-1-1 {d['name']}")
+        if 'test_codes' in d:
+          for item in d['test_codes']:
+            cl = ET.Element('CodeList')
+            cl.set('OID', codelist_test_oid(item['domain'], item['domain']+'TESTCD'))
+            cl.set('Name', test_codelist_name(item))
+            cl.set('def:StandardOID', "STD.1")
+            cl.set('DataType', "text")
+            debug.append(f"1 codelist {item}")
+            for test in item['test_codes']:
+              debug.append(f"testcodes {test}")
+              # cl.append(enumerated_item(x['code'], "nci:ExtCodeID",x['decode']))
+              cl.append(codelist_item(test['testcd'], "nci:ExtCodeID", test['test'], test['code']))
+            debug.append(f"aacl {cl}")
+            if cl:
+              test_codes.append(cl)
+            else:
+              debug.append("codelist is empty", cl)
+        debug.append(f"len(test_codes) {len(test_codes)}")
+    return test_codes
 
 def value_list_oid(variable, uuid):
     return f"VL.{variable}.{uuid}"
@@ -506,24 +587,24 @@ def value_list_oid(variable, uuid):
 def value_list_defs(domains):
     vlds = []
     for d in domains:
-        debug.append(f"\ndomain: {d['name']}")
+        # debug.append(f"\ndomain: {d['name']}")
         for v in d['variables']:
           vlms  = [x for x in d['vlm'] if x['uuid'] == v['uuid']]
           if vlms:
-            debug.append(f"\nVariable: {v['name']}")
-            debug.append(f"len(vlm): {len(vlms)}")
+            # debug.append(f"\nVariable: {v['name']}")
+            # debug.append(f"len(vlm): {len(vlms)}")
             vld = ET.Element('def:ValueListDef')
             vld.set('OID', value_list_oid(v['name'], v['uuid']))
             item_refs = []
             i = 1
             for vlm in vlms:
-              debug.append(f"vlm: {vlm}")
+              # debug.append(f"vlm: {vlm}")
               item_ref = ET.Element('ItemRef')
               item_ref.set('ItemOID', f"{i}.{vlm['uuid']}")
               item_ref.set('OrderNumber', str(i))
               item_ref.set('Mandatory', 'No')
               wcd = ET.Element("def:WhereClauseRef")
-              wcd.set('WhereClauseOID', where_clause_oid(d['name'], vlm['name'], vlm['testcd'])) 
+              wcd.set('WhereClauseOID', where_clause_oid(v['uuid'],d['name'], vlm['name'], vlm['testcd'])) 
               item_ref.append(wcd)
               # TODO: WhereClauseRef
               # item_ref.set('def:WhereClauseRef'], {)
@@ -542,8 +623,8 @@ def value_list_defs(domains):
             vlds.append(vld)
     return vlds
 
-def where_clause_oid(domain, variable, test):
-    return f"WC.{domain}.{variable}.{pretty_string(test)}"
+def where_clause_oid(var_uuid, domain, variable, test):
+    return f"WC.{domain}.{variable}.{pretty_string(test)}{var_uuid}"
 
 def range_check(decodes,comparator, soft_hard, item_oid):
     range_check = ET.Element('RangeCheck')
@@ -562,12 +643,12 @@ def where_clause_defs(domains):
         debug.append(f"\ndomain: {d['name']}")
         for v in d['vlm']:
           vlms  = [x for x in d['vlm'] if x['uuid'] == v['uuid']]
-          debug.append(f"v['name']: {v['name']}")
-          debug.append(f"len(vlms): {len(vlms)}")
+          # debug.append(f"v['name']: {v['name']}")
+          # debug.append(f"len(vlms): {len(vlms)}")
           for vlm in vlms:
             # debug.append(vlm)
             wcd = ET.Element('def:WhereClauseDef')
-            wcd.set('OID',where_clause_oid(d['name'], v['name'], v['testcd']))
+            wcd.set('OID',where_clause_oid(v['uuid'],d['name'], v['name'], v['testcd']))
             wcd.append(range_check(vlm['decodes'], 'IN', 'Soft', v['uuid']))
           # debug.append(wcd)
           wcds.append(wcd)
@@ -582,6 +663,9 @@ def main():
     study_info = get_study_info()
     domains = get_domains_and_variables(study_info['uuid'])
     debug.append(f"study_info {study_info}")
+
+    x = get_concept_info('C64572')
+    debug.append(f"concept info {x}")
 
     define = {}
     root = ET.Element('ODM')
@@ -616,6 +700,9 @@ def main():
 
     # CodeList
     codelists = codelist_defs(domains)
+    for codelist in codelists:
+      metadata.append(codelist)
+    test_codes = test_codes_defs(domains)
     for codelist in codelists:
       metadata.append(codelist)
 

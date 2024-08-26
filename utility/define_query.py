@@ -9,7 +9,7 @@ def crm_link_query():
       RETURN distinct d.name as domain, bcp.name as bcp, crm.sdtm as crm, v.name as variable
       order by domain, variable
     """
-    return query   
+    return query
 
 def _add_missing_links_to_crm_query(uri, var):
     query = """
@@ -144,3 +144,30 @@ def define_codelist_query(domain_uuid):
     """ % (domain_uuid)
     return query
 
+def define_test_codes_query(domain_uuid):
+    query = """
+      MATCH (sd:StudyDesign)-[:DOMAIN_REL]->(domain:Domain {uuid:'%s'})
+      MATCH (sd)<-[:STUDY_DESIGNS_REL]-(sv:StudyVersion)
+      MATCH (sv)-[:STUDY_IDENTIFIERS_REL]->(si:StudyIdentifier)-[:STUDY_IDENTIFIER_SCOPE_REL]->(:Organization {name:'Eli Lilly'})
+      WITH si, domain
+      MATCH (domain)-[:USING_BC_REL]-(bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
+      MATCH (bc)-[:CODE_REL]-(:AliasCode)-[:STANDARD_CODE_REL]->(bc_cd:Code)
+      WITH distinct domain.name as domain, bc_cd.decode as testcd, bc.name as test, bc_cd.code as code
+      ORDER By domain, testcd, test
+      WITH domain, collect({code:code, testcd:testcd, test:test}) as test_codes
+      return domain, test_codes
+    """ % (domain_uuid)
+    return query
+
+def find_ct_query(identifier):
+    query = """
+      use `ct-service-dev`
+      MATCH (cl:SkosConcept)-[:NARROWER]->(c:SkosConcept)
+      WHERE NOT EXISTS {
+          (c)<-[:PREVIOUS]-(:SkosConcept)
+      }
+      and c.identifier = "C64572"
+      return c.identifier as code, c.pref_label as pref_label, c.notation as notation
+      limit 1
+    """
+    return query
