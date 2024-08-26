@@ -258,8 +258,26 @@ def set_globalvariables(study_name = None, study_description = "Not set", protoc
   global_variables.append(element)
   return global_variables
 
+def comment_def(oid, text, lang = 'en', leaf_id = None, page_refs = None, ref_type = None):
+  c = ET.Element('def:CommentDef')
+  c.set('OID', oid)
+  d = ET.SubElement(c,'Description')
+  d.append(translated_text(text, lang))
+  # Add page reference
+  return c
+   
+# ISSUE: Hardcoded
+def comment_defs():
+  comment_defs = []
+  comment_def_oid = "COM.STD.1"
+  comment = comment_def(comment_def_oid, "Yada yada yada")
+  comment_defs.append(comment)
+  return comment_defs
+
 # ISSUE: Hardcoded
 def standards():
+
+
   standards = ET.Element('def:Standards')
 
   standard1 = ET.Element('def:Standard')
@@ -268,9 +286,9 @@ def standards():
   standard1.set("Type", "IG")
   standard1.set("Version", "3.4")
   standard1.set("Status", "Final")
+  standard1.set("def:CommentOID", "COM.STD.1")
   standards.append(standard1)
 
-  # <def:Standard OID="STD.3" Name="CDISC/NCI" Type="CT" PublishingSet="SDTM" Version="2011-12-09" Status="Final" def:CommentOID="COM.CT1"/>
   standard1 = ET.Element('def:Standard')
   standard1.set("OID", "STD.2")
   standard1.set("Name", "CDISC/NCI")
@@ -278,7 +296,6 @@ def standards():
   standard1.set("Version", "2023-12-09")
   standard1.set("Status", "Final")
   standards.append(standard1)
-
 
   return standards
 
@@ -343,7 +360,7 @@ def get_domains_and_variables(uuid):
 
   return domains
 
-def translated_text(language, text):
+def translated_text(text, language = 'en'):
     translated_text = ET.Element('TranslatedText')
     translated_text.set('xml:lang',language)
     translated_text.text = text
@@ -351,7 +368,7 @@ def translated_text(language, text):
 
 def description(language, text_str):
     description = ET.Element('Description')
-    description.append(translated_text(language, text_str))
+    description.append(translated_text(text_str, language))
     return description
 
 def origin(type, source):
@@ -548,6 +565,7 @@ def where_clause_defs(domains):
 
 DEFINE_JSON = Path.cwd() / "tmp" / "define.json"
 DEFINE_XML = Path.cwd() / "tmp" / "define.xml"
+# DEFINE_XML = Path('/Users/johannes/dev/python/github/study_service/uploads/define.xml')
 
 def main():
   try:
@@ -566,7 +584,6 @@ def main():
     metadata = metadata_version(oid=study_info['uuid'], name=study_info['study_name'],description="This is some kind of description")
     metadata.append(standards())
     
-
     # def:ValueListDef
     vlds = value_list_defs(domains)
     for vld in vlds:
@@ -592,8 +609,13 @@ def main():
     for codelist in codelists:
       metadata.append(codelist)
 
+    # def:CommentDef
+    comments = comment_defs()
+    for comment in comments:
+      metadata.append(comment)
+
+
     # # MethodDef
-    # # def:CommentDef
     # # def:leaf
 
     # MetadataVersion <--------
