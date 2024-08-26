@@ -3,9 +3,10 @@ import copy
 import traceback
 from pathlib import Path
 from model.configuration import Configuration, ConfigurationNode
+from d4kms_service import Neo4jConnection
 from model.base_node import BaseNode
 from utility.debug import write_debug, write_tmp, write_tmp_json, write_define_json, write_define_xml, write_define_xml2
-from utility.define_query import check_crm_links, _add_missing_links_to_crm, get_study_info, get_domains, get_variables, get_define_vlm, get_define_codelist, query_debug
+from utility.define_query import define_vlm_query, crm_link_query, _add_missing_links_to_crm_query, study_info_query, domains_query, domain_variables_query, variables_crm_link_query, define_codelist_query
 from datetime import datetime
 import xmlschema
 import xml.etree.ElementTree as ET
@@ -87,6 +88,136 @@ DOMAIN_CLASS = {
 #   demography: List[str]= []
 
 debug = []
+
+def check_crm_links():
+    db = Neo4jConnection()
+    with db.session() as session:
+      # print("crm",query)
+      query = crm_link_query()
+      results = session.run(query)
+      crm_links = [r.data() for r in results]
+      for x in crm_links:
+        debug.append([v for k,v in x.items()])
+    db.close()
+
+# NOTE: Fix proper links when loading
+def _add_missing_links_to_crm():
+  db = Neo4jConnection()
+  with db.session() as session:
+    # If topic result (e.g. Date of Birth)
+    # if bcp['name'] != copy_bc_name:
+    # bcp_name = "Date of Birth"
+
+    var_link_crm = {
+        'BRTHDTC':'https://crm.d4k.dk/dataset/observation/observation_result/result/quantity/value'
+       ,'RFICDTC':'https://crm.d4k.dk/dataset/common/period/period_start/date_time/value'
+       ,'DSDECOD':'https://crm.d4k.dk/dataset/observation/observation_result/result/coding/code'
+       ,'DSSTDTC':'https://crm.d4k.dk/dataset/common/period/period_start/date_time/value'
+       ,'DSDTC'  :'https://crm.d4k.dk/dataset/common/date_time/date_time/value'
+       ,'DSTERM' :'https://crm.d4k.dk/dataset/observation/observation_result/result/quantity/value'
+       ,'VSPOS'  :'https://crm.d4k.dk/dataset/observation/position/coding/code'
+       ,'VSLOC'  :'https://crm.d4k.dk/dataset/common/location/coding/code'
+       ,'DMDTC'  :'https://crm.d4k.dk/dataset/common/date_time/date_time/value'
+       ,'EXDOSFRQ': 'https://crm.d4k.dk/dataset/therapeutic_intervention/frequency/coding/code'
+       ,'EXROUTE': 'https://crm.d4k.dk/dataset/therapeutic_intervention/route/coding/code'
+       ,'EXTRT': 'https://crm.d4k.dk/dataset/therapeutic_intervention/description/coding/code'
+       ,'EXDOSFRM': 'https://crm.d4k.dk/dataset/therapeutic_intervention/form/coding/code'
+       ,'EXDOSE': 'https://crm.d4k.dk/dataset/therapeutic_intervention/single_dose/quantity/value'
+       ,'EXDOSU': 'https://crm.d4k.dk/dataset/therapeutic_intervention/single_dose/quantity/unit'
+       ,'EXSTDTC': 'https://crm.d4k.dk/dataset/common/period/period_start/date_time/value'
+       ,'EXENDTC': 'https://crm.d4k.dk/dataset/common/period/period_end/date_time/value'
+       ,'AESTDTC': 'https://crm.d4k.dk/dataset/common/period/period_start/date_time/value'
+       ,'AEENDTC': 'https://crm.d4k.dk/dataset/common/period/period_end/date_time/value'
+       ,'AERLDEV'  : 'https://crm.d4k.dk/dataset/adverse_event/causality/device'
+       ,'AERELNST' : 'https://crm.d4k.dk/dataset/adverse_event/causality/non_study_treatment'
+       ,'AEREL'    : 'https://crm.d4k.dk/dataset/adverse_event/causality/related'
+       ,'AEACNDEV' : 'https://crm.d4k.dk/dataset/adverse_event/response/concomitant_treatment'
+       ,'AEACNOTH' : 'https://crm.d4k.dk/dataset/adverse_event/response/other'
+       ,'AEACN'    : 'https://crm.d4k.dk/dataset/adverse_event/response/study_treatment'
+       ,'AESER'    : 'https://crm.d4k.dk/dataset/adverse_event/serious'
+       ,'AESEV'    : 'https://crm.d4k.dk/dataset/adverse_event/severity'
+       ,'AETERM'   : 'https://crm.d4k.dk/dataset/adverse_event/term'
+       ,'AETOXGR'  : 'https://crm.d4k.dk/dataset/adverse_event/toxicity/grade'
+    }
+
+    for var,uri in var_link_crm.items():
+      query = _add_missing_links_to_crm_query(uri, var)
+      results = db.query(query)
+      # print("crm query results",results)
+      if results:
+        pass
+        # application_logger.info(f"Created link to CRM from {var}")
+      else:
+        # application_logger.info(f"Info: Failed to create link to CRM for {var}")
+        print(f"Warning: Failed to create link to CRM for {var}")
+        # print("query", query)
+  db.close()
+
+def get_study_info():
+    db = Neo4jConnection()
+    with db.session() as session:
+      query = study_info_query()
+      # debug.append(query)
+      results = session.run(query)
+      data = [r.data() for r in results]
+    db.close()
+    return data[0]
+
+def get_domains(uuid):
+    db = Neo4jConnection()
+    with db.session() as session:
+      query = domains_query(uuid)
+      # print("domains query", query)
+      results = session.run(query)
+      return [r['d'] for r in results]
+    db.close()
+
+def get_variables(uuid):
+    db = Neo4jConnection()
+    with db.session() as session:
+      query = domain_variables_query(uuid)
+      # print("variables query", query)
+      results = session.run(query)
+      # all_variables = [r['v'] for r in results]
+      all_variables = [r['v'] for r in results.data()]
+      required_variables = [v for v in all_variables if v['core'] == 'Req']
+
+      # CRM linked vars
+      query = variables_crm_link_query(uuid)
+      results = session.run(query)
+      vars_in_use = [r['v'] for r in results.data()]
+    db.close()
+    # return vars_in_use
+    return all_variables
+
+
+def get_define_vlm(domain_uuid):
+    db = Neo4jConnection()
+    with db.session() as session:
+      query = define_vlm_query(domain_uuid)
+      results = session.run(query)
+      data = [r for r in results.data()]
+      # debug.append("vlm--->")
+      # for d in data:
+      #    debug.append(d)
+      # debug.append("vlm<---")
+    db.close()
+    return data
+
+def get_define_codelist(domain_uuid):
+    db = Neo4jConnection()
+    with db.session() as session:
+      query = define_codelist_query(domain_uuid)
+      debug.append("codelist query")
+      debug.append(query)
+      results = session.run(query)
+      data = [r for r in results.data()]
+      debug.append("codelist--->")
+      for d in data:
+         debug.append(d)
+      debug.append("codelist<---")
+    db.close()
+    return data
 
 def pretty_string(text):
    return text.replace(' ','_')
@@ -189,7 +320,7 @@ def get_domains_and_variables(uuid):
     codelist_metadata = get_define_codelist(d['uuid'])
     vlm_metadata = get_define_vlm(d['uuid'])
     # vlm = vlm_metadata
-    item['vlm'] = list(vlm_metadata)
+    item['vlm'] = vlm_metadata
     item['codelist'] = codelist_metadata
     for m in vlm_metadata:
       # debug.append(f"check var {m['name']}")
@@ -470,7 +601,7 @@ def main():
     study.append(metadata)
     root.append(study)
 
-    write_tmp("define-debug.txt",debug+query_debug)
+    write_tmp("define-debug.txt",debug+debug)
 
     # debug.append(define)
     write_tmp_json("define-debug",define)
