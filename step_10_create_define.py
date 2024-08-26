@@ -197,6 +197,8 @@ def get_define_vlm(domain_uuid):
     db = Neo4jConnection()
     with db.session() as session:
       query = define_vlm_query(domain_uuid)
+      # debug.append("vlm query")
+      # debug.append(query)
       results = session.run(query)
       data = [r for r in results.data()]
       # debug.append("vlm--->")
@@ -221,10 +223,10 @@ def get_define_codelist(domain_uuid):
     db.close()
     return data
 
-def get_concept_info(identifier):
+def get_concept_info(identifiers):
     db = Neo4jConnection()
     with db.session() as session:
-      query = find_ct_query(identifier)
+      query = find_ct_query(identifiers)
       debug.append("ct_find query")
       debug.append(query)
       results = session.run(query)
@@ -514,22 +516,16 @@ def enumerated_item(code, context, value):
     e.append(alias(context, code))
     return e
 
-def codelist_item(short, context, long, code = None):
-    debug.append(f"short {short}, context {context}, long {long}, code {code}")
+def codelist_item(code, short, long, context):
+    debug.append(f"code {code} short {short} long {long} context {context}")
+
     e = ET.Element('CodeListItem')
     e.set('CodedValue', short)
-    e.append(translated_text(long))
+    d = ET.SubElement(e,'Decode')
+    d.append(translated_text(long))
     if code:
       e.append(alias(context, code))
-    ET.dump(e)
-
     return e
-        # <CodeListItem CodedValue="Y">
-        #   <Decode>
-        #     <TranslatedText xml:lang="en">Yes</TranslatedText>
-        #   </Decode>
-        #   <Alias Context="nci:ExtCodeID" Name="C49488"/>
-        # </CodeListItem>
 
 def codelist_name(item):
    return f"CL {item['name']} {item['testcd']} ({item['bc']}"
@@ -546,11 +542,15 @@ def codelist_defs(domains):
           cl.set('def:StandardOID', "STD.2")
           datatype = DATATYPES[item['datatype']] if 'datatype' in item else ""
           cl.set('DataType', datatype)
-          for x in item['decodes']:
+          codes = [x['code'] for x in item['decodes']]
+          debug.append(f"codes {codes}")             
+          clis = get_concept_info(codes)
+          # for x in item['decodes']:
+          for cli in clis:
             # NOTE: Need to care for enumerated item?
             # cl.append(enumerated_item(x['code'], "nci:ExtCodeID",x['decode']))
             debug.append(f" vlm codelist {item}")
-            cl.append(codelist_item(x['code'], "nci:ExtCodeID",x['decode']))
+            cl.append(codelist_item(cli['code'], cli['notation'], cli['pref_label'], "nci:ExtCodeID"))
           codelists.append(cl)
     return codelists
 
@@ -572,7 +572,7 @@ def test_codes_defs(domains):
             for test in item['test_codes']:
               debug.append(f"testcodes {test}")
               # cl.append(enumerated_item(x['code'], "nci:ExtCodeID",x['decode']))
-              cl.append(codelist_item(test['testcd'], "nci:ExtCodeID", test['test'], test['code']))
+              cl.append(codelist_item(test['code'], test['testcd'], test['test'], "nci:ExtCodeID"))
             debug.append(f"aacl {cl}")
             if cl:
               test_codes.append(cl)
@@ -624,7 +624,7 @@ def value_list_defs(domains):
     return vlds
 
 def where_clause_oid(var_uuid, domain, variable, test):
-    return f"WC.{domain}.{variable}.{pretty_string(test)}{var_uuid}"
+    return f"WC.{domain}.{variable}.{pretty_string(test)}.{var_uuid}"
 
 def range_check(decodes,comparator, soft_hard, item_oid):
     range_check = ET.Element('RangeCheck')
@@ -663,9 +663,6 @@ def main():
     study_info = get_study_info()
     domains = get_domains_and_variables(study_info['uuid'])
     debug.append(f"study_info {study_info}")
-
-    x = get_concept_info('C64572')
-    debug.append(f"concept info {x}")
 
     define = {}
     root = ET.Element('ODM')

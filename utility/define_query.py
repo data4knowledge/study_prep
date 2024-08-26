@@ -92,8 +92,6 @@ def define_vlm_query(domain_uuid):
     """ % (domain_uuid)
     # limit 100
     # print("vlm query", query)
-    # debug.append("vlm query")
-    # debug.append(query)
     return query
 
 
@@ -159,15 +157,18 @@ def define_test_codes_query(domain_uuid):
     """ % (domain_uuid)
     return query
 
-def find_ct_query(identifier):
+def find_ct_query(identifiers):
     query = """
       use `ct-service-dev`
-      MATCH (cl:SkosConcept)-[:NARROWER]->(c:SkosConcept)
+      MATCH (ss:SkosConceptScheme)-[:TOP_LEVEL_CONCEPT]-(cl:SkosConcept)-[:NARROWER]->(c:SkosConcept)
       WHERE NOT EXISTS {
-          (c)<-[:PREVIOUS]-(:SkosConcept)
+      (c)<-[:PREVIOUS]-()
       }
-      and c.identifier = "C64572"
-      return c.identifier as code, c.pref_label as pref_label, c.notation as notation
-      limit 1
-    """
+      AND not EXISTS {
+      (ss)<-[:PREVIOUS]-()    
+      }
+      and c.identifier in %s
+      and ss.uri contains 'sdtm'
+      return distinct c.identifier as code, c.pref_label as pref_label, c.notation as notation
+    """ % (identifiers)
     return query
