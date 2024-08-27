@@ -3,7 +3,7 @@ import pandas as pd
 from pathlib import Path
 from d4kms_service import Neo4jConnection
 import xmltodict
-from dicttoxml2 import dicttoxml
+# from dicttoxml2 import dicttoxml
 from xml.dom.minidom import parseString
 # from json2xml import json2xml
 
