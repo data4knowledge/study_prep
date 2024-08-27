@@ -1,0 +1,12 @@
+---
+name: "Configuration"
+study_product_bcs:
+  - "Exposure Unblinded"
+disposition:
+  - "first_exposure"
+  - "last_exposure"
+demography:
+  - exposure_dates
+crm_start: "--STDTC"
+crm_end: "--ENDTC"
+mandatory_bcs: ["Informed Consent Obtained"]

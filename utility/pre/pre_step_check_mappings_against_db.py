@@ -1,47 +1,85 @@
 from pathlib import Path
-from debug import write_debug, write_tmp
-from neo_utils import db_is_down
+from utility.neo_utils import db_is_down
 from d4kms_service import Neo4jConnection
-from mappings import DATA_LABELS_TO_BC_LABELS, DATA_VISITS_TO_ENCOUNTER_LABELS, DATA_TPT_TO_TIMING_LABELS, TEST_ROW_VARIABLE_TO_BC_PROPERTY
+from utility.mappings import DATA_LABELS_TO_BC_LABELS, DATA_VISITS_TO_ENCOUNTER_LABELS, DATA_TPT_TO_TIMING_LABELS, TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME
+
+# <============= DEBUG
+def write_debug(name, data):
+    from pathlib import Path
+    import os
+    TMP_PATH = Path.cwd() / "tmp" / "saved_debug"
+    if not os.path.isdir(TMP_PATH):
+      os.makedirs(TMP_PATH)
+    OUTPUT_FILE = TMP_PATH / name
+    print("Writing file...",OUTPUT_FILE.name,OUTPUT_FILE, end="")
+    with open(OUTPUT_FILE, 'w') as f:
+        for it in data:
+            f.write(str(it))
+            f.write('\n')
+    print(" ...done")
+
+def add_debug(*txts):
+    line = ""
+    for txt in txts:
+        line = line + " " + str(txt)
+    debug.append(line)
+
+debug = []
+
+# =============> DEBUG
 
 
-def exist_query(query,value):
+def exist_query(query):
     db = Neo4jConnection()
-    results = db.query(query)
+    result = []
+    with db.session() as session:
+        response = session.run(query)
+        if response == None:
+            print('query did not work"',query)
+            exit()
+        result = [x.data() for x in response]
     db.close()
-    if results == None:
-        print('query did not work"',query)
-        exit()
-    return [x.data() for x in results]
+    return result
 
 def check_bc_labels(ok, missing):
+    add_debug("\n=== check bc_label")
     for data_label, bc_label in DATA_LABELS_TO_BC_LABELS.items():
         query = f"""
             MATCH (bc:BiomedicalConcept {{label: '{bc_label}'}})
             RETURN count(bc) > 0 as result
         """
-        result = exist_query(query, bc_label)
+        result = exist_query(query)
         if result[0]['result']:
             ok.append(["bc_label",bc_label])
+            # add_debug("ok","bc_label",bc_label)
         else:
             missing.append(["bc_label",bc_label])
+            add_debug("missing","bc_label",bc_label)
 
 
 def check_bc_properties(ok,missing):
+    add_debug("\n=== check bc_properties")
     bc_properties = set()
-    for test, items in TEST_ROW_VARIABLE_TO_BC_PROPERTY.items():
+    add_debug("picking properties")
+    for test, items in TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME.items():
+        add_debug("\n  test",test)
         for data_var, bc_property in items.items():
+            add_debug("    property",data_var, bc_property)
             bc_properties.add(bc_property)
-    for bc_property in bc_properties:
-        query = f"""
-            MATCH (t:BiomedicalConceptProperty {{label: '{bc_property}'}})
-            RETURN count(t) > 0 as result
-        """
-        result = exist_query(query, bc_property)
-        if result[0]['result']:
-            ok.append(["bc_property",bc_property])
-        else:
-            missing.append(["bc_property",bc_property])
+            # add_debug("checking","property",bc_property)
+            # query = f"""
+            #     MATCH (t:BiomedicalConceptProperty {{label: '{bc_property}'}}) RETURN count(t) > 0 as result
+            # """
+            query = f"""
+                MATCH (t:BiomedicalConceptProperty {{name: '{bc_property}'}}) RETURN count(t) > 0 as result
+            """
+            result = exist_query(query)
+            if result[0]['result']:
+                ok.append(["bc_property",bc_property])
+            else:
+                missing.append(["bc_property",bc_property])
+                add_debug("      -- missing","property",bc_property)
+    # for bc_property in bc_properties:
 
 
 def check_encounter_labels(ok,missing):
@@ -50,7 +88,7 @@ def check_encounter_labels(ok,missing):
             MATCH (enc:Encounter {{label: '{encounter_label}'}})
             RETURN count(enc) > 0 as result
         """
-        result = exist_query(query, encounter_label)
+        result = exist_query(query)
         if result[0]['result']:
             ok.append(["encounter_label",encounter_label])
         else:
@@ -63,14 +101,14 @@ def check_timing_labels(ok,missing):
             MATCH (t:Timing {{value: '{timing_label}'}})
             RETURN count(t) > 0 as result
         """
-        result = exist_query(query, timing_label)
+        result = exist_query(query)
         if result[0]['result']:
             ok.append(["timing_label",timing_label])
         else:
             missing.append(["timing_label",timing_label])
 
 
-def main():
+def check_mappings_against_db():
     if db_is_down():
         return "Neo4j not running"
     ok = []
@@ -88,6 +126,7 @@ def main():
     print("Missing ----")
     for m in missing:
         print(m)
+    write_debug("check-mappings-vs-db.txt",debug)
 
 if __name__ == "__main__":
-    main()
+    check_mappings_against_db()

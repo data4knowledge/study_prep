@@ -8,7 +8,7 @@
     "RFENDTC": "2014-07-02",
     "RFXSTDTC": "2014-01-02",
     "RFXENDTC": "2014-07-02",
-    "RFICDTC": "",
+    "RFICDTC": "2013-12-26",
     "RFPENDTC": "2014-07-02T11:45",
     "DTHDTC": "",
     "DTHFL": "",
@@ -24,7 +24,8 @@
     "ACTARM": "Placebo",
     "COUNTRY": "USA",
     "DMDTC": "2013-12-26",
-    "DMDY": -7.0
+    "DMDY": -7.0,
+    "BRTHDTC": "1980-06-30"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -35,7 +36,7 @@
     "RFENDTC": "2012-09-02",
     "RFXSTDTC": "2012-08-05",
     "RFXENDTC": "2012-09-01",
-    "RFICDTC": "",
+    "RFICDTC": "2012-07-22",
     "RFPENDTC": "2013-02-18",
     "DTHDTC": "",
     "DTHFL": "",
@@ -51,7 +52,8 @@
     "ACTARM": "Placebo",
     "COUNTRY": "USA",
     "DMDTC": "2012-07-22",
-    "DMDY": -14.0
+    "DMDY": -14.0,
+    "BRTHDTC": "1978-03-01"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -62,7 +64,7 @@
     "RFENDTC": "2014-01-14",
     "RFXSTDTC": "2013-07-19",
     "RFXENDTC": "2014-01-14",
-    "RFICDTC": "",
+    "RFICDTC": "2013-07-11",
     "RFPENDTC": "2014-01-14T11:10",
     "DTHDTC": "",
     "DTHFL": "",
@@ -78,7 +80,8 @@
     "ACTARM": "Xanomeline High Dose",
     "COUNTRY": "USA",
     "DMDTC": "2013-07-11",
-    "DMDY": -8.0
+    "DMDY": -8.0,
+    "BRTHDTC": "1985-03-01"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -89,7 +92,7 @@
     "RFENDTC": "2014-04-14",
     "RFXSTDTC": "2014-03-18",
     "RFXENDTC": "2014-03-31",
-    "RFICDTC": "",
+    "RFICDTC": "2014-03-10",
     "RFPENDTC": "2014-09-15",
     "DTHDTC": "",
     "DTHFL": "",
@@ -105,7 +108,8 @@
     "ACTARM": "Xanomeline Low Dose",
     "COUNTRY": "USA",
     "DMDTC": "2014-03-10",
-    "DMDY": -8.0
+    "DMDY": -8.0,
+    "BRTHDTC": "1970-05-24"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -116,7 +120,7 @@
     "RFENDTC": "2014-12-30",
     "RFXSTDTC": "2014-07-01",
     "RFXENDTC": "2014-12-30",
-    "RFICDTC": "",
+    "RFICDTC": "2014-06-24",
     "RFPENDTC": "2014-12-30T09:50",
     "DTHDTC": "",
     "DTHFL": "",
@@ -132,7 +136,8 @@
     "ACTARM": "Xanomeline High Dose",
     "COUNTRY": "USA",
     "DMDTC": "2014-06-24",
-    "DMDY": -7.0
+    "DMDY": -7.0,
+    "BRTHDTC": "1978-07-13"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -143,7 +148,7 @@
     "RFENDTC": "2013-03-29",
     "RFXSTDTC": "2013-02-12",
     "RFXENDTC": "2013-03-09",
-    "RFICDTC": "",
+    "RFICDTC": "2013-01-22",
     "RFPENDTC": "2013-07-28",
     "DTHDTC": "",
     "DTHFL": "",
@@ -159,7 +164,8 @@
     "ACTARM": "Placebo",
     "COUNTRY": "USA",
     "DMDTC": "2013-01-22",
-    "DMDY": -21.0
+    "DMDY": -21.0,
+    "BRTHDTC": "1983-06-13"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -170,7 +176,7 @@
     "RFENDTC": "",
     "RFXSTDTC": "",
     "RFXENDTC": "",
-    "RFICDTC": "",
+    "RFICDTC": "2013-12-20",
     "RFPENDTC": "2013-12-27",
     "DTHDTC": "",
     "DTHFL": "",
@@ -186,7 +192,8 @@
     "ACTARM": "Screen Failure",
     "COUNTRY": "USA",
     "DMDTC": "2013-12-20",
-    "DMDY": ""
+    "DMDY": "",
+    "BRTHDTC": "1982-10-13"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -197,7 +204,7 @@
     "RFENDTC": "2014-07-09",
     "RFXSTDTC": "2014-01-01",
     "RFXENDTC": "2014-07-09",
-    "RFICDTC": "",
+    "RFICDTC": "2013-12-23",
     "RFPENDTC": "2014-07-09T09:39",
     "DTHDTC": "",
     "DTHFL": "",
@@ -213,7 +220,8 @@
     "ACTARM": "Xanomeline Low Dose",
     "COUNTRY": "USA",
     "DMDTC": "2013-12-23",
-    "DMDY": -9.0
+    "DMDY": -9.0,
+    "BRTHDTC": "1982-10-13"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -224,7 +232,7 @@
     "RFENDTC": "2012-09-17",
     "RFXSTDTC": "2012-09-07",
     "RFXENDTC": "2012-09-16",
-    "RFICDTC": "",
+    "RFICDTC": "2012-08-25",
     "RFPENDTC": "2013-02-22",
     "DTHDTC": "",
     "DTHFL": "",
@@ -240,7 +248,8 @@
     "ACTARM": "Xanomeline Low Dose",
     "COUNTRY": "USA",
     "DMDTC": "2012-08-25",
-    "DMDY": -13.0
+    "DMDY": -13.0,
+    "BRTHDTC": "1967-12-10"
   },
   {
     "STUDYID": "CDISCPILOT01",
@@ -251,7 +260,7 @@
     "RFENDTC": "2013-01-23",
     "RFXSTDTC": "2012-11-30",
     "RFXENDTC": "2013-01-23",
-    "RFICDTC": "",
+    "RFICDTC": "2012-11-23",
     "RFPENDTC": "2013-05-20",
     "DTHDTC": "",
     "DTHFL": "",
@@ -267,6 +276,7 @@
     "ACTARM": "Xanomeline Low Dose",
     "COUNTRY": "USA",
     "DMDTC": "2012-11-23",
-    "DMDY": -7.0
+    "DMDY": -7.0,
+    "BRTHDTC": "1972-11-22"
   }
 ]

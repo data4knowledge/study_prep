@@ -164,3 +164,6 @@ cython_debug/
 .vscode
 tmp
 .*_env
+/data/usdm
+/data/output
+

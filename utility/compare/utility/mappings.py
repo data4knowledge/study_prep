@@ -20,9 +20,6 @@ DATA_LABELS_TO_BC_LABELS = {
     'Date of Birth': 'Date of Birth',
     'Collection date': 'Date Time',
     'AE': 'Adverse Event Prespecified',
-    # 'Study Treatment': 'Exposure Unblinded',
-    'XANOMELINE': 'Exposure Unblinded',
-    'PLACEBO': 'Exposure Unblinded',
 }
 
 # Unknown visits
@@ -55,50 +52,43 @@ LB_RESULT_NAME = 'LBORRES'
 VS_UNIT_NAME = 'VSORRESU'
 LB_UNIT_NAME = 'LBORRESU'
 VS_POSITION = 'VSPOS'
-VS_LOCATION = 'VSLOC'
 FINDINGS_DTC = '--DTC'
 TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME = {
     'Weight': {
         'VSORRES': VS_RESULT_NAME,
         'VSORRESU': VS_UNIT_NAME,
         'date': FINDINGS_DTC,
-        'position': VS_POSITION,
-        'location': VS_LOCATION
+        'position': VS_POSITION
     },
     'Height': {
         'VSORRES': VS_RESULT_NAME,
         'VSORRESU': VS_UNIT_NAME,
         'date': FINDINGS_DTC,
-        'position': VS_POSITION,
-        'location': VS_LOCATION
+        'position': VS_POSITION
     },
     'Temperature': {
         'VSORRES': VS_RESULT_NAME,
         'VSORRESU': VS_UNIT_NAME,
         'date': FINDINGS_DTC,
-        'position': VS_POSITION,
-        'location': VS_LOCATION
+        'position': VS_POSITION
     },
     'Diastolic Blood Pressure': {
         'VSORRES': VS_RESULT_NAME,
         'VSORRESU': VS_UNIT_NAME,
         'date': FINDINGS_DTC,
-        'position': VS_POSITION,
-        'location': VS_LOCATION
+        'position': VS_POSITION
     },
     'Systolic Blood Pressure': {
         'VSORRES': VS_RESULT_NAME,
         'VSORRESU': VS_UNIT_NAME,
         'date': FINDINGS_DTC,
-        'position': VS_POSITION,
-        'location': VS_LOCATION
+        'position': VS_POSITION
     },
     'Pulse Rate': {
         'VSORRES': VS_RESULT_NAME,
         'VSORRESU': VS_UNIT_NAME,
         'date': FINDINGS_DTC,
-        'position': VS_POSITION,
-        'location': VS_LOCATION
+        'position': VS_POSITION
     },
     'Aspartate Aminotransferase': {
         'LBORRES': LB_RESULT_NAME,
@@ -128,6 +118,14 @@ TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME = {
         'value': "Race",
         'date': "Date Time",
     },
+    # 'Informed Consent': {
+    #     'value': "Observation Start Date Time",
+    #     'date': "Date Time",
+    # },
+    # 'Informed Consent Obtained 1': {
+    #     'value': "Observation Start Date Time",
+    #     'date': "Date Time",
+    # },
     'Informed Consent Obtained': {
         'value': "DSSTDTC",
         # 'date': "Date Time",
@@ -141,53 +139,6 @@ TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME = {
     },
     'AE': {
         'term': "AETERM",
-        # 'value': "Date/Time of Birth",
-        'date': "Date Time",
-    },
-    'Adverse Event Prespecified': {
-        'term': "AETERM",
-        'decode': "AEDECOD",
-        'severity': "AESEV",
-        'date': "--DTC",
-        'start': "AESTDTC",
-        'end': "AEENDTC",
-        'llt': "AELLT",
-        'lltcd': "AELLTCD",
-        'ptcd':'AEPTCD',
-        'hltcd':'AEHLTCD',
-        'hlgt':'AEHLGT',
-        'hlgtcd':'AEHLGTCD',
-        'bodsys':'AEBODSYS',
-        'bdsycd':'AEBDSYCD',
-        'soc':'AESOC',
-        'soccd':'AESOCCD',
-        'sev':'AESEV',
-        'ser':'AESER',
-        'acn':'AEACN',
-        'rel':'AEREL',
-        'out':'AEOUT',
-        'scan':'AESCAN',
-        'scong':'AESCONG',
-        'sdisab':'AESDISAB',
-        'sdth':'AESDTH',
-        'shosp':'AESHOSP',
-        'slife':'AESLIFE',
-        'sod':'AESOD',
-        'dtc':'AEDTC',
-        'stdtc':'AESTDTC',
-        'endtc':'AEENDTC',
-        'stdy':'AESTDY',
-        'endy':'AEENDY',
-    },
-    'Exposure Unblinded': {
-        'description': "EXTRT",
-        'dose': "EXDOSE",
-        'unit': "EXDOSU",
-        'form': "EXDOSFRM",
-        'frequency': "EXDOSFRQ",
-        'start': "EXSTDTC",
-        'end': "EXENDTC",
-        'route': "EXROUTE",
         # 'value': "Date/Time of Birth",
         'date': "Date Time",
     },
