@@ -113,32 +113,46 @@ def variables_crm_link_query(uuid):
 
 
 def define_codelist_query(domain_uuid):
+    # query = """
+    #   MATCH (sd:StudyDesign)-[:DOMAIN_REL]->(domain:Domain {uuid:'%s'})
+    #   MATCH (sd)<-[:STUDY_DESIGNS_REL]-(sv:StudyVersion)
+    #   MATCH (sv)-[:STUDY_IDENTIFIERS_REL]->(si:StudyIdentifier)-[:STUDY_IDENTIFIER_SCOPE_REL]->(:Organization {name:'Eli Lilly'})
+    #   WITH si, domain
+    #   MATCH (domain)-[:USING_BC_REL]-(bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
+    #   MATCH (bc)-[:CODE_REL]-(:AliasCode)-[:STANDARD_CODE_REL]->(bc_cd:Code)
+    #   WITH bc, bc_cd, bcp, domain
+    #   MATCH (bcp)-[:IS_A_REL]->(crm:CRMNode)<-[:IS_A_REL]-(var:Variable)<-[:VARIABLE_REL]-(domain)
+    #   MATCH (bcp)-[:RESPONSE_CODES_REL]->(rc:ResponseCode)-[:CODE_REL]->(c:Code)
+    #   // WHERE  var.label = bcp.label
+    #   // or bcp.name = crm.sdtm
+    #   WITH bc, bc_cd, bcp, crm, var, c
+    #   ORDER By bc.name, bc_cd.decode, bcp.name, c.decode
+    #   WITH bc, bc_cd, bcp, crm, var, collect({code:c.code,decode:c.decode}) as decodes
+    #   return distinct 
+    #   // bc.uuid as bc_uuid,
+    #   bc.name as bc,
+    #   bc_cd.decode as testcd,
+    #   var.uuid as uuid,
+    #   var.label as label,
+    #   var.name as name,
+    #   crm.datatype as datatype,
+    #   var.ordinal as ordinal,
+    #   decodes as decodes
+    #   order by name
+    # """ % (domain_uuid)
     query = """
-      MATCH (sd:StudyDesign)-[:DOMAIN_REL]->(domain:Domain {uuid:'%s'})
-      MATCH (sd)<-[:STUDY_DESIGNS_REL]-(sv:StudyVersion)
-      MATCH (sv)-[:STUDY_IDENTIFIERS_REL]->(si:StudyIdentifier)-[:STUDY_IDENTIFIER_SCOPE_REL]->(:Organization {name:'Eli Lilly'})
-      WITH si, domain
-      MATCH (domain)-[:USING_BC_REL]-(bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
-      MATCH (bc)-[:CODE_REL]-(:AliasCode)-[:STANDARD_CODE_REL]->(bc_cd:Code)
-      WITH bc, bc_cd, bcp, domain
-      MATCH (bcp)-[:IS_A_REL]->(crm:CRMNode)<-[:IS_A_REL]-(var:Variable)<-[:VARIABLE_REL]-(domain)
-      MATCH (bcp)-[:RESPONSE_CODES_REL]->(rc:ResponseCode)-[:CODE_REL]->(c:Code)
-      // WHERE  var.label = bcp.label
-      // or bcp.name = crm.sdtm
-      WITH bc, bc_cd, bcp, crm, var, c
-      ORDER By bc.name, bc_cd.decode, bcp.name, c.decode
-      WITH bc, bc_cd, bcp, crm, var, collect({code:c.code,decode:c.decode}) as decodes
-      return distinct 
-      // bc.uuid as bc_uuid,
-      bc.name as bc,
-      bc_cd.decode as testcd,
-      var.uuid as uuid,
-      var.label as label,
-      var.name as name,
-      crm.datatype as datatype,
-      var.ordinal as ordinal,
-      decodes as decodes
-      order by name
+        MATCH (sd:StudyDesign)-[:DOMAIN_REL]->(domain:Domain {uuid:'%s'})
+        MATCH (sd)<-[:STUDY_DESIGNS_REL]-(sv:StudyVersion)
+        MATCH (sv)-[:STUDY_IDENTIFIERS_REL]->(si:StudyIdentifier)-[:STUDY_IDENTIFIER_SCOPE_REL]->(:Organization {name:'Eli Lilly'})
+        WITH si, domain
+        MATCH (domain)-[:USING_BC_REL]-(bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
+        MATCH (bc)-[:CODE_REL]-(:AliasCode)-[:STANDARD_CODE_REL]->(bc_cd:Code)
+        MATCH (bcp)-[:IS_A_REL]->(crm:CRMNode)<-[:IS_A_REL]-(var:Variable)<-[:VARIABLE_REL]-(domain)
+        MATCH (bcp)-[:RESPONSE_CODES_REL]->(rc:ResponseCode)-[:CODE_REL]->(c:Code)
+        // WITH var.uuid as uuid, var.label as label, var.name as name, var.ordinal as ordinal, c.code as code, c.decode as decode
+        with distinct var.uuid as uuid, var.label as label, var.name as name, var.ordinal as ordinal, c.code as code, c.decode as decode
+        WITH uuid, label, name, ordinal, collect({code:code, decode: decode}) as decodes
+        return uuid, label, name, ordinal, decodes
     """ % (domain_uuid)
     return query
 

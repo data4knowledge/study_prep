@@ -212,8 +212,8 @@ def get_define_codelist(domain_uuid):
     db = Neo4jConnection()
     with db.session() as session:
       query = define_codelist_query(domain_uuid)
-      # debug.append("codelist query")
-      # debug.append(query)
+      debug.append("codelist query")
+      debug.append(query)
       results = session.run(query)
       data = [r for r in results.data()]
       # debug.append("codelist--->")
@@ -348,10 +348,12 @@ def metadata_version(oid = 'Not set', name = 'Not set', description = 'Not set')
 def get_unique_vars(vars):
   unique_vars = []
   for v in vars:
-      v.pop('bc')
+      if 'bc' in v:
+        v.pop('bc')
       if 'bc_uuid' in v:
         v.pop('bc_uuid')
-      v.pop('decodes')
+      if 'decodes' in v:
+        v.pop('decodes')
       unique_vars.append(v)
   unique_vars = list({v['uuid']:v for v in unique_vars}.values())
   return unique_vars
@@ -527,7 +529,10 @@ def codelist_item(code, short, long, context):
     return e
 
 def codelist_name(item):
-   return f"CL {item['name']} {item['testcd']} ({item['bc']}"
+   if 'testcd' in item:
+     return f"CL {item['name']} {item['testcd']} ({item['bc']})"
+   else:
+     return f"CL {item['name']}"
 
 def codelist_defs(domains):
     codelists = []
@@ -549,8 +554,29 @@ def codelist_defs(domains):
           codelists.append(cl)
     return codelists
 
+def var_cli_defs(domains):
+    test_codes = []
+    for d in domains:
+        debug.append(f"-1-1-1 {d['name']}")
+        if 'test_codes' in d:
+          for item in d['test_codes']:
+            cl = ET.Element('CodeList')
+            cl.set('OID', codelist_test_oid(item['domain'], item['domain']+'TESTCD'))
+            cl.set('Name', test_codelist_name(item))
+            cl.set('def:StandardOID', "STD.1")
+            cl.set('DataType', "text")
+            debug.append(f"1 codelist {item}")
+            for test in item['test_codes']:
+              # debug.append(f"testcodes {test}")
+              # cl.append(enumerated_item(x['code'], "nci:ExtCodeID",x['decode']))
+              cl.append(codelist_item(test['code'], test['testcd'], test['test'], "nci:ExtCodeID"))
+            test_codes.append(cl)
+        debug.append(f"len(test_codes) {len(test_codes)}")
+    return test_codes
+
+
 def test_codelist_name(item):
-   return f"CL {item['domain']} {item['domain']+'TESTCD'}"
+   return f"CL {item['domain']} ({item['domain']+'TESTCD'})"
 
 def test_codes_defs(domains):
     test_codes = []
@@ -626,27 +652,62 @@ def range_check(decodes,comparator, soft_hard, item_oid):
     range_check.set('Comparator', comparator)
     range_check.set('SoftHard', soft_hard)
     range_check.set('def:ItemOID', item_oid)
-    for decode in decodes:
-      check_value = ET.Element('CheckValue')
-      check_value.text = decode['decode']
-      range_check.append(check_value)
+    if isinstance(decodes, list):
+      for decode in decodes:
+        check_value = ET.Element('CheckValue')
+        check_value.text = decode['decode']
+        range_check.append(check_value)
+    else:
+        check_value = ET.Element('CheckValue')
+        check_value.text = decodes
+        range_check.append(check_value)
     return range_check
+
+def get_unique_var_decode(vars):
+  unique_var_decodes = []
+  for v in vars:
+      if 'bc' in v:
+        v.pop('bc')
+      if 'bc_uuid' in v:
+        v.pop('bc_uuid')
+      if 'decodes' in v:
+        v.pop('decodes')
+      unique_var_decodes.append(v)
+      debug.append(f"  adding {v}")
+  unique_var_decodes = list({v['testcd']:v for v in unique_var_decodes}.values())
+  return unique_var_decodes
+
 
 def where_clause_defs(domains):
     wcds = []
     for d in domains:
-        debug.append(f"\ndomain: {d['name']}")
-        for v in d['vlm']:
-          vlms  = [x for x in d['vlm'] if x['uuid'] == v['uuid']]
-          # debug.append(f"v['name']: {v['name']}")
-          # debug.append(f"len(vlms): {len(vlms)}")
-          for vlm in vlms:
-            # debug.append(vlm)
-            wcd = ET.Element('def:WhereClauseDef')
-            wcd.set('OID',where_clause_oid(v['uuid'],d['name'], v['name'], v['testcd']))
-            wcd.append(range_check(vlm['decodes'], 'IN', 'Soft', v['uuid']))
-          # debug.append(wcd)
-          wcds.append(wcd)
+        goc = next((x for x,y in DOMAIN_CLASS.items() if d['name'] in y), "Fix")
+        if goc in ['FINDINGS','FINDINGS ABOUT']:
+          debug.append(f"\ndomain: {d['name']}")
+          testcd_oid = next((x['uuid'] for x in d['variables'] if x['name'] == d['name']+"TESTCD"),"Not found")
+          debug.append(f"testcd_oid {testcd_oid}")
+          debug.append(f"len(d['vlm']) {len(d['vlm'])}")
+          for unique in d['vlm']:
+            debug.append(f"  unique {unique}")
+          # unique_vars = list({v['uuid']:v for v in d['vlm']}.values())
+          unique_vars = get_unique_var_decode(d['vlm'])
+          debug.append(f"len(unique_vars) {len(unique_vars)}")
+          for unique in unique_vars:
+            debug.append(f"  unique {unique}")
+          # for v in d['vlm']:
+          for v in unique_vars:
+            vlms  = [x for x in unique_vars if x['uuid'] == v['uuid']]
+            # debug.append(f"v['name']: {v['name']}")
+            # debug.append(f"len(vlms): {len(vlms)}")
+            # uniques = [k:v for k,v in vlms]
+            for vlm in vlms:
+              # debug.append(vlm)
+              wcd = ET.Element('def:WhereClauseDef')
+              wcd.set('OID',where_clause_oid(v['uuid'],d['name'], v['name'], v['testcd']))
+              # wcd.append(range_check(vlm['decodes'], 'IN', 'Soft', v['uuid']))
+              wcd.append(range_check(v['testcd'], 'IN', 'Soft', testcd_oid))
+            # debug.append(wcd)
+            wcds.append(wcd)
     return wcds
 
 DEFINE_JSON = Path.cwd() / "tmp" / "define.json"
@@ -697,6 +758,10 @@ def main():
     test_codes = test_codes_defs(domains)
     for codelist in test_codes:
       metadata.append(codelist)
+    
+    var_clis = var_cli_defs(domains)
+    # for codelist in var_clis:
+    #   metadata.append(codelist)
 
     # def:CommentDef
     comments = comment_defs()
