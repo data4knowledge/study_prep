@@ -212,8 +212,8 @@ def get_define_codelist(domain_uuid):
     db = Neo4jConnection()
     with db.session() as session:
       query = define_codelist_query(domain_uuid)
-      debug.append("codelist query")
-      debug.append(query)
+      # debug.append("codelist query")
+      # debug.append(query)
       results = session.run(query)
       data = [r for r in results.data()]
       # debug.append("codelist--->")
@@ -227,8 +227,8 @@ def get_concept_info(identifiers):
     db = Neo4jConnection()
     with db.session() as session:
       query = find_ct_query(identifiers)
-      debug.append("ct_find query")
-      debug.append(query)
+      # debug.append("ct_find query")
+      # debug.append(query)
       results = session.run(query)
       data = [r for r in results.data()]
       # debug.append("codelist--->")
@@ -242,8 +242,8 @@ def get_define_test_codes(domain_uuid):
     db = Neo4jConnection()
     with db.session() as session:
       query = define_test_codes_query(domain_uuid)
-      debug.append("test_codes query")
-      debug.append(query)
+      # debug.append("test_codes query")
+      # debug.append(query)
       results = session.run(query)
       data = [r for r in results.data()]
       debug.append("test_codes--->")
@@ -517,8 +517,7 @@ def enumerated_item(code, context, value):
     return e
 
 def codelist_item(code, short, long, context):
-    debug.append(f"code {code} short {short} long {long} context {context}")
-
+    # debug.append(f"code {code} short {short} long {long} context {context}")
     e = ET.Element('CodeListItem')
     e.set('CodedValue', short)
     d = ET.SubElement(e,'Decode')
@@ -534,7 +533,6 @@ def codelist_defs(domains):
     codelists = []
     for d in domains:
         for item in d['codelist']:
-          debug.append(f"1 codelist {item}")
           cl = ET.Element('CodeList')
           cl.set('OID', codelist_oid(item['name'], item['uuid']))
           # cl.set('OID', codelist_oid(item['testcd'], item['uuid']))
@@ -543,13 +541,10 @@ def codelist_defs(domains):
           datatype = DATATYPES[item['datatype']] if 'datatype' in item else ""
           cl.set('DataType', datatype)
           codes = [x['code'] for x in item['decodes']]
-          debug.append(f"codes {codes}")             
           clis = get_concept_info(codes)
-          # for x in item['decodes']:
           for cli in clis:
             # NOTE: Need to care for enumerated item?
             # cl.append(enumerated_item(x['code'], "nci:ExtCodeID",x['decode']))
-            debug.append(f" vlm codelist {item}")
             cl.append(codelist_item(cli['code'], cli['notation'], cli['pref_label'], "nci:ExtCodeID"))
           codelists.append(cl)
     return codelists
@@ -570,14 +565,10 @@ def test_codes_defs(domains):
             cl.set('DataType', "text")
             debug.append(f"1 codelist {item}")
             for test in item['test_codes']:
-              debug.append(f"testcodes {test}")
+              # debug.append(f"testcodes {test}")
               # cl.append(enumerated_item(x['code'], "nci:ExtCodeID",x['decode']))
               cl.append(codelist_item(test['code'], test['testcd'], test['test'], "nci:ExtCodeID"))
-            debug.append(f"aacl {cl}")
-            if cl:
-              test_codes.append(cl)
-            else:
-              debug.append("codelist is empty", cl)
+            test_codes.append(cl)
         debug.append(f"len(test_codes) {len(test_codes)}")
     return test_codes
 
@@ -590,7 +581,6 @@ def value_list_defs(domains):
         # debug.append(f"\ndomain: {d['name']}")
         goc = next((x for x,y in DOMAIN_CLASS.items() if d['name'] in y), "Fix")
         if goc in ['FINDINGS','FINDINGS ABOUT']:
-
           for v in d['variables']:
             vlms  = [x for x in d['vlm'] if x['uuid'] == v['uuid']]
             if vlms:
@@ -705,7 +695,7 @@ def main():
     for codelist in codelists:
       metadata.append(codelist)
     test_codes = test_codes_defs(domains)
-    for codelist in codelists:
+    for codelist in test_codes:
       metadata.append(codelist)
 
     # def:CommentDef
