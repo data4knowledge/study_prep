@@ -588,39 +588,44 @@ def value_list_defs(domains):
     vlds = []
     for d in domains:
         # debug.append(f"\ndomain: {d['name']}")
-        for v in d['variables']:
-          vlms  = [x for x in d['vlm'] if x['uuid'] == v['uuid']]
-          if vlms:
-            # debug.append(f"\nVariable: {v['name']}")
-            # debug.append(f"len(vlm): {len(vlms)}")
-            vld = ET.Element('def:ValueListDef')
-            vld.set('OID', value_list_oid(v['name'], v['uuid']))
-            item_refs = []
-            i = 1
-            for vlm in vlms:
-              # debug.append(f"vlm: {vlm}")
-              item_ref = ET.Element('ItemRef')
-              item_ref.set('ItemOID', f"{i}.{vlm['uuid']}")
-              item_ref.set('OrderNumber', str(i))
-              item_ref.set('Mandatory', 'No')
-              wcd = ET.Element("def:WhereClauseRef")
-              wcd.set('WhereClauseOID', where_clause_oid(v['uuid'],d['name'], vlm['name'], vlm['testcd'])) 
-              item_ref.append(wcd)
-              # TODO: WhereClauseRef
-              # item_ref.set('def:WhereClauseRef'], {)
-              #   "def:WhereClauseRef":
-              #         {
-              #             "@WhereClauseOID": "FIX"
-              #         }
-              # }
-              # item_refs.append(ref)
-              i += 1
-              item_refs.append(item_ref)
-              # vld.append(item_ref)
-            # debug.append(ET.dump(vld))
-            for ref in item_refs:
-               vld.append(ref)
-            vlds.append(vld)
+        goc = next((x for x,y in DOMAIN_CLASS.items() if d['name'] in y), "Fix")
+        if goc in ['FINDINGS','FINDINGS ABOUT']:
+
+          for v in d['variables']:
+            vlms  = [x for x in d['vlm'] if x['uuid'] == v['uuid']]
+            if vlms:
+              # NOTE: Make one for all items for the variable
+              # NOTE: Make one per test code (VLM)
+              # debug.append(f"\nVariable: {v['name']}")
+              # debug.append(f"len(vlm): {len(vlms)}")
+              vld = ET.Element('def:ValueListDef')
+              vld.set('OID', value_list_oid(v['name'], v['uuid']))
+              item_refs = []
+              i = 1
+              for vlm in vlms:
+                # debug.append(f"vlm: {vlm}")
+                item_ref = ET.Element('ItemRef')
+                item_ref.set('ItemOID', f"{i}.{vlm['uuid']}")
+                item_ref.set('OrderNumber', str(i))
+                item_ref.set('Mandatory', 'No')
+                wcd = ET.Element("def:WhereClauseRef")
+                wcd.set('WhereClauseOID', where_clause_oid(v['uuid'],d['name'], vlm['name'], vlm['testcd'])) 
+                item_ref.append(wcd)
+                # TODO: WhereClauseRef
+                # item_ref.set('def:WhereClauseRef'], {)
+                #   "def:WhereClauseRef":
+                #         {
+                #             "@WhereClauseOID": "FIX"
+                #         }
+                # }
+                # item_refs.append(ref)
+                i += 1
+                item_refs.append(item_ref)
+                # vld.append(item_ref)
+              # debug.append(ET.dump(vld))
+              for ref in item_refs:
+                vld.append(ref)
+              vlds.append(vld)
     return vlds
 
 def where_clause_oid(var_uuid, domain, variable, test):
