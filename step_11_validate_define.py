@@ -3,6 +3,8 @@ from pathlib import Path
 from d4kms_service import Neo4jConnection
 from utility.debug import write_debug, write_tmp, write_tmp_json, write_define_json, write_define_xml, write_define_xml2
 import xmlschema
+from lxml import etree
+from bs4 import BeautifulSoup as bs
 
 debug = []
 
@@ -28,7 +30,9 @@ def check_crm_links():
 # DEFINE_XML = Path.cwd() / "tmp" / "define.xml"
 DEFINE_XML = Path.cwd() / "tmp" / "define.xml"
 print(".. ")
-print("check file ", DEFINE_XML)
+print("define.xml file ", DEFINE_XML)
+DEFINE_XLST = Path.cwd() / "tmp" / "stylesheets" / "define2-1.xsl"
+DEFINE_HTML = Path.cwd() / "tmp" / "define.html"
 # DEFINE_XML = "/Users/johannes/Library/CloudStorage/OneDrive-data4knowledge/shared_mac/standards/define-xml/DefineV217_0/examples/DefineXML-2-1-SDTM/defineV21-SDTM.xml"
 
 def check_define():
@@ -39,6 +43,24 @@ def check_define():
     a = schema.to_dict(define_file)
     # pprint(schema.to_dict(define_file))
 
+def xml_to_html():
+  dom = etree.parse(DEFINE_XML)
+  xslt =etree.parse(DEFINE_XLST)
+  transform = etree.XSLT(xslt)
+  newdom = transform(dom)
+  raw_html = etree.tostring(newdom, pretty_print=True)
+  # print(etree.tostring(newdom, pretty_print=True))
+
+  # root = etree.tostring(raw_html) #convert the generated HTML to a string
+  soup = bs(raw_html, features="lxml")                #make BeautifulSoup
+  prettyHTML = soup.prettify()
+
+
+  with open(DEFINE_HTML,'w') as f:
+        # f.write(str(html))
+        f.write(prettyHTML)
+
 if __name__ == "__main__":
     # check_crm_links()
-    check_define()
+    # check_define()
+    xml_to_html()
