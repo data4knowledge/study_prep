@@ -27,6 +27,8 @@ def check_crm_links():
 
 # DEFINE_XML = Path.cwd() / "tmp" / "define.xml"
 DEFINE_XML = Path.cwd() / "tmp" / "define.xml"
+print(".. ")
+print("check file ", DEFINE_XML)
 # DEFINE_XML = "/Users/johannes/Library/CloudStorage/OneDrive-data4knowledge/shared_mac/standards/define-xml/DefineV217_0/examples/DefineXML-2-1-SDTM/defineV21-SDTM.xml"
 
 def check_define():

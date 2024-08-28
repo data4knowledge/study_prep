@@ -64,7 +64,7 @@ DOMAIN_CLASS = {
   'TRIAL DESIGN'    :['TA', 'TD', 'TE', 'TI', 'TM', 'TS', 'TV'],
 }
 
-xml_header = """<?xml version="1.0" encoding="UTF-8"?>\n<?xml-stylesheet type="text/xsl" href="stylesheets/define2-1.xsl"?>"""
+xml_header = """<?xml version="1.0" encoding="UTF-8"?>\n<?xml-stylesheet type="text/xsl" href="stylesheets/define2-1.xsl"?>\n"""
 
 
 debug = []
@@ -440,13 +440,12 @@ def item_group_defs(domains):
     return igds
 
 def item_def_oid(item):
-    # return item['uuid']
     # return f"IT.{pretty_string(item['name'])}.{item['uuid']}"
     return f"IT.{item['domain']}.{pretty_string(item['name'])}"
 
-def item_def_test_oid(item):
+def item_def_vlm_oid(item):
     # return f"ITC.{pretty_string(item['name'])}.{item['testcd']}.{item['uuid']}"
-    return f"ITC.{pretty_string(item['name'])}.{item['testcd']}"
+    return f"IDVO.{item['domain']}.{pretty_string(item['name'])}.{item['testcd']}"
 
 def item_defs_variable(domains):
     debug.append(f"--item_defs_variable")
@@ -461,21 +460,27 @@ def item_defs_variable(domains):
           if datatype == "":
             # NOTE: Using SDTM datatype. Not always correct e.g. VISITNUM
             datatype = DATATYPES[item['data_type']]
+          if datatype == "":
+             print("-- item_defs_variable CHECK", item['name'])
           idf.set('DataType', datatype)
           idf.set('Length', '8')
           idf.set('SASFieldName', item['name'])
           idf.append(description('en',item['label']))
-          idf.append(origin('Collected','Sponsor'))
           if next((x for x in d['codelist'] if x['uuid'] == item['uuid']), None):
-             print("found codelist", d['name'], item['name'])
-             cl_ref = ET.Element('CodeListRef')
-             cl_ref.set('CodeListOID', codelist_oid(item))
-             idf.append(cl_ref)
+            # print("found codelist", d['name'], item['name'])
+            cl_ref = ET.Element('CodeListRef')
+            cl_ref.set('CodeListOID', codelist_oid(item))
+            idf.append(cl_ref)
           if d['goc'] in ['FINDINGS','FINDINGS ABOUT']:
             if next((x for x in d['vlm'] if x['uuid'] == item['uuid']), None):
+              print("referencing valuelist ", d['name'], item['name'])
               vl_ref = ET.Element('def:ValueListRef')
               vl_ref.set('ValueListOID', value_list_oid(item))
               idf.append(vl_ref)
+          else:
+            pass
+          idf.append(origin('Collected','Sponsor'))
+              # print("Not referencing ", d['name'], item['name'])
             # <def:ValueListRef ValueListOID="VL.LB.LBORRES"/>
 
           idfs.append(idf)
@@ -497,32 +502,35 @@ def vlm_item_defs(domains):
           else:
             debug.append(f"  Now adding item_def_test: {item}")
             idf = ET.Element('ItemDef')
-            idf.set('OID', item_def_test_oid(item))
+            idf.set('OID', item_def_vlm_oid(item))
             idf.set('Name', f"{item['name']} {item['testcd']}")
             datatype = DATATYPES[item['datatype']] if 'datatype' in item else ""
             if datatype == "":
               # NOTE: Using SDTM datatype. Not always correct e.g. VISITNUM
               datatype = DATATYPES[item['data_type']]
+            if datatype == "":
+              print("-- vlm_item_defs CHECK", item['name'])
             idf.set('DataType', datatype)
             idf.set('Length', '8')
             idf.set('SASFieldName', item['name'])
             idf.append(description('en',item['label']))
+            # if next((x for x in d['codelist'] if x['uuid'] == item['uuid']), None):
+            #   print("found codelist", d['name'], item['name'])
+            # cl_ref = ET.Element('CodeListRef')
+            # cl_ref.set('CodeListOID', vlm_codelist_oid(item))
+            # idf.append(cl_ref)
+
+            if next((x for x in d['vlm'] if x['uuid'] == item['uuid']), None):
+              debug.append(f"  Check def:ValueListRef {value_list_oid(item)}")
+              vl_ref = ET.Element('def:ValueListRef')
+              vl_ref.set('ValueListOID', value_list_oid(item))
+              idf.append(vl_ref)
+            # <def:ValueListRef ValueListOID="VL.LB.LBORRES"/>
             idf.append(origin('Collected','Sponsor'))
-            if next((x for x in d['codelist'] if x['uuid'] == item['uuid']), None):
-              print("found codelist", d['name'], item['name'])
-            cl_ref = ET.Element('CodeListRef')
-            cl_ref.set('CodeListOID', vlm_codelist_oid(item))
-            idf.append(cl_ref)
+
             idfs[key] = idf
 
 
-        # if next((x for x in d['vlm'] if x['uuid'] == item['uuid']), None):
-        #   vl_ref = ET.Element('def:ValueListRef')
-        #   vl_ref.set('ValueListOID', value_list_oid(item['name'], item['uuid']))
-        #   idf.append(vl_ref)
-        # # <def:ValueListRef ValueListOID="VL.LB.LBORRES"/>
-
-          # idfs.append(idf)
 
       else:
         debug.append(f"  - Ignoring domain")
@@ -537,12 +545,12 @@ def codelist_oid(item):
 
 def test_codelist_oid(item):
     # return f"CL.{item['domain']}.{pretty_string(variable)}"
-    return f"CL.{item['domain']}.{item['domain']}TESTCD"
+    return f"TEST.CL.{item['domain']}.{item['domain']}TESTCD"
     # return f"CL.{variable}"
 
 def vlm_codelist_oid(item):
     # return f"CL.{item['domain']}.{pretty_string(variable)}"
-    return f"CL.{item['domain']}.{pretty_string(item['name'])}.{item['testcd']}"
+    return f"VLM.CL.{item['domain']}.{pretty_string(item['name'])}.{item['testcd']}"
     # return f"CL.{variable}"
 
 def alias(context, code):
@@ -584,6 +592,13 @@ def codelist_defs(domains):
           cl.set('Name', codelist_name(item))
           cl.set('def:StandardOID', "STD.2")
           datatype = DATATYPES[item['datatype']] if 'datatype' in item else ""
+          if datatype == "":
+            # NOTE: Using SDTM datatype. Not always correct e.g. VISITNUM
+            # datatype = DATATYPES[item['data_type']]
+            datatype = "string"
+
+          if datatype == "":
+            print("-- codelist_defs CHECK", item['name'])
           cl.set('DataType', datatype)
           codes = [x['code'] for x in item['decodes']]
           clis = get_concept_info(codes)
@@ -706,28 +721,33 @@ def value_list_defs(domains):
               # debug.append(f"len(vlm): {len(vlms)}")
               vld = ET.Element('def:ValueListDef')
               vld.set('OID', value_list_oid(v))
-              item_refs = []
+              item_refs = {}
               i = 1
               for vlm in vlms:
-                # debug.append(f"vlm: {vlm}")
-                item_ref = ET.Element('ItemRef')
-                # item_ref.set('ItemOID', f"{i}.{vlm['uuid']}")
-                # item_ref.set('ItemOID', item_def_oid(vlm))
-                # debug.append(f"  vld item_oid {item_def_oid(vlm)}")
-                # debug.append(f"  vld item_test_oid {item_def_test_oid(vlm)}")
-                item_ref.set('ItemOID', item_def_test_oid(vlm))
-                # item_ref.set('ItemOID', item_def_test_oid(vlm))
-                item_ref.set('OrderNumber', str(i))
-                item_ref.set('Mandatory', 'No')
-                wcd = ET.Element("def:WhereClauseRef")
-                wcd.set('WhereClauseOID', where_clause_oid(vlm)) 
-                debug.append(f"vld oid {where_clause_oid(vlm)}")
-                item_ref.append(wcd)
-                i += 1
-                item_refs.append(item_ref)
-                # vld.append(item_ref)
-              # debug.append(ET.dump(vld))
-              for ref in item_refs:
+                key = var_test_key(vlm)
+                if key in item_refs:
+                  debug.append(f"  ignoring : {key}")
+                else:
+                  # debug.append(f"vlm: {vlm}")
+                  item_ref = ET.Element('ItemRef')
+                  # item_ref.set('ItemOID', f"{i}.{vlm['uuid']}")
+                  # item_ref.set('ItemOID', item_def_oid(vlm))
+                  # debug.append(f"  vld item_oid {item_def_oid(vlm)}")
+                  # debug.append(f"  vld item_test_oid {item_def_vlm_oid(vlm)}")
+                  item_ref.set('ItemOID', item_def_vlm_oid(vlm))
+                  # item_ref.set('ItemOID', item_def_vlm_oid(vlm))
+                  item_ref.set('OrderNumber', str(i))
+                  item_ref.set('Mandatory', 'No')
+                  wcd = ET.Element("def:WhereClauseRef")
+                  wcd.set('WhereClauseOID', where_clause_oid(vlm)) 
+                  debug.append(f"vld where oid {where_clause_oid(vlm)}")
+                  item_ref.append(wcd)
+                  i += 1
+                  # item_refs.append(item_ref)
+                  item_refs[key] = item_ref
+                  # vld.append(item_ref)
+                # debug.append(ET.dump(vld))
+              for ref in item_refs.values():
                 vld.append(ref)
               debug.append(f"vld {ET.tostring(vld)}")
               vlds.append(vld)
@@ -779,21 +799,6 @@ def where_clause_defs(domains):
           debug.append(f"\n where_clause_defs domain: {d['name']}")
           testcd_var = next((v for v in d['variables'] if v['name'] == d['name']+"TESTCD"),"Not found")
           testcd_oid = item_def_oid(testcd_var)
-          # debug.append(f"testcd_oid 1 {item_def_oid(testcd_var)}")
-
-          # debug.append(f"testcd_oid 2 {item_def_test_oid(testcd_var)}")
-          # debug.append(f"len(d['vlm']) {len(d['vlm'])}")
-          # for unique in d['vlm']:
-          #   debug.append(f"  unique {unique}")
-          # unique_vars = list({v['uuid']:v for v in d['vlm']}.values())
-
-          # unique_vars = get_unique_var_decode(copy.deepcopy(d['vlm']))
-          # debug.append(f"len(unique_vars) {len(unique_vars)}")
-          # for unique in unique_vars:
-          #   debug.append(f"  unique {unique}")
-
-          # for v in unique_vars:
-              # vlms  = [x for x in unique_vars if x['uuid'] == v['uuid']]
           for v in d['vlm']:
             key = var_test_key(v)
             if key in wcds:
