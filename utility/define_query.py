@@ -72,10 +72,11 @@ def define_vlm_query(domain_uuid):
       WITH bc, cd, bcp, domain
       MATCH (bcp)-[:IS_A_REL]->(crm:CRMNode)<-[:IS_A_REL]-(var:Variable)<-[:VARIABLE_REL]-(domain)
       MATCH (bcp)-[:RESPONSE_CODES_REL]->(rc:ResponseCode)-[:CODE_REL]->(c:Code)
-      WITH bc, cd, bcp, crm, var, c
+      WITH domain, bc, cd, bcp, crm, var, c
       ORDER By bc.name, cd.decode, bcp.name, c.decode
-      WITH bc, cd, bcp, crm, var, collect({code:c.code,decode:c.decode}) as decodes
+      WITH domain, bc, cd, bcp, crm, var, collect({code:c.code,decode:c.decode}) as decodes
       return distinct 
+      domain.name as domain,
       bc.uuid as bc_uuid,
       bc.name as bc,
       cd.decode as testcd,

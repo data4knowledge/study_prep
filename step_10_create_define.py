@@ -375,15 +375,12 @@ def get_domains_and_variables(uuid):
       test_codes = get_define_test_codes(d['uuid'])
       item['test_codes'] = test_codes
     vlm_metadata = get_define_vlm(d['uuid'])
-    # debug.append(f"len(vlm_metadata) {len(vlm_metadata)}")
-    # for x in vlm_metadata:
-    #   debug.append(f"  {x}")
- 
+    debug.append(f"len(vlm_metadata) {len(vlm_metadata)}")
     item['vlm'] = vlm_metadata
-    # vlm = vlm_metadata
-    for m in vlm_metadata:
-      # debug.append(f"check var {m['name']}")
-      vs = [v for v in all_variables if v['name'] == m['name']]
+    # # vlm = vlm_metadata
+    # for m in vlm_metadata:
+    #   # debug.append(f"check var {m['name']}")
+    #   vs = [v for v in all_variables if v['name'] == m['name']]
 
     item['goc'] = next((x for x,y in DOMAIN_CLASS.items() if d['name'] in y), "Fix")
 
@@ -556,9 +553,14 @@ def codelist_oid(item):
     return f"CL.{pretty_string(item['name'])}.{item['uuid']}"
     # return f"CL.{variable}"
 
-def codelist_test_oid(item):
+def test_codelist_oid(item):
     # return f"CL.{item['domain']}.{pretty_string(variable)}"
     return f"CL.{item['domain']}.{item['domain']}TESTCD"
+    # return f"CL.{variable}"
+
+def vlm_codelist_oid(item):
+    # return f"CL.{item['domain']}.{pretty_string(variable)}"
+    return f"CL.{item['domain']}.{pretty_string(item['name'])}.{item['testcd']}"
     # return f"CL.{variable}"
 
 def alias(context, code):
@@ -611,47 +613,58 @@ def codelist_defs(domains):
     return codelists
 
 def vlm_codelist_name(item):
-   return f"CL {item['domain']} ({item['domain']+'TESTCD'})"
+  return f"CL {item['domain']} {item['name']} {item['testcd']}"
 
 # Create codelist for VLM
-def var_cli_defs(domains):
-    debug.append(f"--var_cli_defs")
-    test_codes = []
-    # for d in domains:
-    #   if d['goc'] in ['FINDINGS','FINDINGS ABOUT']:
-    #     for item in d['vlm']:
-    #       key = var_test_key(item)
-    #       if key in idfs:
-    #         debug.append(f"  Ignoring key: {key}")
-    #       else:
-    #         debug.append(f"  Now adding item_def_test: {item}")
-    #         idf = ET.Element('ItemDef')
-    #         idf.set('OID', item_def_test_oid(item))
-    #         idf.set('Name', f"{item['name']} {item['testcd']}")
-    #         datatype = DATATYPES[item['datatype']] if 'datatype' in item else ""
-    #         if datatype == "":
-    #           # NOTE: Using SDTM datatype. Not always correct e.g. VISITNUM
-    #           datatype = DATATYPES[item['data_type']]
-    #         idf.set('DataType', datatype)
-    #         idf.set('Length', '8')
-    #         idf.set('SASFieldName', item['name'])
-    #         idf.append(description('en',item['label']))
-    #         idf.append(origin('Collected','Sponsor'))
+def vlm_codelists_defs(domains):
+    debug.append(f"--vlm_codelists_defs")
+    vlm_codelists = {}
+    for d in domains:
+      if d['goc'] in ['FINDINGS','FINDINGS ABOUT']:
+        for item in d['vlm']:
+          key = var_test_key(item)
+          if key in vlm_codelists:
+            debug.append(f"  Ignoring key: {key}")
+          else:
+            debug.append(f"  Add vml_codelist: {key}")
+            cl = ET.Element('Codelist')
+            cl.set('OID', vlm_codelist_oid(item))
+            cl.set('Name', vlm_codelist_name(item))
+            cl.set('def:StandardOID', "STD.2")
+            datatype = DATATYPES[item['datatype']] if 'datatype' in item else ""
+            if datatype == "":
+              # NOTE: Using SDTM datatype. Not always correct e.g. VISITNUM
+              datatype = DATATYPES[item['data_type']]
+            cl.set('DataType', datatype)
+            cl.set('Length', '8')
+            # cl.set('SASFieldName', item['name'])
+            # cl.append(description('en',item['label']))
+            # cl.append(origin('Collected','Sponsor'))
+            codes = [x['code'] for x in item['decodes']]
+            # for code in codes:
+            #   debug.append(f"    code: {code}")
+               
+            clis = get_concept_info(codes)
+            for cli in clis:
+              # NOTE: Need to care for enumerated item?
+              # cl.append(enumerated_item(x['code'], "nci:ExtCodeID",x['decode']))
+              cl.append(codelist_item(cli['code'], cli['notation'], cli['pref_label'], "nci:ExtCodeID"))
+            vlm_codelists[key] = cl
+
     #         # if next((x for x in d['codelist'] if x['uuid'] == item['uuid']), None):
     #         #   print("found codelist", d['name'], item['name'])
     #         #   cl_ref = ET.Element('CodeListRef')
     #         #   cl_ref.set('CodeListOID', codelist_oid(item['name'], item['uuid']))
     #         #   idf.append(cl_ref)
-    #         idfs[key] = idf
 
 
 
 
         # if 'test_codes' in d:
         #   for item in d['test_codes']:
-        #     debug.append(f"var_cli_defs {item}")
+        #     debug.append(f"vlm_codelists_defs {item}")
         #     cl = ET.Element('CodeList')
-        #     cl.set('OID', codelist_test_oid(item))
+        #     cl.set('OID', test_codelist_oid(item))
         #     cl.set('Name', vlm_codelist_name(item))
         #     cl.set('def:StandardOID', "STD.1")
         #     cl.set('DataType', "text")
@@ -662,7 +675,7 @@ def var_cli_defs(domains):
         #       cl.append(codelist_item(test['code'], test['testcd'], test['test'], "nci:ExtCodeID"))
         #     test_codes.append(cl)
         # # debug.append(f"len(test_codes) {len(test_codes)}")
-    return test_codes
+    return list(vlm_codelists.values())
 
 
 def test_codelist_name(item):
@@ -678,7 +691,7 @@ def test_codes_defs(domains):
           for item in d['test_codes']:
             debug.append(f"test_codes_defs {item}")
             cl = ET.Element('CodeList')
-            cl.set('OID', codelist_test_oid(item))
+            cl.set('OID', test_codelist_oid(item))
             cl.set('Name', test_codelist_name(item))
             cl.set('def:StandardOID', "STD.1")
             cl.set('DataType', "text")
@@ -790,7 +803,7 @@ def where_clause_defs(domains):
           # for unique in d['vlm']:
           #   debug.append(f"  unique {unique}")
           # unique_vars = list({v['uuid']:v for v in d['vlm']}.values())
-          unique_vars = get_unique_var_decode(d['vlm'])
+          unique_vars = get_unique_var_decode(copy.deepcopy(d['vlm']))
           # debug.append(f"len(unique_vars) {len(unique_vars)}")
           # for unique in unique_vars:
           #   debug.append(f"  unique {unique}")
@@ -858,13 +871,12 @@ def main():
     codelists = codelist_defs(domains)
     for codelist in codelists:
       metadata.append(codelist)
-    test_codes = test_codes_defs(domains)
-    for codelist in test_codes:
+    test_codelists = test_codes_defs(domains)
+    for codelist in test_codelists:
       metadata.append(codelist)
-    
-    # var_clis = var_cli_defs(domains)
-    # for codelist in var_clis:
-    #   metadata.append(codelist)
+    vlm_codelists = vlm_codelists_defs(domains)
+    for codelist in vlm_codelists:
+      metadata.append(codelist)
 
     # def:CommentDef
     comments = comment_defs()
