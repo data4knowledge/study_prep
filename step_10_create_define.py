@@ -37,25 +37,6 @@ DATATYPES = {
 }
 
 
-class Define:
-    """ Generate a Define-XML v2.1 file from the SDTM Metadata Worksheet Example Excel file """
-    def __init__(self, excel_file, define_file, is_check=False):
-        """
-        :param excel_file: str - the path and filename for the SDTM metadata worksheet excel input file
-        :param define_file: str - the path and filename for the Define-XML v2.0 file to be generated
-        :param is_check: boolean - flag that indicates if the conformance checks should be executed
-        """
-        # self.excel_file = excel_file
-        self.define_file = define_file
-        # self.is_check_conformance = is_check
-        # self._check_file_existence()
-        # self.workbook = load_workbook(filename=self.excel_file, read_only=True, data_only=True)
-        self.lang = "en"
-        self.acrf = "LF.acrf"
-        self.define_objects = {}
-
-
-
 # ISSUE: Should be in DB. Could add to configuration
 ORDER_OF_DOMAINS = [
   'TRIAL DESIGN',
@@ -83,13 +64,11 @@ DOMAIN_CLASS = {
   'TRIAL DESIGN'    :['TA', 'TD', 'TE', 'TI', 'TM', 'TS', 'TV'],
 }
 
-# class Define(BaseNode):
-#   name: str = ""
-#   study_products_bcs: List[str]= []
-#   disposition: List[str]= []
-#   demography: List[str]= []
+xml_header = """<?xml version="1.0" encoding="UTF-8"?>\n<?xml-stylesheet type="text/xsl" href="stylesheets/define2-1.xsl"?>"""
+
 
 debug = []
+
 
 def check_crm_links():
     db = Neo4jConnection()
@@ -367,8 +346,8 @@ def get_domains_and_variables(uuid):
     for k,v in d._properties.items():
         item[k] = v
     all_variables = get_variables(d['uuid'])
-    # for v in all_variables:
-    #    debug.append(v)
+    for v in all_variables:
+      v['domain'] = d['name']
     codelist_metadata = get_define_codelist(d['uuid'])
     item['codelist'] = codelist_metadata
     if d['goc'] in ['FINDINGS','FINDINGS ABOUT']:
@@ -462,10 +441,12 @@ def item_group_defs(domains):
 
 def item_def_oid(item):
     # return item['uuid']
-    return f"IT.{pretty_string(item['name'])}.{item['uuid']}"
+    # return f"IT.{pretty_string(item['name'])}.{item['uuid']}"
+    return f"IT.{item['domain']}.{pretty_string(item['name'])}"
 
 def item_def_test_oid(item):
-    return f"ITC.{pretty_string(item['name'])}.{item['testcd']}.{item['uuid']}"
+    # return f"ITC.{pretty_string(item['name'])}.{item['testcd']}.{item['uuid']}"
+    return f"ITC.{pretty_string(item['name'])}.{item['testcd']}"
 
 def item_defs_variable(domains):
     debug.append(f"--item_defs_variable")
@@ -493,7 +474,7 @@ def item_defs_variable(domains):
           if d['goc'] in ['FINDINGS','FINDINGS ABOUT']:
             if next((x for x in d['vlm'] if x['uuid'] == item['uuid']), None):
               vl_ref = ET.Element('def:ValueListRef')
-              vl_ref.set('ValueListOID', value_list_oid(item['name'], item['uuid']))
+              vl_ref.set('ValueListOID', value_list_oid(item))
               idf.append(vl_ref)
             # <def:ValueListRef ValueListOID="VL.LB.LBORRES"/>
 
@@ -503,11 +484,11 @@ def item_defs_variable(domains):
 def var_test_key(item):
    return f"{item['name']}.{item['testcd']}"
 
-def item_defs_test(domains):
-    debug.append(f"--item_defs_test")
+def vlm_item_defs(domains):
+    debug.append(f"--vlm_item_defs")
     idfs = {}
     for d in domains:
-      # debug.append(f"item_defs_test domain {d['name']}")
+      # debug.append(f"vlm_item_defs domain {d['name']}")
       if d['goc'] in ['FINDINGS','FINDINGS ABOUT']:
         for item in d['vlm']:
           key = var_test_key(item)
@@ -527,11 +508,11 @@ def item_defs_test(domains):
             idf.set('SASFieldName', item['name'])
             idf.append(description('en',item['label']))
             idf.append(origin('Collected','Sponsor'))
-            # if next((x for x in d['codelist'] if x['uuid'] == item['uuid']), None):
-            #   print("found codelist", d['name'], item['name'])
-            #   cl_ref = ET.Element('CodeListRef')
-            #   cl_ref.set('CodeListOID', codelist_oid(item['name'], item['uuid']))
-            #   idf.append(cl_ref)
+            if next((x for x in d['codelist'] if x['uuid'] == item['uuid']), None):
+              print("found codelist", d['name'], item['name'])
+            cl_ref = ET.Element('CodeListRef')
+            cl_ref.set('CodeListOID', vlm_codelist_oid(item))
+            idf.append(cl_ref)
             idfs[key] = idf
 
 
@@ -550,7 +531,8 @@ def item_defs_test(domains):
 
 def codelist_oid(item):
     # return f"CL.{pretty_string(variable)}.{uuid}"
-    return f"CL.{pretty_string(item['name'])}.{item['uuid']}"
+    # return f"CL.{pretty_string(item['name'])}.{item['uuid']}"
+    return f"CL.{pretty_string(item['name'])}"
     # return f"CL.{variable}"
 
 def test_codelist_oid(item):
@@ -704,8 +686,10 @@ def test_codes_defs(domains):
         # debug.append(f"len(test_codes) {len(test_codes)}")
     return test_codes
 
-def value_list_oid(variable, uuid):
-    return f"VL.{variable}.{uuid}"
+def value_list_oid(item):
+    # return f"VL.{item['name']}.{item['uuid']}"
+    # return f"VL.{item['domain']}.{item['name']}.{item['uuid']}"
+    return f"VL.{item['domain']}.{item['name']}"
 
 def value_list_defs(domains):
     debug.append(f"--value_list_defs")
@@ -721,30 +705,24 @@ def value_list_defs(domains):
               # debug.append(f"\nVariable: {v['name']}")
               # debug.append(f"len(vlm): {len(vlms)}")
               vld = ET.Element('def:ValueListDef')
-              vld.set('OID', value_list_oid(v['name'], v['uuid']))
+              vld.set('OID', value_list_oid(v))
               item_refs = []
               i = 1
               for vlm in vlms:
                 # debug.append(f"vlm: {vlm}")
                 item_ref = ET.Element('ItemRef')
                 # item_ref.set('ItemOID', f"{i}.{vlm['uuid']}")
-                item_ref.set('ItemOID', item_def_oid(vlm))
-                debug.append(f"  vld item_oid {item_def_oid(vlm)}")
+                # item_ref.set('ItemOID', item_def_oid(vlm))
+                # debug.append(f"  vld item_oid {item_def_oid(vlm)}")
+                # debug.append(f"  vld item_test_oid {item_def_test_oid(vlm)}")
+                item_ref.set('ItemOID', item_def_test_oid(vlm))
                 # item_ref.set('ItemOID', item_def_test_oid(vlm))
-                debug.append(f"  vld item_test_oid {item_def_test_oid(vlm)}")
                 item_ref.set('OrderNumber', str(i))
                 item_ref.set('Mandatory', 'No')
                 wcd = ET.Element("def:WhereClauseRef")
-                wcd.set('WhereClauseOID', where_clause_oid(v['uuid'],d['name'], vlm['name'], vlm['testcd'])) 
+                wcd.set('WhereClauseOID', where_clause_oid(vlm)) 
+                debug.append(f"vld oid {where_clause_oid(vlm)}")
                 item_ref.append(wcd)
-                # TODO: WhereClauseRef
-                # item_ref.set('def:WhereClauseRef'], {)
-                #   "def:WhereClauseRef":
-                #         {
-                #             "@WhereClauseOID": "FIX"
-                #         }
-                # }
-                # item_refs.append(ref)
                 i += 1
                 item_refs.append(item_ref)
                 # vld.append(item_ref)
@@ -755,8 +733,11 @@ def value_list_defs(domains):
               vlds.append(vld)
     return vlds
 
-def where_clause_oid(var_uuid, domain, variable, test):
-    return f"WC.{domain}.{variable}.{pretty_string(test)}.{var_uuid}"
+# def where_clause_oid(var_uuid, domain, variable, test):
+def where_clause_oid(item):
+    # wcd.set('WhereClauseOID', where_clause_oid(v['uuid'],d['name'], vlm['name'], vlm['testcd'])) 
+    # wcd.set('OID',            where_clause_oid(v['uuid'],d['name'], v['name'], v['testcd']))
+    return f"WC.{item['domain']}.{item['name']}.{item['testcd']}" #.{var_uuid}"
 
 def range_check(decodes,comparator, soft_hard, item_oid):
     range_check = ET.Element('RangeCheck')
@@ -792,36 +773,43 @@ def get_unique_var_decode(vars):
 
 def where_clause_defs(domains):
     debug.append(f"--where_clause_defs")
-    wcds = []
+    wcds = {}
     for d in domains:
         if d['goc'] in ['FINDINGS','FINDINGS ABOUT']:
           debug.append(f"\n where_clause_defs domain: {d['name']}")
           testcd_var = next((v for v in d['variables'] if v['name'] == d['name']+"TESTCD"),"Not found")
           testcd_oid = item_def_oid(testcd_var)
-          # debug.append(f"testcd_oid {testcd_oid}")
+          # debug.append(f"testcd_oid 1 {item_def_oid(testcd_var)}")
+
+          # debug.append(f"testcd_oid 2 {item_def_test_oid(testcd_var)}")
           # debug.append(f"len(d['vlm']) {len(d['vlm'])}")
           # for unique in d['vlm']:
           #   debug.append(f"  unique {unique}")
           # unique_vars = list({v['uuid']:v for v in d['vlm']}.values())
-          unique_vars = get_unique_var_decode(copy.deepcopy(d['vlm']))
+
+          # unique_vars = get_unique_var_decode(copy.deepcopy(d['vlm']))
           # debug.append(f"len(unique_vars) {len(unique_vars)}")
           # for unique in unique_vars:
           #   debug.append(f"  unique {unique}")
-          # for v in d['vlm']:
-          for v in unique_vars:
-            vlms  = [x for x in unique_vars if x['uuid'] == v['uuid']]
-            # debug.append(f"v['name']: {v['name']}")
-            # debug.append(f"len(vlms): {len(vlms)}")
-            # uniques = [k:v for k,v in vlms]
-            for vlm in vlms:
-              # debug.append(vlm)
+
+          # for v in unique_vars:
+              # vlms  = [x for x in unique_vars if x['uuid'] == v['uuid']]
+          for v in d['vlm']:
+            key = var_test_key(v)
+            if key in wcds:
+              debug.append(f"  ignoring : {key}")
+            else:
+              debug.append(f"  doing : {key}")
+              debug.append(f"  v['name']: {v['name']}")
               wcd = ET.Element('def:WhereClauseDef')
-              wcd.set('OID',where_clause_oid(v['uuid'],d['name'], v['name'], v['testcd']))
-              # wcd.append(range_check(vlm['decodes'], 'IN', 'Soft', v['uuid']))
+              wcd.set('OID',where_clause_oid(v))
+              debug.append(f"    wcd oid {where_clause_oid(v)}")
               wcd.append(range_check(v['testcd'], 'EQ', 'Soft', testcd_oid))
-            # debug.append(wcd)
-            wcds.append(wcd)
-    return wcds
+              wcds[key] = wcd
+
+            # wcds.append(wcd)
+    # return wcds
+    return list(wcds.values())
 
 DEFINE_JSON = Path.cwd() / "tmp" / "define.json"
 DEFINE_XML = Path.cwd() / "tmp" / "define.xml"
@@ -842,32 +830,59 @@ def main():
 
     # MetadataVersion -------->
     metadata = metadata_version(oid=study_info['uuid'], name=study_info['study_name'],description="This is some kind of description")
+
+    # Standards
+    metadata.append(ET.Comment("*********************************"))
+    metadata.append(ET.Comment("Standard Definitions"))
+    metadata.append(ET.Comment("*********************************"))
     metadata.append(standards())
-    
+
+    # Supporting documents
+    # metadata.append(ET.Comment("*******************************"))
+    # metadata.append(ET.Comment("Supporting Documents"))
+    # metadata.append(ET.Comment("*******************************"))
+
     # def:ValueListDef
+    metadata.append(ET.Comment("************************************************************************************************************************"))
+    metadata.append(ET.Comment("Value List Definitions Section (Required for Supplemental Qualifiers, Optional for other Normalized (Vertical) Datasets) "))
+    metadata.append(ET.Comment("(Note that any definitions not provided at a Value Level will be inherited from the parent item definition)"))
+    metadata.append(ET.Comment("************************************************************************************************************************"))
     vlds = value_list_defs(domains)
     for vld in vlds:
       metadata.append(vld)
 
     # def:WhereClauseDef
+    metadata.append(ET.Comment("*****************************************************************************"))
+    metadata.append(ET.Comment("WhereClause Definitions Section (Used/Referenced in Value List Definitions)"))
+    metadata.append(ET.Comment("*****************************************************************************"))
     wcds = where_clause_defs(domains)
     for wcd in wcds:  
       metadata.append(wcd)
 
     # ItemGroupDef
+    metadata.append(ET.Comment("************************************************************************************"))
+    metadata.append(ET.Comment("ItemGroupDef Definitions Section (Datasets and and first set of variable properties)"))
+    metadata.append(ET.Comment("************************************************************************************"))
     igds = item_group_defs(domains)
     for igd in igds:
       metadata.append(igd)
 
+
     # ItemDef
+    metadata.append(ET.Comment("*****************************************************************************"))
+    metadata.append(ET.Comment("ItemDef Definitions Section (Variables and Value List, remaining properties)"))
+    metadata.append(ET.Comment("*****************************************************************************"))
     idfs = item_defs_variable(domains)
     for idf in idfs:
       metadata.append(idf)
-    idfs_test = item_defs_test(domains)
+    idfs_test = vlm_item_defs(domains)
     for idf in idfs_test:
       metadata.append(idf)
 
     # CodeList
+    metadata.append(ET.Comment("************************************"))
+    metadata.append(ET.Comment("Code List Definitions Section"))
+    metadata.append(ET.Comment("************************************"))
     codelists = codelist_defs(domains)
     for codelist in codelists:
       metadata.append(codelist)
@@ -904,10 +919,7 @@ def main():
     # add stylesheet
     with open(DEFINE_XML,'r') as f:
       lines = f.readlines()
-    stuff = """<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="stylesheets/define2-1.xsl"?>
-"""
-    lines.insert(0,stuff) 
+    lines.insert(0,xml_header) 
     with open(DEFINE_XML,'w') as f:
       for line in lines:
          f.write(line)
