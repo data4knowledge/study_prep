@@ -371,8 +371,7 @@ def get_domains_and_variables(uuid):
     #    debug.append(v)
     codelist_metadata = get_define_codelist(d['uuid'])
     item['codelist'] = codelist_metadata
-    goc = next((x for x,y in DOMAIN_CLASS.items() if d['name'] in y), "Fix")
-    if goc in ['FINDINGS','FINDINGS ABOUT']:
+    if d['goc'] in ['FINDINGS','FINDINGS ABOUT']:
       test_codes = get_define_test_codes(d['uuid'])
       item['test_codes'] = test_codes
     vlm_metadata = get_define_vlm(d['uuid'])
@@ -386,13 +385,8 @@ def get_domains_and_variables(uuid):
       # debug.append(f"check var {m['name']}")
       vs = [v for v in all_variables if v['name'] == m['name']]
 
-      # debug.append(f"   {m}")
-      # for v in vs:
-      #   # debug.append(f"   {v['name']}")
-      #   debug.append(f"   {v}")
-          
-      #  if next((v for v in all_variables if v['name'] == m['name']), None):
-      #     debug.append("yes, a hit")
+    item['goc'] = next((x for x,y in DOMAIN_CLASS.items() if d['name'] in y), "Fix")
+
     print(d['name'],"len(vlm_metadata)", len(vlm_metadata))
     unique_vars = get_unique_vars(copy.deepcopy(vlm_metadata))
     # print(unique_vars)
@@ -462,8 +456,7 @@ def item_group_defs(domains):
         refs = set_variable_refs(d['variables'])
         for ref in refs:
           igd.append(ref)
-        goc = next((x for x,y in DOMAIN_CLASS.items() if d['name'] in y), "Fix")
-        ET.SubElement(igd,'def:Class', {'Name': goc})
+        ET.SubElement(igd,'def:Class', {'Name': d['goc']})
         # ET.SubElement(igd,'def:Class').text = goc
         # goc_e.text = goc
         igd.append(leaf(f"LI.{d['name']}", d['name'].lower()+".xpt", d['name'].lower()+".xpt"))
@@ -500,8 +493,7 @@ def item_defs_variable(domains):
              cl_ref = ET.Element('CodeListRef')
              cl_ref.set('CodeListOID', codelist_oid(item))
              idf.append(cl_ref)
-          goc = next((x for x,y in DOMAIN_CLASS.items() if d['name'] in y), "Fix")
-          if goc in ['FINDINGS','FINDINGS ABOUT']:
+          if d['goc'] in ['FINDINGS','FINDINGS ABOUT']:
             if next((x for x in d['vlm'] if x['uuid'] == item['uuid']), None):
               vl_ref = ET.Element('def:ValueListRef')
               vl_ref.set('ValueListOID', value_list_oid(item['name'], item['uuid']))
@@ -519,8 +511,7 @@ def item_defs_test(domains):
     idfs = {}
     for d in domains:
       # debug.append(f"item_defs_test domain {d['name']}")
-      goc = next((x for x,y in DOMAIN_CLASS.items() if d['name'] in y), "Fix")
-      if goc in ['FINDINGS','FINDINGS ABOUT']:
+      if d['goc'] in ['FINDINGS','FINDINGS ABOUT']:
         for item in d['vlm']:
           key = var_test_key(item)
           if key in idfs:
@@ -605,10 +596,7 @@ def codelist_defs(domains):
     for d in domains:
         for item in d['codelist']:
           cl = ET.Element('CodeList')
-          debug.append(f"codelist_defs {codelist_oid(item)}")
-          debug.append(f"codelist_defs {item}")
           cl.set('OID', codelist_oid(item))
-          # cl.set('OID', codelist_oid(item['testcd'], item['uuid']))
           cl.set('Name', codelist_name(item))
           cl.set('def:StandardOID', "STD.2")
           datatype = DATATYPES[item['datatype']] if 'datatype' in item else ""
@@ -629,22 +617,51 @@ def vlm_codelist_name(item):
 def var_cli_defs(domains):
     debug.append(f"--var_cli_defs")
     test_codes = []
-    for d in domains:
-        if 'test_codes' in d:
-          for item in d['test_codes']:
-            debug.append(f"var_cli_defs {item}")
-            cl = ET.Element('CodeList')
-            cl.set('OID', codelist_test_oid(item))
-            cl.set('Name', vlm_codelist_name(item))
-            cl.set('def:StandardOID', "STD.1")
-            cl.set('DataType', "text")
-            # debug.append(f"1 codelist {item}")
-            for test in item['test_codes']:
-              # debug.append(f"testcodes {test}")
-              # cl.append(enumerated_item(x['code'], "nci:ExtCodeID",x['decode']))
-              cl.append(codelist_item(test['code'], test['testcd'], test['test'], "nci:ExtCodeID"))
-            test_codes.append(cl)
-        # debug.append(f"len(test_codes) {len(test_codes)}")
+    # for d in domains:
+    #   if d['goc'] in ['FINDINGS','FINDINGS ABOUT']:
+    #     for item in d['vlm']:
+    #       key = var_test_key(item)
+    #       if key in idfs:
+    #         debug.append(f"  Ignoring key: {key}")
+    #       else:
+    #         debug.append(f"  Now adding item_def_test: {item}")
+    #         idf = ET.Element('ItemDef')
+    #         idf.set('OID', item_def_test_oid(item))
+    #         idf.set('Name', f"{item['name']} {item['testcd']}")
+    #         datatype = DATATYPES[item['datatype']] if 'datatype' in item else ""
+    #         if datatype == "":
+    #           # NOTE: Using SDTM datatype. Not always correct e.g. VISITNUM
+    #           datatype = DATATYPES[item['data_type']]
+    #         idf.set('DataType', datatype)
+    #         idf.set('Length', '8')
+    #         idf.set('SASFieldName', item['name'])
+    #         idf.append(description('en',item['label']))
+    #         idf.append(origin('Collected','Sponsor'))
+    #         # if next((x for x in d['codelist'] if x['uuid'] == item['uuid']), None):
+    #         #   print("found codelist", d['name'], item['name'])
+    #         #   cl_ref = ET.Element('CodeListRef')
+    #         #   cl_ref.set('CodeListOID', codelist_oid(item['name'], item['uuid']))
+    #         #   idf.append(cl_ref)
+    #         idfs[key] = idf
+
+
+
+
+        # if 'test_codes' in d:
+        #   for item in d['test_codes']:
+        #     debug.append(f"var_cli_defs {item}")
+        #     cl = ET.Element('CodeList')
+        #     cl.set('OID', codelist_test_oid(item))
+        #     cl.set('Name', vlm_codelist_name(item))
+        #     cl.set('def:StandardOID', "STD.1")
+        #     cl.set('DataType', "text")
+        #     # debug.append(f"1 codelist {item}")
+        #     for test in item['test_codes']:
+        #       # debug.append(f"testcodes {test}")
+        #       # cl.append(enumerated_item(x['code'], "nci:ExtCodeID",x['decode']))
+        #       cl.append(codelist_item(test['code'], test['testcd'], test['test'], "nci:ExtCodeID"))
+        #     test_codes.append(cl)
+        # # debug.append(f"len(test_codes) {len(test_codes)}")
     return test_codes
 
 
@@ -682,8 +699,7 @@ def value_list_defs(domains):
     vlds = []
     for d in domains:
         # debug.append(f"\nvalues_list_defs domain: {d['name']}")
-        goc = next((x for x,y in DOMAIN_CLASS.items() if d['name'] in y), "Fix")
-        if goc in ['FINDINGS','FINDINGS ABOUT']:
+        if d['goc'] in ['FINDINGS','FINDINGS ABOUT']:
           for v in d['variables']:
             vlms  = [x for x in d['vlm'] if x['uuid'] == v['uuid']]
             if vlms:
@@ -765,8 +781,7 @@ def where_clause_defs(domains):
     debug.append(f"--where_clause_defs")
     wcds = []
     for d in domains:
-        goc = next((x for x,y in DOMAIN_CLASS.items() if d['name'] in y), "Fix")
-        if goc in ['FINDINGS','FINDINGS ABOUT']:
+        if d['goc'] in ['FINDINGS','FINDINGS ABOUT']:
           debug.append(f"\n where_clause_defs domain: {d['name']}")
           testcd_var = next((v for v in d['variables'] if v['name'] == d['name']+"TESTCD"),"Not found")
           testcd_oid = item_def_oid(testcd_var)
