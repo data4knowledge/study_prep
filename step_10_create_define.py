@@ -524,9 +524,9 @@ def item_defs_test(domains):
         for item in d['vlm']:
           key = var_test_key(item)
           if key in idfs:
-            debug.append(f"Ignoring key: {key}")
+            debug.append(f"  Ignoring key: {key}")
           else:
-            debug.append(f"Now adding item_def_test: {item}")
+            debug.append(f"  Now adding item_def_test: {item}")
             idf = ET.Element('ItemDef')
             idf.set('OID', item_def_test_oid(item))
             idf.set('Name', f"{item['name']} {item['testcd']}")
@@ -556,8 +556,8 @@ def item_defs_test(domains):
           # idfs.append(idf)
 
       else:
-        debug.append(f"- Ignoring domain")
-    debug.append(f"returning {idfs.values()}")
+        debug.append(f"  - Ignoring domain")
+    debug.append(f"returning {list(idfs.values())}")
     return list(idfs.values())
 
 def codelist_oid(item):
@@ -567,7 +567,7 @@ def codelist_oid(item):
 
 def codelist_test_oid(item):
     # return f"CL.{item['domain']}.{pretty_string(variable)}"
-    return f"CL.{item['domain']}.{item['testcd']}"
+    return f"CL.{item['domain']}.{item['domain']}TESTCD"
     # return f"CL.{variable}"
 
 def alias(context, code):
@@ -598,6 +598,7 @@ def codelist_name(item):
    else:
      return f"CL {item['name']}"
 
+# Create codelists for domain variable
 def codelist_defs(domains):
     debug.append(f"--codelist_defs")
     codelists = []
@@ -621,6 +622,10 @@ def codelist_defs(domains):
           codelists.append(cl)
     return codelists
 
+def vlm_codelist_name(item):
+   return f"CL {item['domain']} ({item['domain']+'TESTCD'})"
+
+# Create codelist for VLM
 def var_cli_defs(domains):
     debug.append(f"--var_cli_defs")
     test_codes = []
@@ -630,7 +635,7 @@ def var_cli_defs(domains):
             debug.append(f"var_cli_defs {item}")
             cl = ET.Element('CodeList')
             cl.set('OID', codelist_test_oid(item))
-            cl.set('Name', test_codelist_name(item))
+            cl.set('Name', vlm_codelist_name(item))
             cl.set('def:StandardOID', "STD.1")
             cl.set('DataType', "text")
             # debug.append(f"1 codelist {item}")
@@ -646,6 +651,7 @@ def var_cli_defs(domains):
 def test_codelist_name(item):
    return f"CL {item['domain']} ({item['domain']+'TESTCD'})"
 
+# Create codelist for TESTCD/TEST
 def test_codes_defs(domains):
     debug.append(f"--test_codes_defs")
     test_codes = []
@@ -837,9 +843,9 @@ def main():
     codelists = codelist_defs(domains)
     for codelist in codelists:
       metadata.append(codelist)
-    # test_codes = test_codes_defs(domains)
-    # for codelist in test_codes:
-    #   metadata.append(codelist)
+    test_codes = test_codes_defs(domains)
+    for codelist in test_codes:
+      metadata.append(codelist)
     
     # var_clis = var_cli_defs(domains)
     # for codelist in var_clis:
