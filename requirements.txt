@@ -3,4 +3,6 @@ pandas
 openpyxl
 xmltodict
 xmlschema
+lxml
+bs4
 # dicttoxml2
