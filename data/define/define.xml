@@ -1405,7 +1405,6 @@
             <Description>
                <TranslatedText xml:lang="en">Original Units</TranslatedText>
             </Description>
-            <CodeListRef CodeListOID="CL.LBORRESU" />
             <def:ValueListRef ValueListOID="VL.LB.LBORRESU" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
@@ -1749,7 +1748,6 @@
             <Description>
                <TranslatedText xml:lang="en">Vital Signs Position of Subject</TranslatedText>
             </Description>
-            <CodeListRef CodeListOID="CL.VSPOS" />
             <def:ValueListRef ValueListOID="VL.VS.VSPOS" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
@@ -1763,7 +1761,6 @@
             <Description>
                <TranslatedText xml:lang="en">Original Units</TranslatedText>
             </Description>
-            <CodeListRef CodeListOID="CL.VSORRESU" />
             <def:ValueListRef ValueListOID="VL.VS.VSORRESU" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
@@ -1801,7 +1798,6 @@
             <Description>
                <TranslatedText xml:lang="en">Location of Vital Signs Measurement</TranslatedText>
             </Description>
-            <CodeListRef CodeListOID="CL.VSLOC" />
             <def:ValueListRef ValueListOID="VL.VS.VSLOC" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
