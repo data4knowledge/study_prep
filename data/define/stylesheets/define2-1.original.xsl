@@ -325,7 +325,7 @@
                     </a>
                   </xsl:when>
                   <xsl:otherwise>
-                    <span class="tocItem unresolved"><xsl:text>[unresolved hej hej 3: </xsl:text><xsl:value-of select="$leafID"/><xsl:text>]</xsl:text></span>
+                    <span class="tocItem unresolved"><xsl:text>[unresolved: </xsl:text><xsl:value-of select="$leafID"/><xsl:text>]</xsl:text></span>
                   </xsl:otherwise>
                 </xsl:choose>
                 <xsl:call-template name="displayImage" />
@@ -382,7 +382,7 @@
                         </xsl:when>
                         <xsl:otherwise>
                           <span class="hmenu-bullet">+</span>
-                          <span class="tocItem unresolved"><xsl:text>[unresolved hej: </xsl:text><xsl:value-of select="$leafIDs"/><xsl:text>]</xsl:text></span>
+                          <span class="tocItem unresolved"><xsl:text>[unresolved: </xsl:text><xsl:value-of select="$leafIDs"/><xsl:text>]</xsl:text></span>
                         </xsl:otherwise>
                       </xsl:choose>
                       <xsl:call-template name="displayImage" />
@@ -883,7 +883,7 @@
                   
                   <xsl:if test="$ParameterOID">
                     <xsl:if test="count($g_seqItemDefs[@OID=$ParameterOID]) = 0">
-                      <span class="unresolved"><xsl:text>[unresolved hej: </xsl:text><xsl:value-of select="$ParameterOID"/><xsl:text>]</xsl:text></span>
+                      <span class="unresolved"><xsl:text>[unresolved: </xsl:text><xsl:value-of select="$ParameterOID"/><xsl:text>]</xsl:text></span>
                     </xsl:if>
                   </xsl:if>  
 
@@ -1025,7 +1025,7 @@
                               </a>
                             </xsl:when>
                             <xsl:otherwise>
-                              <span class="unresolved"><xsl:text>[unresolved hej: </xsl:text><xsl:value-of select="$ItemGroupOID"/><xsl:text>]</xsl:text></span>
+                              <span class="unresolved"><xsl:text>[unresolved: </xsl:text><xsl:value-of select="$ItemGroupOID"/><xsl:text>]</xsl:text></span>
                             </xsl:otherwise>
                           </xsl:choose>
                           <xsl:text>.</xsl:text>
@@ -1039,7 +1039,7 @@
                               
                             </xsl:when>
                             <xsl:otherwise>
-                              <span class="unresolved"><xsl:text>[unresolved hej: </xsl:text><xsl:value-of select="$ItemOID"/><xsl:text>]</xsl:text></span>
+                              <span class="unresolved"><xsl:text>[unresolved: </xsl:text><xsl:value-of select="$ItemOID"/><xsl:text>]</xsl:text></span>
                             </xsl:otherwise>
                           </xsl:choose>
                         
@@ -1080,7 +1080,7 @@
                           </a>
                         </xsl:when>
                         <xsl:otherwise>
-                          <span class="unresolved"><xsl:text>[unresolved hej: </xsl:text><xsl:value-of select="$ItemGroupOID"/><xsl:text>]</xsl:text></span>
+                          <span class="unresolved"><xsl:text>[unresolved: </xsl:text><xsl:value-of select="$ItemGroupOID"/><xsl:text>]</xsl:text></span>
                         </xsl:otherwise>
                       </xsl:choose>
                       
@@ -1294,7 +1294,7 @@
       <xsl:variable name="archiveTitle">
         <xsl:choose>
           <xsl:when test="def:leaf[@ID=$archiveLocationID]"><xsl:value-of select="def:leaf[@ID=$archiveLocationID]/def:title"/></xsl:when>
-          <xsl:otherwise><xsl:text>[unresolved hej: </xsl:text><xsl:value-of select="@def:ArchiveLocationID"/><xsl:text>]</xsl:text></xsl:otherwise>
+          <xsl:otherwise><xsl:text>[unresolved: </xsl:text><xsl:value-of select="@def:ArchiveLocationID"/><xsl:text>]</xsl:text></xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
       <td>
@@ -1438,7 +1438,7 @@
                     <xsl:otherwise>
                       <xsl:element name="span">
                         <xsl:attribute name="class"><xsl:text>valuelist-no-reference</xsl:text></xsl:attribute>
-                        <span class="unresolved"><xsl:text>[unresolved hej: VLM] hej 1</xsl:text></span>
+                        <span class="unresolved"><xsl:text>[unresolved: VLM]</xsl:text></span>
                       </xsl:element>
                       
                     </xsl:otherwise>
@@ -1457,7 +1457,7 @@
                   <xsl:value-of select="$ItemDef/@Name"/>
                   </xsl:when>
                   <xsl:otherwise>
-                    <span class="unresolved"><xsl:text>[unresolved hej hej 3: </xsl:text><xsl:value-of select="$ItemDefOID"/><xsl:text>]</xsl:text></span>
+                    <span class="unresolved"><xsl:text>[unresolved: </xsl:text><xsl:value-of select="$ItemDefOID"/><xsl:text>]</xsl:text></span>
                   </xsl:otherwise>
                   </xsl:choose>
                 </xsl:otherwise>
@@ -1780,7 +1780,6 @@
   <!-- ***************************************** -->
   <!-- CodeLists                                 -->
   <!-- ***************************************** -->
-<!-- Johannes -->
   <xsl:template name="tableCodeLists">
 
     <xsl:if test="$g_seqCodeLists[odm:CodeListItem|odm:EnumeratedItem]">
@@ -2236,7 +2235,7 @@
           <xsl:variable name="title">
             <xsl:choose>
               <xsl:when test="count($leaf) = 0">
-                <span class="unresolved">[unresolved hej: <xsl:value-of select="$leafID"/></span>]
+                <span class="unresolved">[unresolved: <xsl:value-of select="$leafID"/></span>]
               </xsl:when>
               <!--  Define-XML v2.1 -->
               <xsl:when test="@Title">
@@ -2305,7 +2304,7 @@
         <xsl:variable name="title">
           <xsl:choose>
             <xsl:when test="count($leaf) = 0">
-              <span class="unresolved"><xsl:text>[unresolved hej: </xsl:text><xsl:value-of select="$leafID"/><xsl:text>]</xsl:text></span>
+              <span class="unresolved"><xsl:text>[unresolved: </xsl:text><xsl:value-of select="$leafID"/><xsl:text>]</xsl:text></span>
             </xsl:when>
             <xsl:otherwise>
               <xsl:value-of select="$leaf/def:title"/>
@@ -2702,7 +2701,7 @@
             <xsl:if test="$CommentPrefix != '0'">
               <span class="prefix"><xsl:value-of select="$PREFIX_COMMENT_TEXT"/></span>
             </xsl:if>  
-            <span class="unresolved"><xsl:text>[unresolved hej: </xsl:text><xsl:value-of select="$CommentOID"/><xsl:text>]</xsl:text></span>
+            <span class="unresolved"><xsl:text>[unresolved: </xsl:text><xsl:value-of select="$CommentOID"/><xsl:text>]</xsl:text></span>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:element>
@@ -2838,7 +2837,7 @@
             <xsl:if test="$MethodPrefix = '1'">
               <span class="prefix"><xsl:value-of select="$PREFIX_METHOD_TEXT"/></span>
             </xsl:if>
-            <span class="unresolved"><xsl:text>[ hej 2 unresolved: </xsl:text><xsl:value-of select="$MethodOID"/><xsl:text>]</xsl:text></span>
+            <span class="unresolved"><xsl:text>[unresolved: </xsl:text><xsl:value-of select="$MethodOID"/><xsl:text>]</xsl:text></span>
           </xsl:otherwise>
         </xsl:choose>
      </div>
@@ -3000,7 +2999,7 @@
           <xsl:value-of select="def:leaf[@ID=$archiveLocationID]/def:title"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:text>[unresolved hej: </xsl:text><xsl:value-of select="@def:ArchiveLocationID"/><xsl:text>]</xsl:text>
+          <xsl:text>[unresolved: </xsl:text><xsl:value-of select="@def:ArchiveLocationID"/><xsl:text>]</xsl:text>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
@@ -3095,7 +3094,7 @@
       <xsl:variable name="whereDef" select="$g_seqWhereClauseDefs[@OID=$whereOID]"/>
       
       <xsl:if test="count($g_seqWhereClauseDefs[@OID=$whereOID])=0">
-        <span class="unresolved">[unresolved hej: <xsl:value-of select="$whereOID"/>]</span>
+        <span class="unresolved">[unresolved: <xsl:value-of select="$whereOID"/>]</span>
       </xsl:if>
       
       <xsl:for-each select="$whereDef/odm:RangeCheck">
@@ -3273,7 +3272,7 @@
         
       </xsl:otherwise>
     </xsl:choose>
-    <xsl:if test="string-length(normalize-space($ItemName))=0"><span class="unresolved"><xsl:text>[unresolved hej: </xsl:text><xsl:value-of select="$ItemOID"/><xsl:text>]</xsl:text></span></xsl:if>
+    <xsl:if test="string-length(normalize-space($ItemName))=0"><span class="unresolved"><xsl:text>[unresolved: </xsl:text><xsl:value-of select="$ItemOID"/><xsl:text>]</xsl:text></span></xsl:if>
     
   </xsl:template>
 
@@ -3291,17 +3290,13 @@
 
       <xsl:choose>
         <xsl:when test="$n_items &lt;= $nCodeListItemDisplay and $CodeListDef/odm:CodeListItem">
-      	  <xsl:text>Banana</xsl:text>
-                <xsl:value-of select="$n_items"/>
-          <xsl:text>Bandana</xsl:text>
           <span class="linebreakcell"><a href="#CL.{$CodeListDef/@OID}"><xsl:value-of select="$CodeListDef/@Name"/></a></span>
           <ul class="codelist">
           <xsl:for-each select="$CodeListDef/odm:CodeListItem">
             <li class="codelist-item">
                
           	<xsl:if test="$CodeListDataType='text'">
-              <xsl:text></xsl:text><xsl:value-of select="concat('&quot;', @CodedValue, '&quot;')"/>
-              <xsl:text>&#8226;&#160;</xsl:text><xsl:value-of select="concat('&quot;', @CodedValue, '&quot;')"/>
+          	  <xsl:text>&#8226;&#160;</xsl:text><xsl:value-of select="concat('&quot;', @CodedValue, '&quot;')"/>
           	</xsl:if>
           	<xsl:if test="$CodeListDataType != 'text'">
           	  <xsl:text>&#8226;&#160;</xsl:text><xsl:value-of select="@CodedValue"/>
@@ -3331,17 +3326,11 @@
           <xsl:choose>
             <xsl:when test="$g_seqCodeLists[@OID=$CodeListOID]">
               <a href="#CL.{$CodeListDef/@OID}">
-                <xsl:text>Joppi</xsl:text>
                 <xsl:value-of select="$CodeListDef/@Name"/>
               </a>
             </xsl:when>
             <xsl:otherwise>
-              <!-- <xsl:text>Joppidoppis<xsl:value-of select="$g_seqCodeLists[@OID=$CodeListOID]/></xsl:text> -->
-              
-              <!-- <span class="unresolved"><xsl:text>Joppidoppis<xsl:value-of select="$g_seqCodeLists[@OID=$CodeListOID]"/></xsl:text></span> -->
-              <!-- <span class="unresolved"><xsl:text>Joppidoppis</xsl:text><xsl:value-of select="$g_seqCodeLists[@OID=$CodeListOID]"/><xsl:text>Knoppis</xsl:text></span> -->
-              <span class="unresolved"><xsl:text>Joppidoppis</xsl:text><xsl:value-of select="$g_seqCodeLists"/><xsl:text>Knoppis</xsl:text></span>
-              <span class="unresolved"><xsl:text>[unresolved BEHÅLL hej hej 1: </xsl:text><xsl:value-of select="$itemDef/odm:CodeListRef/@CodeListOID"/><xsl:text>]</xsl:text></span>
+              <span class="unresolved"><xsl:text>[unresolved: </xsl:text><xsl:value-of select="$itemDef/odm:CodeListRef/@CodeListOID"/><xsl:text>]</xsl:text></span>
             </xsl:otherwise>
           </xsl:choose>
           <xsl:if test="$CodeListDef/odm:ExternalCodeList">

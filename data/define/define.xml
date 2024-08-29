@@ -42,17 +42,6 @@
                <def:WhereClauseRef WhereClauseOID="WC.LB.LBORRESU.SODIUM" />
             </ItemRef>
          </def:ValueListDef>
-         <def:ValueListDef OID="VL.VS.VSPOS">
-            <ItemRef ItemOID="IDVO.VS.VSPOS.DIABP" OrderNumber="1" Mandatory="No">
-               <def:WhereClauseRef WhereClauseOID="WC.VS.VSPOS.DIABP" />
-            </ItemRef>
-            <ItemRef ItemOID="IDVO.VS.VSPOS.HR" OrderNumber="2" Mandatory="No">
-               <def:WhereClauseRef WhereClauseOID="WC.VS.VSPOS.HR" />
-            </ItemRef>
-            <ItemRef ItemOID="IDVO.VS.VSPOS.SYSBP" OrderNumber="3" Mandatory="No">
-               <def:WhereClauseRef WhereClauseOID="WC.VS.VSPOS.SYSBP" />
-            </ItemRef>
-         </def:ValueListDef>
          <def:ValueListDef OID="VL.VS.VSORRESU">
             <ItemRef ItemOID="IDVO.VS.VSORRESU.HEIGHT" OrderNumber="1" Mandatory="No">
                <def:WhereClauseRef WhereClauseOID="WC.VS.VSORRESU.HEIGHT" />
@@ -76,6 +65,17 @@
             </ItemRef>
             <ItemRef ItemOID="IDVO.VS.VSLOC.TEMP" OrderNumber="4" Mandatory="No">
                <def:WhereClauseRef WhereClauseOID="WC.VS.VSLOC.TEMP" />
+            </ItemRef>
+         </def:ValueListDef>
+         <def:ValueListDef OID="VL.VS.VSPOS">
+            <ItemRef ItemOID="IDVO.VS.VSPOS.DIABP" OrderNumber="1" Mandatory="No">
+               <def:WhereClauseRef WhereClauseOID="WC.VS.VSPOS.DIABP" />
+            </ItemRef>
+            <ItemRef ItemOID="IDVO.VS.VSPOS.HR" OrderNumber="2" Mandatory="No">
+               <def:WhereClauseRef WhereClauseOID="WC.VS.VSPOS.HR" />
+            </ItemRef>
+            <ItemRef ItemOID="IDVO.VS.VSPOS.SYSBP" OrderNumber="3" Mandatory="No">
+               <def:WhereClauseRef WhereClauseOID="WC.VS.VSPOS.SYSBP" />
             </ItemRef>
          </def:ValueListDef>
          <!--*****************************************************************************-->
@@ -174,65 +174,33 @@
                <TranslatedText xml:lang="en">Adverse Events</TranslatedText>
             </Description>
             <ItemRef ItemOID="IT.AE.STUDYID" Mandatory="Yes" OrderNumber="1" />
-            <ItemRef ItemOID="IT.AE.AEMODIFY" Mandatory="No" OrderNumber="10" />
+            <ItemRef ItemOID="IT.AE.AEDECOD" Mandatory="Yes" OrderNumber="13" />
+            <ItemRef ItemOID="IT.AE.DOMAIN" Mandatory="Yes" OrderNumber="2" />
+            <ItemRef ItemOID="IT.AE.USUBJID" Mandatory="Yes" OrderNumber="3" />
+            <ItemRef ItemOID="IT.AE.AESEQ" Mandatory="Yes" OrderNumber="5" />
+            <ItemRef ItemOID="IT.AE.AETERM" Mandatory="Yes" OrderNumber="9" />
             <ItemRef ItemOID="IT.AE.AELLT" Mandatory="Yes" OrderNumber="11" />
             <ItemRef ItemOID="IT.AE.AELLTCD" Mandatory="Yes" OrderNumber="12" />
-            <ItemRef ItemOID="IT.AE.AEDECOD" Mandatory="Yes" OrderNumber="13" />
             <ItemRef ItemOID="IT.AE.AEPTCD" Mandatory="Yes" OrderNumber="14" />
             <ItemRef ItemOID="IT.AE.AEHLT" Mandatory="Yes" OrderNumber="15" />
             <ItemRef ItemOID="IT.AE.AEHLTCD" Mandatory="Yes" OrderNumber="16" />
             <ItemRef ItemOID="IT.AE.AEHLGT" Mandatory="Yes" OrderNumber="17" />
             <ItemRef ItemOID="IT.AE.AEHLGTCD" Mandatory="Yes" OrderNumber="18" />
-            <ItemRef ItemOID="IT.AE.AECAT" Mandatory="No" OrderNumber="19" />
-            <ItemRef ItemOID="IT.AE.DOMAIN" Mandatory="Yes" OrderNumber="2" />
-            <ItemRef ItemOID="IT.AE.AESCAT" Mandatory="No" OrderNumber="20" />
-            <ItemRef ItemOID="IT.AE.AEPRESP" Mandatory="No" OrderNumber="21" />
             <ItemRef ItemOID="IT.AE.AEBODSYS" Mandatory="Yes" OrderNumber="22" />
             <ItemRef ItemOID="IT.AE.AEBDSYCD" Mandatory="Yes" OrderNumber="23" />
             <ItemRef ItemOID="IT.AE.AESOC" Mandatory="Yes" OrderNumber="24" />
             <ItemRef ItemOID="IT.AE.AESOCCD" Mandatory="Yes" OrderNumber="25" />
-            <ItemRef ItemOID="IT.AE.AELOC" Mandatory="No" OrderNumber="26" />
-            <ItemRef ItemOID="IT.AE.AESEV" Mandatory="No" OrderNumber="27" />
             <ItemRef ItemOID="IT.AE.AESER" Mandatory="Yes" OrderNumber="28" />
             <ItemRef ItemOID="IT.AE.AEACN" Mandatory="Yes" OrderNumber="29" />
-            <ItemRef ItemOID="IT.AE.USUBJID" Mandatory="Yes" OrderNumber="3" />
-            <ItemRef ItemOID="IT.AE.AEACNOTH" Mandatory="No" OrderNumber="30" />
-            <ItemRef ItemOID="IT.AE.AEACNDEV" Mandatory="No" OrderNumber="31" />
             <ItemRef ItemOID="IT.AE.AEREL" Mandatory="Yes" OrderNumber="32" />
-            <ItemRef ItemOID="IT.AE.AERLDEV" Mandatory="No" OrderNumber="33" />
-            <ItemRef ItemOID="IT.AE.AERELNST" Mandatory="No" OrderNumber="34" />
-            <ItemRef ItemOID="IT.AE.AEPATT" Mandatory="No" OrderNumber="35" />
-            <ItemRef ItemOID="IT.AE.AEOUT" Mandatory="No" OrderNumber="36" />
-            <ItemRef ItemOID="IT.AE.AESCAN" Mandatory="No" OrderNumber="37" />
-            <ItemRef ItemOID="IT.AE.AESCONG" Mandatory="No" OrderNumber="38" />
-            <ItemRef ItemOID="IT.AE.AESDISAB" Mandatory="No" OrderNumber="39" />
-            <ItemRef ItemOID="IT.AE.SPDEVID" Mandatory="No" OrderNumber="4" />
-            <ItemRef ItemOID="IT.AE.AESDTH" Mandatory="No" OrderNumber="40" />
-            <ItemRef ItemOID="IT.AE.AESHOSP" Mandatory="No" OrderNumber="41" />
-            <ItemRef ItemOID="IT.AE.AESLIFE" Mandatory="No" OrderNumber="42" />
-            <ItemRef ItemOID="IT.AE.AESOD" Mandatory="No" OrderNumber="43" />
-            <ItemRef ItemOID="IT.AE.AESMIE" Mandatory="No" OrderNumber="44" />
-            <ItemRef ItemOID="IT.AE.AESINTV" Mandatory="No" OrderNumber="45" />
-            <ItemRef ItemOID="IT.AE.AEUNANT" Mandatory="No" OrderNumber="46" />
-            <ItemRef ItemOID="IT.AE.AERLPRT" Mandatory="No" OrderNumber="47" />
-            <ItemRef ItemOID="IT.AE.AERLPRC" Mandatory="No" OrderNumber="48" />
-            <ItemRef ItemOID="IT.AE.AECONTRT" Mandatory="No" OrderNumber="49" />
-            <ItemRef ItemOID="IT.AE.AESEQ" Mandatory="Yes" OrderNumber="5" />
-            <ItemRef ItemOID="IT.AE.AETOXGR" Mandatory="No" OrderNumber="50" />
-            <ItemRef ItemOID="IT.AE.TAETORD" Mandatory="No" OrderNumber="51" />
-            <ItemRef ItemOID="IT.AE.EPOCH" Mandatory="No" OrderNumber="52" />
             <ItemRef ItemOID="IT.AE.AESTDTC" Mandatory="Yes" OrderNumber="53" />
             <ItemRef ItemOID="IT.AE.AEENDTC" Mandatory="Yes" OrderNumber="54" />
-            <ItemRef ItemOID="IT.AE.AESTDY" Mandatory="No" OrderNumber="55" />
-            <ItemRef ItemOID="IT.AE.AEENDY" Mandatory="No" OrderNumber="56" />
-            <ItemRef ItemOID="IT.AE.AEDUR" Mandatory="No" OrderNumber="57" />
-            <ItemRef ItemOID="IT.AE.AEENRF" Mandatory="No" OrderNumber="58" />
-            <ItemRef ItemOID="IT.AE.AEENRTPT" Mandatory="No" OrderNumber="59" />
-            <ItemRef ItemOID="IT.AE.AEGRPID" Mandatory="No" OrderNumber="6" />
-            <ItemRef ItemOID="IT.AE.AEENTPT" Mandatory="No" OrderNumber="60" />
-            <ItemRef ItemOID="IT.AE.AEREFID" Mandatory="No" OrderNumber="7" />
-            <ItemRef ItemOID="IT.AE.AESPID" Mandatory="No" OrderNumber="8" />
-            <ItemRef ItemOID="IT.AE.AETERM" Mandatory="Yes" OrderNumber="9" />
+            <ItemRef ItemOID="IT.AE.AEACNDEV" Mandatory="No" OrderNumber="31" />
+            <ItemRef ItemOID="IT.AE.AEACNOTH" Mandatory="No" OrderNumber="30" />
+            <ItemRef ItemOID="IT.AE.AERELNST" Mandatory="No" OrderNumber="34" />
+            <ItemRef ItemOID="IT.AE.AERLDEV" Mandatory="No" OrderNumber="33" />
+            <ItemRef ItemOID="IT.AE.AESEV" Mandatory="No" OrderNumber="27" />
+            <ItemRef ItemOID="IT.AE.AETOXGR" Mandatory="No" OrderNumber="50" />
             <def:Class Name="EVENTS" />
             <def:leaf ID="LI.AE" xlink:href="ae.xpt">
                <def:title>ae.xpt</def:title>
@@ -243,37 +211,32 @@
                <TranslatedText xml:lang="en">Demographics</TranslatedText>
             </Description>
             <ItemRef ItemOID="IT.DM.STUDYID" Mandatory="Yes" OrderNumber="1" />
-            <ItemRef ItemOID="IT.DM.RFCENDTC" Mandatory="No" OrderNumber="10" />
+            <ItemRef ItemOID="IT.DM.SITEID" Mandatory="Yes" OrderNumber="15" />
+            <ItemRef ItemOID="IT.DM.DOMAIN" Mandatory="Yes" OrderNumber="2" />
+            <ItemRef ItemOID="IT.DM.SEX" Mandatory="Yes" OrderNumber="21" />
+            <ItemRef ItemOID="IT.DM.USUBJID" Mandatory="Yes" OrderNumber="3" />
+            <ItemRef ItemOID="IT.DM.COUNTRY" Mandatory="Yes" OrderNumber="30" />
+            <ItemRef ItemOID="IT.DM.SUBJID" Mandatory="Yes" OrderNumber="4" />
             <ItemRef ItemOID="IT.DM.RFICDTC" Mandatory="Yes" OrderNumber="11" />
             <ItemRef ItemOID="IT.DM.RFPENDTC" Mandatory="Yes" OrderNumber="12" />
             <ItemRef ItemOID="IT.DM.DTHDTC" Mandatory="Yes" OrderNumber="13" />
             <ItemRef ItemOID="IT.DM.DTHFL" Mandatory="Yes" OrderNumber="14" />
-            <ItemRef ItemOID="IT.DM.SITEID" Mandatory="Yes" OrderNumber="15" />
-            <ItemRef ItemOID="IT.DM.INVID" Mandatory="No" OrderNumber="16" />
-            <ItemRef ItemOID="IT.DM.INVNAM" Mandatory="No" OrderNumber="17" />
-            <ItemRef ItemOID="IT.DM.BRTHDTC" Mandatory="No" OrderNumber="18" />
             <ItemRef ItemOID="IT.DM.AGE" Mandatory="Yes" OrderNumber="19" />
-            <ItemRef ItemOID="IT.DM.DOMAIN" Mandatory="Yes" OrderNumber="2" />
             <ItemRef ItemOID="IT.DM.AGEU" Mandatory="Yes" OrderNumber="20" />
-            <ItemRef ItemOID="IT.DM.SEX" Mandatory="Yes" OrderNumber="21" />
             <ItemRef ItemOID="IT.DM.RACE" Mandatory="Yes" OrderNumber="22" />
-            <ItemRef ItemOID="IT.DM.ETHNIC" Mandatory="No" OrderNumber="23" />
             <ItemRef ItemOID="IT.DM.ARMCD" Mandatory="Yes" OrderNumber="24" />
             <ItemRef ItemOID="IT.DM.ARM" Mandatory="Yes" OrderNumber="25" />
             <ItemRef ItemOID="IT.DM.ACTARMCD" Mandatory="Yes" OrderNumber="26" />
             <ItemRef ItemOID="IT.DM.ACTARM" Mandatory="Yes" OrderNumber="27" />
             <ItemRef ItemOID="IT.DM.ARMNRS" Mandatory="Yes" OrderNumber="28" />
             <ItemRef ItemOID="IT.DM.ACTARMUD" Mandatory="Yes" OrderNumber="29" />
-            <ItemRef ItemOID="IT.DM.USUBJID" Mandatory="Yes" OrderNumber="3" />
-            <ItemRef ItemOID="IT.DM.COUNTRY" Mandatory="Yes" OrderNumber="30" />
-            <ItemRef ItemOID="IT.DM.DMDTC" Mandatory="No" OrderNumber="31" />
-            <ItemRef ItemOID="IT.DM.DMDY" Mandatory="No" OrderNumber="32" />
-            <ItemRef ItemOID="IT.DM.SUBJID" Mandatory="Yes" OrderNumber="4" />
             <ItemRef ItemOID="IT.DM.RFSTDTC" Mandatory="Yes" OrderNumber="5" />
             <ItemRef ItemOID="IT.DM.RFENDTC" Mandatory="Yes" OrderNumber="6" />
             <ItemRef ItemOID="IT.DM.RFXSTDTC" Mandatory="Yes" OrderNumber="7" />
             <ItemRef ItemOID="IT.DM.RFXENDTC" Mandatory="Yes" OrderNumber="8" />
-            <ItemRef ItemOID="IT.DM.RFCSTDTC" Mandatory="No" OrderNumber="9" />
+            <ItemRef ItemOID="IT.DM.BRTHDTC" Mandatory="No" OrderNumber="18" />
+            <ItemRef ItemOID="IT.DM.DMDTC" Mandatory="No" OrderNumber="31" />
+            <ItemRef ItemOID="IT.DM.ETHNIC" Mandatory="No" OrderNumber="23" />
             <def:Class Name="SPECIAL PURPOSE" />
             <def:leaf ID="LI.DM" xlink:href="dm.xpt">
                <def:title>dm.xpt</def:title>
@@ -284,21 +247,15 @@
                <TranslatedText xml:lang="en">Disposition</TranslatedText>
             </Description>
             <ItemRef ItemOID="IT.DS.STUDYID" Mandatory="Yes" OrderNumber="1" />
-            <ItemRef ItemOID="IT.DS.DSCAT" Mandatory="Yes" OrderNumber="10" />
-            <ItemRef ItemOID="IT.DS.DSSCAT" Mandatory="No" OrderNumber="11" />
-            <ItemRef ItemOID="IT.DS.EPOCH" Mandatory="No" OrderNumber="12" />
-            <ItemRef ItemOID="IT.DS.DSDTC" Mandatory="No" OrderNumber="13" />
-            <ItemRef ItemOID="IT.DS.DSSTDTC" Mandatory="Yes" OrderNumber="14" />
-            <ItemRef ItemOID="IT.DS.DSDY" Mandatory="No" OrderNumber="15" />
-            <ItemRef ItemOID="IT.DS.DSSTDY" Mandatory="Yes" OrderNumber="16" />
             <ItemRef ItemOID="IT.DS.DOMAIN" Mandatory="Yes" OrderNumber="2" />
             <ItemRef ItemOID="IT.DS.USUBJID" Mandatory="Yes" OrderNumber="3" />
             <ItemRef ItemOID="IT.DS.DSSEQ" Mandatory="Yes" OrderNumber="4" />
-            <ItemRef ItemOID="IT.DS.DSGRPID" Mandatory="No" OrderNumber="5" />
-            <ItemRef ItemOID="IT.DS.DSREFID" Mandatory="No" OrderNumber="6" />
-            <ItemRef ItemOID="IT.DS.DSSPID" Mandatory="No" OrderNumber="7" />
             <ItemRef ItemOID="IT.DS.DSTERM" Mandatory="Yes" OrderNumber="8" />
             <ItemRef ItemOID="IT.DS.DSDECOD" Mandatory="Yes" OrderNumber="9" />
+            <ItemRef ItemOID="IT.DS.DSCAT" Mandatory="Yes" OrderNumber="10" />
+            <ItemRef ItemOID="IT.DS.DSSTDTC" Mandatory="Yes" OrderNumber="14" />
+            <ItemRef ItemOID="IT.DS.DSSTDY" Mandatory="Yes" OrderNumber="16" />
+            <ItemRef ItemOID="IT.DS.DSDTC" Mandatory="No" OrderNumber="13" />
             <def:Class Name="EVENTS" />
             <def:leaf ID="LI.DS" xlink:href="ds.xpt">
                <def:title>ds.xpt</def:title>
@@ -310,43 +267,16 @@
             </Description>
             <ItemRef ItemOID="IT.EX.STUDYID" Mandatory="Yes" OrderNumber="1" />
             <ItemRef ItemOID="IT.EX.EXTRT" Mandatory="Yes" OrderNumber="10" />
-            <ItemRef ItemOID="IT.EX.EXCAT" Mandatory="No" OrderNumber="11" />
-            <ItemRef ItemOID="IT.EX.EXSCAT" Mandatory="No" OrderNumber="12" />
+            <ItemRef ItemOID="IT.EX.DOMAIN" Mandatory="Yes" OrderNumber="2" />
+            <ItemRef ItemOID="IT.EX.USUBJID" Mandatory="Yes" OrderNumber="3" />
+            <ItemRef ItemOID="IT.EX.EXSEQ" Mandatory="Yes" OrderNumber="4" />
             <ItemRef ItemOID="IT.EX.EXDOSE" Mandatory="Yes" OrderNumber="13" />
-            <ItemRef ItemOID="IT.EX.EXDOSTXT" Mandatory="No" OrderNumber="14" />
             <ItemRef ItemOID="IT.EX.EXDOSU" Mandatory="Yes" OrderNumber="15" />
             <ItemRef ItemOID="IT.EX.EXDOSFRM" Mandatory="Yes" OrderNumber="16" />
-            <ItemRef ItemOID="IT.EX.EXDOSFRQ" Mandatory="No" OrderNumber="17" />
-            <ItemRef ItemOID="IT.EX.EXDOSRGM" Mandatory="No" OrderNumber="18" />
-            <ItemRef ItemOID="IT.EX.EXROUTE" Mandatory="No" OrderNumber="19" />
-            <ItemRef ItemOID="IT.EX.DOMAIN" Mandatory="Yes" OrderNumber="2" />
-            <ItemRef ItemOID="IT.EX.EXLOT" Mandatory="No" OrderNumber="20" />
-            <ItemRef ItemOID="IT.EX.EXLOC" Mandatory="No" OrderNumber="21" />
-            <ItemRef ItemOID="IT.EX.EXLAT" Mandatory="No" OrderNumber="22" />
-            <ItemRef ItemOID="IT.EX.EXDIR" Mandatory="No" OrderNumber="23" />
-            <ItemRef ItemOID="IT.EX.EXFAST" Mandatory="No" OrderNumber="24" />
-            <ItemRef ItemOID="IT.EX.EXADJ" Mandatory="No" OrderNumber="25" />
-            <ItemRef ItemOID="IT.EX.TAETORD" Mandatory="No" OrderNumber="26" />
-            <ItemRef ItemOID="IT.EX.EPOCH" Mandatory="No" OrderNumber="27" />
             <ItemRef ItemOID="IT.EX.EXSTDTC" Mandatory="Yes" OrderNumber="28" />
             <ItemRef ItemOID="IT.EX.EXENDTC" Mandatory="Yes" OrderNumber="29" />
-            <ItemRef ItemOID="IT.EX.USUBJID" Mandatory="Yes" OrderNumber="3" />
-            <ItemRef ItemOID="IT.EX.EXSTDY" Mandatory="No" OrderNumber="30" />
-            <ItemRef ItemOID="IT.EX.EXENDY" Mandatory="No" OrderNumber="31" />
-            <ItemRef ItemOID="IT.EX.EXDUR" Mandatory="No" OrderNumber="32" />
-            <ItemRef ItemOID="IT.EX.EXTPT" Mandatory="No" OrderNumber="33" />
-            <ItemRef ItemOID="IT.EX.EXTPTNUM" Mandatory="No" OrderNumber="34" />
-            <ItemRef ItemOID="IT.EX.EXELTM" Mandatory="No" OrderNumber="35" />
-            <ItemRef ItemOID="IT.EX.EXTPTREF" Mandatory="No" OrderNumber="36" />
-            <ItemRef ItemOID="IT.EX.EXRFTDTC" Mandatory="No" OrderNumber="37" />
-            <ItemRef ItemOID="IT.EX.EXSEQ" Mandatory="Yes" OrderNumber="4" />
-            <ItemRef ItemOID="IT.EX.VISIT" Mandatory="No" OrderNumber="48" />
-            <ItemRef ItemOID="IT.EX.EXGRPID" Mandatory="No" OrderNumber="5" />
-            <ItemRef ItemOID="IT.EX.VISITNUM" Mandatory="No" OrderNumber="55" />
-            <ItemRef ItemOID="IT.EX.EXREFID" Mandatory="No" OrderNumber="6" />
-            <ItemRef ItemOID="IT.EX.EXSPID" Mandatory="No" OrderNumber="7" />
-            <ItemRef ItemOID="IT.EX.EXLNKID" Mandatory="No" OrderNumber="8" />
-            <ItemRef ItemOID="IT.EX.EXLNKGRP" Mandatory="No" OrderNumber="9" />
+            <ItemRef ItemOID="IT.EX.EXDOSFRQ" Mandatory="No" OrderNumber="17" />
+            <ItemRef ItemOID="IT.EX.EXROUTE" Mandatory="No" OrderNumber="19" />
             <def:Class Name="INTERVENTIONS" />
             <def:leaf ID="LI.EX" xlink:href="ex.xpt">
                <def:title>ex.xpt</def:title>
@@ -357,67 +287,27 @@
                <TranslatedText xml:lang="en">Laboratory Test Results</TranslatedText>
             </Description>
             <ItemRef ItemOID="IT.LB.STUDYID" Mandatory="Yes" OrderNumber="1" />
-            <ItemRef ItemOID="IT.LB.LBTSTCND" Mandatory="No" OrderNumber="10" />
-            <ItemRef ItemOID="IT.LB.LBBDAGNT" Mandatory="No" OrderNumber="11" />
-            <ItemRef ItemOID="IT.LB.LBTSTOPO" Mandatory="No" OrderNumber="12" />
+            <ItemRef ItemOID="IT.LB.DOMAIN" Mandatory="Yes" OrderNumber="2" />
+            <ItemRef ItemOID="IT.LB.USUBJID" Mandatory="Yes" OrderNumber="3" />
+            <ItemRef ItemOID="IT.LB.LBSEQ" Mandatory="Yes" OrderNumber="4" />
+            <ItemRef ItemOID="IT.LB.LBTESTCD" Mandatory="Yes" OrderNumber="8" />
+            <ItemRef ItemOID="IT.LB.LBTEST" Mandatory="Yes" OrderNumber="9" />
             <ItemRef ItemOID="IT.LB.LBCAT" Mandatory="Yes" OrderNumber="13" />
-            <ItemRef ItemOID="IT.LB.LBSCAT" Mandatory="No" OrderNumber="14" />
             <ItemRef ItemOID="IT.LB.LBORRES" Mandatory="Yes" OrderNumber="15" />
             <ItemRef ItemOID="IT.LB.LBORRESU" Mandatory="Yes" OrderNumber="16" />
-            <ItemRef ItemOID="IT.LB.LBRESSCL" Mandatory="No" OrderNumber="17" />
-            <ItemRef ItemOID="IT.LB.LBRESTYP" Mandatory="No" OrderNumber="18" />
-            <ItemRef ItemOID="IT.LB.LBCOLSRT" Mandatory="No" OrderNumber="19" />
-            <ItemRef ItemOID="IT.LB.DOMAIN" Mandatory="Yes" OrderNumber="2" />
             <ItemRef ItemOID="IT.LB.LBORNRLO" Mandatory="Yes" OrderNumber="20" />
             <ItemRef ItemOID="IT.LB.LBORNRHI" Mandatory="Yes" OrderNumber="21" />
-            <ItemRef ItemOID="IT.LB.LBLLOD" Mandatory="No" OrderNumber="22" />
             <ItemRef ItemOID="IT.LB.LBSTRESC" Mandatory="Yes" OrderNumber="23" />
             <ItemRef ItemOID="IT.LB.LBSTRESN" Mandatory="Yes" OrderNumber="24" />
             <ItemRef ItemOID="IT.LB.LBSTRESU" Mandatory="Yes" OrderNumber="25" />
             <ItemRef ItemOID="IT.LB.LBSTNRLO" Mandatory="Yes" OrderNumber="26" />
             <ItemRef ItemOID="IT.LB.LBSTNRHI" Mandatory="Yes" OrderNumber="27" />
-            <ItemRef ItemOID="IT.LB.LBSTNRC" Mandatory="No" OrderNumber="28" />
             <ItemRef ItemOID="IT.LB.LBNRIND" Mandatory="Yes" OrderNumber="29" />
-            <ItemRef ItemOID="IT.LB.USUBJID" Mandatory="Yes" OrderNumber="3" />
-            <ItemRef ItemOID="IT.LB.LBSTAT" Mandatory="No" OrderNumber="30" />
-            <ItemRef ItemOID="IT.LB.LBREASND" Mandatory="No" OrderNumber="31" />
-            <ItemRef ItemOID="IT.LB.LBNAM" Mandatory="No" OrderNumber="32" />
-            <ItemRef ItemOID="IT.LB.LBLOINC" Mandatory="No" OrderNumber="33" />
-            <ItemRef ItemOID="IT.LB.LBSPEC" Mandatory="No" OrderNumber="34" />
-            <ItemRef ItemOID="IT.LB.LBSPCCND" Mandatory="No" OrderNumber="35" />
-            <ItemRef ItemOID="IT.LB.LBSPCUFL" Mandatory="No" OrderNumber="36" />
-            <ItemRef ItemOID="IT.LB.LBMETHOD" Mandatory="No" OrderNumber="37" />
-            <ItemRef ItemOID="IT.LB.LBANMETH" Mandatory="No" OrderNumber="38" />
-            <ItemRef ItemOID="IT.LB.LBTMTHSN" Mandatory="No" OrderNumber="39" />
-            <ItemRef ItemOID="IT.LB.LBSEQ" Mandatory="Yes" OrderNumber="4" />
             <ItemRef ItemOID="IT.LB.LBLOBXFL" Mandatory="Yes" OrderNumber="40" />
-            <ItemRef ItemOID="IT.LB.LBBLFL" Mandatory="No" OrderNumber="41" />
-            <ItemRef ItemOID="IT.LB.LBFAST" Mandatory="No" OrderNumber="42" />
-            <ItemRef ItemOID="IT.LB.LBDRVFL" Mandatory="No" OrderNumber="43" />
-            <ItemRef ItemOID="IT.LB.LBTOX" Mandatory="No" OrderNumber="44" />
-            <ItemRef ItemOID="IT.LB.LBTOXGR" Mandatory="No" OrderNumber="45" />
-            <ItemRef ItemOID="IT.LB.LBCLSIG" Mandatory="No" OrderNumber="46" />
             <ItemRef ItemOID="IT.LB.VISITNUM" Mandatory="Yes" OrderNumber="47" />
-            <ItemRef ItemOID="IT.LB.VISIT" Mandatory="No" OrderNumber="48" />
-            <ItemRef ItemOID="IT.LB.VISITDY" Mandatory="No" OrderNumber="49" />
-            <ItemRef ItemOID="IT.LB.LBGRPID" Mandatory="No" OrderNumber="5" />
-            <ItemRef ItemOID="IT.LB.TAETORD" Mandatory="No" OrderNumber="50" />
-            <ItemRef ItemOID="IT.LB.EPOCH" Mandatory="No" OrderNumber="51" />
             <ItemRef ItemOID="IT.LB.LBDTC" Mandatory="Yes" OrderNumber="52" />
-            <ItemRef ItemOID="IT.LB.LBENDTC" Mandatory="No" OrderNumber="53" />
-            <ItemRef ItemOID="IT.LB.LBDY" Mandatory="No" OrderNumber="54" />
-            <ItemRef ItemOID="IT.LB.LBENDY" Mandatory="No" OrderNumber="55" />
-            <ItemRef ItemOID="IT.LB.LBTPT" Mandatory="No" OrderNumber="56" />
-            <ItemRef ItemOID="IT.LB.LBTPTNUM" Mandatory="No" OrderNumber="57" />
-            <ItemRef ItemOID="IT.LB.LBELTM" Mandatory="No" OrderNumber="58" />
-            <ItemRef ItemOID="IT.LB.LBTPTREF" Mandatory="No" OrderNumber="59" />
-            <ItemRef ItemOID="IT.LB.LBREFID" Mandatory="No" OrderNumber="6" />
-            <ItemRef ItemOID="IT.LB.LBRFTDTC" Mandatory="No" OrderNumber="60" />
-            <ItemRef ItemOID="IT.LB.LBPTFL" Mandatory="No" OrderNumber="61" />
-            <ItemRef ItemOID="IT.LB.LBPDUR" Mandatory="No" OrderNumber="62" />
-            <ItemRef ItemOID="IT.LB.LBSPID" Mandatory="No" OrderNumber="7" />
-            <ItemRef ItemOID="IT.LB.LBTESTCD" Mandatory="Yes" OrderNumber="8" />
-            <ItemRef ItemOID="IT.LB.LBTEST" Mandatory="Yes" OrderNumber="9" />
+            <ItemRef ItemOID="IT.LB.LBMETHOD" Mandatory="No" OrderNumber="37" />
+            <ItemRef ItemOID="IT.LB.LBSPEC" Mandatory="No" OrderNumber="34" />
             <def:Class Name="FINDINGS" />
             <def:leaf ID="LI.LB" xlink:href="lb.xpt">
                <def:title>lb.xpt</def:title>
@@ -428,43 +318,21 @@
                <TranslatedText xml:lang="en">Vital Signs</TranslatedText>
             </Description>
             <ItemRef ItemOID="IT.VS.STUDYID" Mandatory="Yes" OrderNumber="1" />
-            <ItemRef ItemOID="IT.VS.VSSCAT" Mandatory="No" OrderNumber="10" />
-            <ItemRef ItemOID="IT.VS.VSPOS" Mandatory="No" OrderNumber="11" />
+            <ItemRef ItemOID="IT.VS.DOMAIN" Mandatory="Yes" OrderNumber="2" />
+            <ItemRef ItemOID="IT.VS.USUBJID" Mandatory="Yes" OrderNumber="3" />
+            <ItemRef ItemOID="IT.VS.VSSEQ" Mandatory="Yes" OrderNumber="4" />
+            <ItemRef ItemOID="IT.VS.VSTESTCD" Mandatory="Yes" OrderNumber="7" />
+            <ItemRef ItemOID="IT.VS.VSTEST" Mandatory="Yes" OrderNumber="8" />
             <ItemRef ItemOID="IT.VS.VSORRES" Mandatory="Yes" OrderNumber="12" />
             <ItemRef ItemOID="IT.VS.VSORRESU" Mandatory="Yes" OrderNumber="13" />
             <ItemRef ItemOID="IT.VS.VSSTRESC" Mandatory="Yes" OrderNumber="14" />
             <ItemRef ItemOID="IT.VS.VSSTRESN" Mandatory="Yes" OrderNumber="15" />
             <ItemRef ItemOID="IT.VS.VSSTRESU" Mandatory="Yes" OrderNumber="16" />
-            <ItemRef ItemOID="IT.VS.VSSTAT" Mandatory="No" OrderNumber="17" />
-            <ItemRef ItemOID="IT.VS.VSREASND" Mandatory="No" OrderNumber="18" />
-            <ItemRef ItemOID="IT.VS.VSLOC" Mandatory="No" OrderNumber="19" />
-            <ItemRef ItemOID="IT.VS.DOMAIN" Mandatory="Yes" OrderNumber="2" />
-            <ItemRef ItemOID="IT.VS.VSLAT" Mandatory="No" OrderNumber="20" />
             <ItemRef ItemOID="IT.VS.VSLOBXFL" Mandatory="Yes" OrderNumber="21" />
-            <ItemRef ItemOID="IT.VS.VSBLFL" Mandatory="No" OrderNumber="22" />
-            <ItemRef ItemOID="IT.VS.VSDRVFL" Mandatory="No" OrderNumber="23" />
-            <ItemRef ItemOID="IT.VS.VSTOX" Mandatory="No" OrderNumber="24" />
-            <ItemRef ItemOID="IT.VS.VSTOXGR" Mandatory="No" OrderNumber="25" />
-            <ItemRef ItemOID="IT.VS.VSCLSIG" Mandatory="No" OrderNumber="26" />
             <ItemRef ItemOID="IT.VS.VISITNUM" Mandatory="Yes" OrderNumber="27" />
-            <ItemRef ItemOID="IT.VS.VISIT" Mandatory="No" OrderNumber="28" />
-            <ItemRef ItemOID="IT.VS.VISITDY" Mandatory="No" OrderNumber="29" />
-            <ItemRef ItemOID="IT.VS.USUBJID" Mandatory="Yes" OrderNumber="3" />
-            <ItemRef ItemOID="IT.VS.TAETORD" Mandatory="No" OrderNumber="30" />
-            <ItemRef ItemOID="IT.VS.EPOCH" Mandatory="No" OrderNumber="31" />
             <ItemRef ItemOID="IT.VS.VSDTC" Mandatory="Yes" OrderNumber="32" />
-            <ItemRef ItemOID="IT.VS.VSDY" Mandatory="No" OrderNumber="33" />
-            <ItemRef ItemOID="IT.VS.VSTPT" Mandatory="No" OrderNumber="34" />
-            <ItemRef ItemOID="IT.VS.VSTPTNUM" Mandatory="No" OrderNumber="35" />
-            <ItemRef ItemOID="IT.VS.VSELTM" Mandatory="No" OrderNumber="36" />
-            <ItemRef ItemOID="IT.VS.VSTPTREF" Mandatory="No" OrderNumber="37" />
-            <ItemRef ItemOID="IT.VS.VSRFTDTC" Mandatory="No" OrderNumber="38" />
-            <ItemRef ItemOID="IT.VS.VSSEQ" Mandatory="Yes" OrderNumber="4" />
-            <ItemRef ItemOID="IT.VS.VSGRPID" Mandatory="No" OrderNumber="5" />
-            <ItemRef ItemOID="IT.VS.VSSPID" Mandatory="No" OrderNumber="6" />
-            <ItemRef ItemOID="IT.VS.VSTESTCD" Mandatory="Yes" OrderNumber="7" />
-            <ItemRef ItemOID="IT.VS.VSTEST" Mandatory="Yes" OrderNumber="8" />
-            <ItemRef ItemOID="IT.VS.VSCAT" Mandatory="No" OrderNumber="9" />
+            <ItemRef ItemOID="IT.VS.VSLOC" Mandatory="No" OrderNumber="19" />
+            <ItemRef ItemOID="IT.VS.VSPOS" Mandatory="No" OrderNumber="11" />
             <def:Class Name="FINDINGS" />
             <def:leaf ID="LI.VS" xlink:href="vs.xpt">
                <def:title>vs.xpt</def:title>
@@ -479,9 +347,33 @@
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.AE.AEMODIFY" Name="AEMODIFY" DataType="text" Length="8" SASFieldName="AEMODIFY">
+         <ItemDef OID="IT.AE.AEDECOD" Name="AEDECOD" DataType="text" Length="8" SASFieldName="AEDECOD">
             <Description>
-               <TranslatedText xml:lang="en">Modified Reported Term</TranslatedText>
+               <TranslatedText xml:lang="en">Dictionary-Derived Term</TranslatedText>
+            </Description>
+            <def:Origin Type="Collected" Source="Sponsor" />
+         </ItemDef>
+         <ItemDef OID="IT.AE.DOMAIN" Name="DOMAIN" DataType="text" Length="8" SASFieldName="DOMAIN">
+            <Description>
+               <TranslatedText xml:lang="en">Domain Abbreviation</TranslatedText>
+            </Description>
+            <def:Origin Type="Collected" Source="Sponsor" />
+         </ItemDef>
+         <ItemDef OID="IT.AE.USUBJID" Name="USUBJID" DataType="text" Length="8" SASFieldName="USUBJID">
+            <Description>
+               <TranslatedText xml:lang="en">Unique Subject Identifier</TranslatedText>
+            </Description>
+            <def:Origin Type="Collected" Source="Sponsor" />
+         </ItemDef>
+         <ItemDef OID="IT.AE.AESEQ" Name="AESEQ" DataType="integer" Length="8" SASFieldName="AESEQ">
+            <Description>
+               <TranslatedText xml:lang="en">Sequence Number</TranslatedText>
+            </Description>
+            <def:Origin Type="Collected" Source="Sponsor" />
+         </ItemDef>
+         <ItemDef OID="IT.AE.AETERM" Name="AETERM" DataType="text" Length="8" SASFieldName="AETERM">
+            <Description>
+               <TranslatedText xml:lang="en">Reported Term for the Adverse Event</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
@@ -494,12 +386,6 @@
          <ItemDef OID="IT.AE.AELLTCD" Name="AELLTCD" DataType="integer" Length="8" SASFieldName="AELLTCD">
             <Description>
                <TranslatedText xml:lang="en">Lowest Level Term Code</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AEDECOD" Name="AEDECOD" DataType="text" Length="8" SASFieldName="AEDECOD">
-            <Description>
-               <TranslatedText xml:lang="en">Dictionary-Derived Term</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
@@ -533,30 +419,6 @@
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.AE.AECAT" Name="AECAT" DataType="text" Length="8" SASFieldName="AECAT">
-            <Description>
-               <TranslatedText xml:lang="en">Category for Adverse Event</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.DOMAIN" Name="DOMAIN" DataType="text" Length="8" SASFieldName="DOMAIN">
-            <Description>
-               <TranslatedText xml:lang="en">Domain Abbreviation</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AESCAT" Name="AESCAT" DataType="text" Length="8" SASFieldName="AESCAT">
-            <Description>
-               <TranslatedText xml:lang="en">Subcategory for Adverse Event</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AEPRESP" Name="AEPRESP" DataType="text" Length="8" SASFieldName="AEPRESP">
-            <Description>
-               <TranslatedText xml:lang="en">Pre-Specified Adverse Event</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
          <ItemDef OID="IT.AE.AEBODSYS" Name="AEBODSYS" DataType="text" Length="8" SASFieldName="AEBODSYS">
             <Description>
                <TranslatedText xml:lang="en">Body System or Organ Class</TranslatedText>
@@ -581,18 +443,6 @@
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.AE.AELOC" Name="AELOC" DataType="text" Length="8" SASFieldName="AELOC">
-            <Description>
-               <TranslatedText xml:lang="en">Location of Event</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AESEV" Name="AESEV" DataType="text" Length="8" SASFieldName="AESEV">
-            <Description>
-               <TranslatedText xml:lang="en">Severity/Intensity</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
          <ItemDef OID="IT.AE.AESER" Name="AESER" DataType="text" Length="8" SASFieldName="AESER">
             <Description>
                <TranslatedText xml:lang="en">Serious Event</TranslatedText>
@@ -606,159 +456,9 @@
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.AE.USUBJID" Name="USUBJID" DataType="text" Length="8" SASFieldName="USUBJID">
-            <Description>
-               <TranslatedText xml:lang="en">Unique Subject Identifier</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AEACNOTH" Name="AEACNOTH" DataType="text" Length="8" SASFieldName="AEACNOTH">
-            <Description>
-               <TranslatedText xml:lang="en">Other Action Taken</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AEACNDEV" Name="AEACNDEV" DataType="text" Length="8" SASFieldName="AEACNDEV">
-            <Description>
-               <TranslatedText xml:lang="en">Action Taken with Device</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
          <ItemDef OID="IT.AE.AEREL" Name="AEREL" DataType="text" Length="8" SASFieldName="AEREL">
             <Description>
                <TranslatedText xml:lang="en">Causality</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AERLDEV" Name="AERLDEV" DataType="text" Length="8" SASFieldName="AERLDEV">
-            <Description>
-               <TranslatedText xml:lang="en">Relationship of Event to Device</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AERELNST" Name="AERELNST" DataType="text" Length="8" SASFieldName="AERELNST">
-            <Description>
-               <TranslatedText xml:lang="en">Relationship to Non-Study Treatment</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AEPATT" Name="AEPATT" DataType="text" Length="8" SASFieldName="AEPATT">
-            <Description>
-               <TranslatedText xml:lang="en">Pattern of Adverse Event</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AEOUT" Name="AEOUT" DataType="text" Length="8" SASFieldName="AEOUT">
-            <Description>
-               <TranslatedText xml:lang="en">Outcome of Adverse Event</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AESCAN" Name="AESCAN" DataType="text" Length="8" SASFieldName="AESCAN">
-            <Description>
-               <TranslatedText xml:lang="en">Involves Cancer</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AESCONG" Name="AESCONG" DataType="text" Length="8" SASFieldName="AESCONG">
-            <Description>
-               <TranslatedText xml:lang="en">Congenital Anomaly or Birth Defect</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AESDISAB" Name="AESDISAB" DataType="text" Length="8" SASFieldName="AESDISAB">
-            <Description>
-               <TranslatedText xml:lang="en">Persist or Signif Disability/Incapacity</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.SPDEVID" Name="SPDEVID" DataType="text" Length="8" SASFieldName="SPDEVID">
-            <Description>
-               <TranslatedText xml:lang="en">Sponsor Device Identifier</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AESDTH" Name="AESDTH" DataType="text" Length="8" SASFieldName="AESDTH">
-            <Description>
-               <TranslatedText xml:lang="en">Results in Death</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AESHOSP" Name="AESHOSP" DataType="text" Length="8" SASFieldName="AESHOSP">
-            <Description>
-               <TranslatedText xml:lang="en">Requires or Prolongs Hospitalization</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AESLIFE" Name="AESLIFE" DataType="text" Length="8" SASFieldName="AESLIFE">
-            <Description>
-               <TranslatedText xml:lang="en">Is Life Threatening</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AESOD" Name="AESOD" DataType="text" Length="8" SASFieldName="AESOD">
-            <Description>
-               <TranslatedText xml:lang="en">Occurred with Overdose</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AESMIE" Name="AESMIE" DataType="text" Length="8" SASFieldName="AESMIE">
-            <Description>
-               <TranslatedText xml:lang="en">Other Medically Important Serious Event</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AESINTV" Name="AESINTV" DataType="text" Length="8" SASFieldName="AESINTV">
-            <Description>
-               <TranslatedText xml:lang="en">Needs Intervention to Prevent Impairment</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AEUNANT" Name="AEUNANT" DataType="text" Length="8" SASFieldName="AEUNANT">
-            <Description>
-               <TranslatedText xml:lang="en">Unanticipated Adverse Device Effect</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AERLPRT" Name="AERLPRT" DataType="text" Length="8" SASFieldName="AERLPRT">
-            <Description>
-               <TranslatedText xml:lang="en">Rel of AE to Non-Dev-Rel Study Activity</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AERLPRC" Name="AERLPRC" DataType="text" Length="8" SASFieldName="AERLPRC">
-            <Description>
-               <TranslatedText xml:lang="en">Rel of AE to Device-Related Procedure</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AECONTRT" Name="AECONTRT" DataType="text" Length="8" SASFieldName="AECONTRT">
-            <Description>
-               <TranslatedText xml:lang="en">Concomitant or Additional Trtmnt Given</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AESEQ" Name="AESEQ" DataType="integer" Length="8" SASFieldName="AESEQ">
-            <Description>
-               <TranslatedText xml:lang="en">Sequence Number</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AETOXGR" Name="AETOXGR" DataType="text" Length="8" SASFieldName="AETOXGR">
-            <Description>
-               <TranslatedText xml:lang="en">Standard Toxicity Grade</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.TAETORD" Name="TAETORD" DataType="integer" Length="8" SASFieldName="TAETORD">
-            <Description>
-               <TranslatedText xml:lang="en">Planned Order of Element within Arm</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.EPOCH" Name="EPOCH" DataType="text" Length="8" SASFieldName="EPOCH">
-            <Description>
-               <TranslatedText xml:lang="en">Epoch</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
@@ -774,63 +474,39 @@
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.AE.AESTDY" Name="AESTDY" DataType="integer" Length="8" SASFieldName="AESTDY">
+         <ItemDef OID="IT.AE.AEACNDEV" Name="AEACNDEV" DataType="text" Length="8" SASFieldName="AEACNDEV">
             <Description>
-               <TranslatedText xml:lang="en">Study Day of Start of Adverse Event</TranslatedText>
+               <TranslatedText xml:lang="en">Action Taken with Device</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.AE.AEENDY" Name="AEENDY" DataType="integer" Length="8" SASFieldName="AEENDY">
+         <ItemDef OID="IT.AE.AEACNOTH" Name="AEACNOTH" DataType="text" Length="8" SASFieldName="AEACNOTH">
             <Description>
-               <TranslatedText xml:lang="en">Study Day of End of Adverse Event</TranslatedText>
+               <TranslatedText xml:lang="en">Other Action Taken</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.AE.AEDUR" Name="AEDUR" DataType="text" Length="8" SASFieldName="AEDUR">
+         <ItemDef OID="IT.AE.AERELNST" Name="AERELNST" DataType="text" Length="8" SASFieldName="AERELNST">
             <Description>
-               <TranslatedText xml:lang="en">Duration of Adverse Event</TranslatedText>
+               <TranslatedText xml:lang="en">Relationship to Non-Study Treatment</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.AE.AEENRF" Name="AEENRF" DataType="text" Length="8" SASFieldName="AEENRF">
+         <ItemDef OID="IT.AE.AERLDEV" Name="AERLDEV" DataType="text" Length="8" SASFieldName="AERLDEV">
             <Description>
-               <TranslatedText xml:lang="en">End Relative to Reference Period</TranslatedText>
+               <TranslatedText xml:lang="en">Relationship of Event to Device</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.AE.AEENRTPT" Name="AEENRTPT" DataType="text" Length="8" SASFieldName="AEENRTPT">
+         <ItemDef OID="IT.AE.AESEV" Name="AESEV" DataType="text" Length="8" SASFieldName="AESEV">
             <Description>
-               <TranslatedText xml:lang="en">End Relative to Reference Time Point</TranslatedText>
+               <TranslatedText xml:lang="en">Severity/Intensity</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.AE.AEGRPID" Name="AEGRPID" DataType="text" Length="8" SASFieldName="AEGRPID">
+         <ItemDef OID="IT.AE.AETOXGR" Name="AETOXGR" DataType="text" Length="8" SASFieldName="AETOXGR">
             <Description>
-               <TranslatedText xml:lang="en">Group ID</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AEENTPT" Name="AEENTPT" DataType="text" Length="8" SASFieldName="AEENTPT">
-            <Description>
-               <TranslatedText xml:lang="en">End Reference Time Point</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AEREFID" Name="AEREFID" DataType="text" Length="8" SASFieldName="AEREFID">
-            <Description>
-               <TranslatedText xml:lang="en">Reference ID</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AESPID" Name="AESPID" DataType="text" Length="8" SASFieldName="AESPID">
-            <Description>
-               <TranslatedText xml:lang="en">Sponsor-Defined Identifier</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.AE.AETERM" Name="AETERM" DataType="text" Length="8" SASFieldName="AETERM">
-            <Description>
-               <TranslatedText xml:lang="en">Reported Term for the Adverse Event</TranslatedText>
+               <TranslatedText xml:lang="en">Standard Toxicity Grade</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
@@ -840,9 +516,40 @@
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.DM.RFCENDTC" Name="RFCENDTC" DataType="text" Length="8" SASFieldName="RFCENDTC">
+         <ItemDef OID="IT.DM.SITEID" Name="SITEID" DataType="text" Length="8" SASFieldName="SITEID">
             <Description>
-               <TranslatedText xml:lang="en">Date/Time of Last Challenge Agent Admin</TranslatedText>
+               <TranslatedText xml:lang="en">Study Site Identifier</TranslatedText>
+            </Description>
+            <def:Origin Type="Collected" Source="Sponsor" />
+         </ItemDef>
+         <ItemDef OID="IT.DM.DOMAIN" Name="DOMAIN" DataType="text" Length="8" SASFieldName="DOMAIN">
+            <Description>
+               <TranslatedText xml:lang="en">Domain Abbreviation</TranslatedText>
+            </Description>
+            <def:Origin Type="Collected" Source="Sponsor" />
+         </ItemDef>
+         <ItemDef OID="IT.DM.SEX" Name="SEX" DataType="text" Length="8" SASFieldName="SEX">
+            <Description>
+               <TranslatedText xml:lang="en">Sex</TranslatedText>
+            </Description>
+            <CodeListRef CodeListOID="CL.SEX" />
+            <def:Origin Type="Collected" Source="Sponsor" />
+         </ItemDef>
+         <ItemDef OID="IT.DM.USUBJID" Name="USUBJID" DataType="text" Length="8" SASFieldName="USUBJID">
+            <Description>
+               <TranslatedText xml:lang="en">Unique Subject Identifier</TranslatedText>
+            </Description>
+            <def:Origin Type="Collected" Source="Sponsor" />
+         </ItemDef>
+         <ItemDef OID="IT.DM.COUNTRY" Name="COUNTRY" DataType="text" Length="8" SASFieldName="COUNTRY">
+            <Description>
+               <TranslatedText xml:lang="en">Country</TranslatedText>
+            </Description>
+            <def:Origin Type="Collected" Source="Sponsor" />
+         </ItemDef>
+         <ItemDef OID="IT.DM.SUBJID" Name="SUBJID" DataType="text" Length="8" SASFieldName="SUBJID">
+            <Description>
+               <TranslatedText xml:lang="en">Subject Identifier for the Study</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
@@ -870,39 +577,9 @@
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.DM.SITEID" Name="SITEID" DataType="text" Length="8" SASFieldName="SITEID">
-            <Description>
-               <TranslatedText xml:lang="en">Study Site Identifier</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.DM.INVID" Name="INVID" DataType="text" Length="8" SASFieldName="INVID">
-            <Description>
-               <TranslatedText xml:lang="en">Investigator Identifier</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.DM.INVNAM" Name="INVNAM" DataType="text" Length="8" SASFieldName="INVNAM">
-            <Description>
-               <TranslatedText xml:lang="en">Investigator Name</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.DM.BRTHDTC" Name="BRTHDTC" DataType="text" Length="8" SASFieldName="BRTHDTC">
-            <Description>
-               <TranslatedText xml:lang="en">Date/Time of Birth</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
          <ItemDef OID="IT.DM.AGE" Name="AGE" DataType="integer" Length="8" SASFieldName="AGE">
             <Description>
                <TranslatedText xml:lang="en">Age</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.DM.DOMAIN" Name="DOMAIN" DataType="text" Length="8" SASFieldName="DOMAIN">
-            <Description>
-               <TranslatedText xml:lang="en">Domain Abbreviation</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
@@ -912,25 +589,11 @@
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.DM.SEX" Name="SEX" DataType="text" Length="8" SASFieldName="SEX">
-            <Description>
-               <TranslatedText xml:lang="en">Sex</TranslatedText>
-            </Description>
-            <CodeListRef CodeListOID="CL.SEX" />
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
          <ItemDef OID="IT.DM.RACE" Name="RACE" DataType="text" Length="8" SASFieldName="RACE">
             <Description>
                <TranslatedText xml:lang="en">Race</TranslatedText>
             </Description>
             <CodeListRef CodeListOID="CL.RACE" />
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.DM.ETHNIC" Name="ETHNIC" DataType="text" Length="8" SASFieldName="ETHNIC">
-            <Description>
-               <TranslatedText xml:lang="en">Ethnicity</TranslatedText>
-            </Description>
-            <CodeListRef CodeListOID="CL.ETHNIC" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
          <ItemDef OID="IT.DM.ARMCD" Name="ARMCD" DataType="text" Length="8" SASFieldName="ARMCD">
@@ -969,36 +632,6 @@
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.DM.USUBJID" Name="USUBJID" DataType="text" Length="8" SASFieldName="USUBJID">
-            <Description>
-               <TranslatedText xml:lang="en">Unique Subject Identifier</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.DM.COUNTRY" Name="COUNTRY" DataType="text" Length="8" SASFieldName="COUNTRY">
-            <Description>
-               <TranslatedText xml:lang="en">Country</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.DM.DMDTC" Name="DMDTC" DataType="text" Length="8" SASFieldName="DMDTC">
-            <Description>
-               <TranslatedText xml:lang="en">Date/Time of Collection</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.DM.DMDY" Name="DMDY" DataType="integer" Length="8" SASFieldName="DMDY">
-            <Description>
-               <TranslatedText xml:lang="en">Study Day of Collection</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.DM.SUBJID" Name="SUBJID" DataType="text" Length="8" SASFieldName="SUBJID">
-            <Description>
-               <TranslatedText xml:lang="en">Subject Identifier for the Study</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
          <ItemDef OID="IT.DM.RFSTDTC" Name="RFSTDTC" DataType="text" Length="8" SASFieldName="RFSTDTC">
             <Description>
                <TranslatedText xml:lang="en">Subject Reference Start Date/Time</TranslatedText>
@@ -1023,57 +656,28 @@
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.DM.RFCSTDTC" Name="RFCSTDTC" DataType="text" Length="8" SASFieldName="RFCSTDTC">
+         <ItemDef OID="IT.DM.BRTHDTC" Name="BRTHDTC" DataType="text" Length="8" SASFieldName="BRTHDTC">
             <Description>
-               <TranslatedText xml:lang="en">Date/Time of First Challenge Agent Admin</TranslatedText>
+               <TranslatedText xml:lang="en">Date/Time of Birth</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.DS.STUDYID" Name="STUDYID" DataType="text" Length="8" SASFieldName="STUDYID">
-            <Description>
-               <TranslatedText xml:lang="en">Study Identifier</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.DS.DSCAT" Name="DSCAT" DataType="text" Length="8" SASFieldName="DSCAT">
-            <Description>
-               <TranslatedText xml:lang="en">Category for Disposition Event</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.DS.DSSCAT" Name="DSSCAT" DataType="text" Length="8" SASFieldName="DSSCAT">
-            <Description>
-               <TranslatedText xml:lang="en">Subcategory for Disposition Event</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.DS.EPOCH" Name="EPOCH" DataType="text" Length="8" SASFieldName="EPOCH">
-            <Description>
-               <TranslatedText xml:lang="en">Epoch</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.DS.DSDTC" Name="DSDTC" DataType="text" Length="8" SASFieldName="DSDTC">
+         <ItemDef OID="IT.DM.DMDTC" Name="DMDTC" DataType="text" Length="8" SASFieldName="DMDTC">
             <Description>
                <TranslatedText xml:lang="en">Date/Time of Collection</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.DS.DSSTDTC" Name="DSSTDTC" DataType="text" Length="8" SASFieldName="DSSTDTC">
+         <ItemDef OID="IT.DM.ETHNIC" Name="ETHNIC" DataType="text" Length="8" SASFieldName="ETHNIC">
             <Description>
-               <TranslatedText xml:lang="en">Start Date/Time of Disposition Event</TranslatedText>
+               <TranslatedText xml:lang="en">Ethnicity</TranslatedText>
             </Description>
+            <CodeListRef CodeListOID="CL.ETHNIC" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.DS.DSDY" Name="DSDY" DataType="integer" Length="8" SASFieldName="DSDY">
+         <ItemDef OID="IT.DS.STUDYID" Name="STUDYID" DataType="text" Length="8" SASFieldName="STUDYID">
             <Description>
-               <TranslatedText xml:lang="en">Study Day of Collection</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.DS.DSSTDY" Name="DSSTDY" DataType="integer" Length="8" SASFieldName="DSSTDY">
-            <Description>
-               <TranslatedText xml:lang="en">Study Day of Start of Disposition Event</TranslatedText>
+               <TranslatedText xml:lang="en">Study Identifier</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
@@ -1095,24 +699,6 @@
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.DS.DSGRPID" Name="DSGRPID" DataType="text" Length="8" SASFieldName="DSGRPID">
-            <Description>
-               <TranslatedText xml:lang="en">Group ID</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.DS.DSREFID" Name="DSREFID" DataType="text" Length="8" SASFieldName="DSREFID">
-            <Description>
-               <TranslatedText xml:lang="en">Reference ID</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.DS.DSSPID" Name="DSSPID" DataType="text" Length="8" SASFieldName="DSSPID">
-            <Description>
-               <TranslatedText xml:lang="en">Sponsor-Defined Identifier</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
          <ItemDef OID="IT.DS.DSTERM" Name="DSTERM" DataType="text" Length="8" SASFieldName="DSTERM">
             <Description>
                <TranslatedText xml:lang="en">Reported Term for the Disposition Event</TranslatedText>
@@ -1122,6 +708,30 @@
          <ItemDef OID="IT.DS.DSDECOD" Name="DSDECOD" DataType="text" Length="8" SASFieldName="DSDECOD">
             <Description>
                <TranslatedText xml:lang="en">Standardized Disposition Term</TranslatedText>
+            </Description>
+            <def:Origin Type="Collected" Source="Sponsor" />
+         </ItemDef>
+         <ItemDef OID="IT.DS.DSCAT" Name="DSCAT" DataType="text" Length="8" SASFieldName="DSCAT">
+            <Description>
+               <TranslatedText xml:lang="en">Category for Disposition Event</TranslatedText>
+            </Description>
+            <def:Origin Type="Collected" Source="Sponsor" />
+         </ItemDef>
+         <ItemDef OID="IT.DS.DSSTDTC" Name="DSSTDTC" DataType="text" Length="8" SASFieldName="DSSTDTC">
+            <Description>
+               <TranslatedText xml:lang="en">Start Date/Time of Disposition Event</TranslatedText>
+            </Description>
+            <def:Origin Type="Collected" Source="Sponsor" />
+         </ItemDef>
+         <ItemDef OID="IT.DS.DSSTDY" Name="DSSTDY" DataType="integer" Length="8" SASFieldName="DSSTDY">
+            <Description>
+               <TranslatedText xml:lang="en">Study Day of Start of Disposition Event</TranslatedText>
+            </Description>
+            <def:Origin Type="Collected" Source="Sponsor" />
+         </ItemDef>
+         <ItemDef OID="IT.DS.DSDTC" Name="DSDTC" DataType="text" Length="8" SASFieldName="DSDTC">
+            <Description>
+               <TranslatedText xml:lang="en">Date/Time of Collection</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
@@ -1137,27 +747,27 @@
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.EX.EXCAT" Name="EXCAT" DataType="text" Length="8" SASFieldName="EXCAT">
+         <ItemDef OID="IT.EX.DOMAIN" Name="DOMAIN" DataType="text" Length="8" SASFieldName="DOMAIN">
             <Description>
-               <TranslatedText xml:lang="en">Category of Treatment</TranslatedText>
+               <TranslatedText xml:lang="en">Domain Abbreviation</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.EX.EXSCAT" Name="EXSCAT" DataType="text" Length="8" SASFieldName="EXSCAT">
+         <ItemDef OID="IT.EX.USUBJID" Name="USUBJID" DataType="text" Length="8" SASFieldName="USUBJID">
             <Description>
-               <TranslatedText xml:lang="en">Subcategory of Treatment</TranslatedText>
+               <TranslatedText xml:lang="en">Unique Subject Identifier</TranslatedText>
+            </Description>
+            <def:Origin Type="Collected" Source="Sponsor" />
+         </ItemDef>
+         <ItemDef OID="IT.EX.EXSEQ" Name="EXSEQ" DataType="integer" Length="8" SASFieldName="EXSEQ">
+            <Description>
+               <TranslatedText xml:lang="en">Sequence Number</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
          <ItemDef OID="IT.EX.EXDOSE" Name="EXDOSE" DataType="integer" Length="8" SASFieldName="EXDOSE">
             <Description>
                <TranslatedText xml:lang="en">Dose</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EXDOSTXT" Name="EXDOSTXT" DataType="text" Length="8" SASFieldName="EXDOSTXT">
-            <Description>
-               <TranslatedText xml:lang="en">Dose Description</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
@@ -1173,78 +783,6 @@
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.EX.EXDOSFRQ" Name="EXDOSFRQ" DataType="text" Length="8" SASFieldName="EXDOSFRQ">
-            <Description>
-               <TranslatedText xml:lang="en">Dosing Frequency per Interval</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EXDOSRGM" Name="EXDOSRGM" DataType="text" Length="8" SASFieldName="EXDOSRGM">
-            <Description>
-               <TranslatedText xml:lang="en">Intended Dose Regimen</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EXROUTE" Name="EXROUTE" DataType="text" Length="8" SASFieldName="EXROUTE">
-            <Description>
-               <TranslatedText xml:lang="en">Route of Administration</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.DOMAIN" Name="DOMAIN" DataType="text" Length="8" SASFieldName="DOMAIN">
-            <Description>
-               <TranslatedText xml:lang="en">Domain Abbreviation</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EXLOT" Name="EXLOT" DataType="text" Length="8" SASFieldName="EXLOT">
-            <Description>
-               <TranslatedText xml:lang="en">Lot Number</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EXLOC" Name="EXLOC" DataType="text" Length="8" SASFieldName="EXLOC">
-            <Description>
-               <TranslatedText xml:lang="en">Location of Dose Administration</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EXLAT" Name="EXLAT" DataType="text" Length="8" SASFieldName="EXLAT">
-            <Description>
-               <TranslatedText xml:lang="en">Laterality</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EXDIR" Name="EXDIR" DataType="text" Length="8" SASFieldName="EXDIR">
-            <Description>
-               <TranslatedText xml:lang="en">Directionality</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EXFAST" Name="EXFAST" DataType="text" Length="8" SASFieldName="EXFAST">
-            <Description>
-               <TranslatedText xml:lang="en">Fasting Status</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EXADJ" Name="EXADJ" DataType="text" Length="8" SASFieldName="EXADJ">
-            <Description>
-               <TranslatedText xml:lang="en">Reason for Dose Adjustment</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.TAETORD" Name="TAETORD" DataType="integer" Length="8" SASFieldName="TAETORD">
-            <Description>
-               <TranslatedText xml:lang="en">Planned Order of Element within Arm</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EPOCH" Name="EPOCH" DataType="text" Length="8" SASFieldName="EPOCH">
-            <Description>
-               <TranslatedText xml:lang="en">Epoch</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
          <ItemDef OID="IT.EX.EXSTDTC" Name="EXSTDTC" DataType="text" Length="8" SASFieldName="EXSTDTC">
             <Description>
                <TranslatedText xml:lang="en">Start Date/Time of Treatment</TranslatedText>
@@ -1257,105 +795,15 @@
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.EX.USUBJID" Name="USUBJID" DataType="text" Length="8" SASFieldName="USUBJID">
+         <ItemDef OID="IT.EX.EXDOSFRQ" Name="EXDOSFRQ" DataType="text" Length="8" SASFieldName="EXDOSFRQ">
             <Description>
-               <TranslatedText xml:lang="en">Unique Subject Identifier</TranslatedText>
+               <TranslatedText xml:lang="en">Dosing Frequency per Interval</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.EX.EXSTDY" Name="EXSTDY" DataType="integer" Length="8" SASFieldName="EXSTDY">
+         <ItemDef OID="IT.EX.EXROUTE" Name="EXROUTE" DataType="text" Length="8" SASFieldName="EXROUTE">
             <Description>
-               <TranslatedText xml:lang="en">Study Day of Start of Treatment</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EXENDY" Name="EXENDY" DataType="integer" Length="8" SASFieldName="EXENDY">
-            <Description>
-               <TranslatedText xml:lang="en">Study Day of End of Treatment</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EXDUR" Name="EXDUR" DataType="text" Length="8" SASFieldName="EXDUR">
-            <Description>
-               <TranslatedText xml:lang="en">Duration of Treatment</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EXTPT" Name="EXTPT" DataType="text" Length="8" SASFieldName="EXTPT">
-            <Description>
-               <TranslatedText xml:lang="en">Planned Time Point Name</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EXTPTNUM" Name="EXTPTNUM" DataType="integer" Length="8" SASFieldName="EXTPTNUM">
-            <Description>
-               <TranslatedText xml:lang="en">Planned Time Point Number</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EXELTM" Name="EXELTM" DataType="text" Length="8" SASFieldName="EXELTM">
-            <Description>
-               <TranslatedText xml:lang="en">Planned Elapsed Time from Time Point Ref</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EXTPTREF" Name="EXTPTREF" DataType="text" Length="8" SASFieldName="EXTPTREF">
-            <Description>
-               <TranslatedText xml:lang="en">Time Point Reference</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EXRFTDTC" Name="EXRFTDTC" DataType="text" Length="8" SASFieldName="EXRFTDTC">
-            <Description>
-               <TranslatedText xml:lang="en">Date/Time of Reference Time Point</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EXSEQ" Name="EXSEQ" DataType="integer" Length="8" SASFieldName="EXSEQ">
-            <Description>
-               <TranslatedText xml:lang="en">Sequence Number</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.VISIT" Name="VISIT" DataType="text" Length="8" SASFieldName="VISIT">
-            <Description>
-               <TranslatedText xml:lang="en">Visit Name</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EXGRPID" Name="EXGRPID" DataType="text" Length="8" SASFieldName="EXGRPID">
-            <Description>
-               <TranslatedText xml:lang="en">Group ID</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.VISITNUM" Name="VISITNUM" DataType="text" Length="8" SASFieldName="VISITNUM">
-            <Description>
-               <TranslatedText xml:lang="en">Visit Name</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EXREFID" Name="EXREFID" DataType="text" Length="8" SASFieldName="EXREFID">
-            <Description>
-               <TranslatedText xml:lang="en">Reference ID</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EXSPID" Name="EXSPID" DataType="text" Length="8" SASFieldName="EXSPID">
-            <Description>
-               <TranslatedText xml:lang="en">Sponsor-Defined Identifier</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EXLNKID" Name="EXLNKID" DataType="text" Length="8" SASFieldName="EXLNKID">
-            <Description>
-               <TranslatedText xml:lang="en">Link ID</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.EX.EXLNKGRP" Name="EXLNKGRP" DataType="text" Length="8" SASFieldName="EXLNKGRP">
-            <Description>
-               <TranslatedText xml:lang="en">Link Group ID</TranslatedText>
+               <TranslatedText xml:lang="en">Route of Administration</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
@@ -1365,33 +813,39 @@
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.LB.LBTSTCND" Name="LBTSTCND" DataType="text" Length="8" SASFieldName="LBTSTCND">
+         <ItemDef OID="IT.LB.DOMAIN" Name="DOMAIN" DataType="text" Length="8" SASFieldName="DOMAIN">
             <Description>
-               <TranslatedText xml:lang="en">Test Condition</TranslatedText>
+               <TranslatedText xml:lang="en">Domain Abbreviation</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.LB.LBBDAGNT" Name="LBBDAGNT" DataType="text" Length="8" SASFieldName="LBBDAGNT">
+         <ItemDef OID="IT.LB.USUBJID" Name="USUBJID" DataType="text" Length="8" SASFieldName="USUBJID">
             <Description>
-               <TranslatedText xml:lang="en">Binding Agent</TranslatedText>
+               <TranslatedText xml:lang="en">Unique Subject Identifier</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.LB.LBTSTOPO" Name="LBTSTOPO" DataType="text" Length="8" SASFieldName="LBTSTOPO">
+         <ItemDef OID="IT.LB.LBSEQ" Name="LBSEQ" DataType="integer" Length="8" SASFieldName="LBSEQ">
             <Description>
-               <TranslatedText xml:lang="en">Test Operational Objective</TranslatedText>
+               <TranslatedText xml:lang="en">Sequence Number</TranslatedText>
+            </Description>
+            <def:Origin Type="Collected" Source="Sponsor" />
+         </ItemDef>
+         <ItemDef OID="IT.LB.LBTESTCD" Name="LBTESTCD" DataType="text" Length="8" SASFieldName="LBTESTCD">
+            <Description>
+               <TranslatedText xml:lang="en">Lab Test or Examination Short Name</TranslatedText>
+            </Description>
+            <def:Origin Type="Collected" Source="Sponsor" />
+         </ItemDef>
+         <ItemDef OID="IT.LB.LBTEST" Name="LBTEST" DataType="text" Length="8" SASFieldName="LBTEST">
+            <Description>
+               <TranslatedText xml:lang="en">Lab Test or Examination Name</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
          <ItemDef OID="IT.LB.LBCAT" Name="LBCAT" DataType="text" Length="8" SASFieldName="LBCAT">
             <Description>
                <TranslatedText xml:lang="en">Category for Lab Test</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBSCAT" Name="LBSCAT" DataType="text" Length="8" SASFieldName="LBSCAT">
-            <Description>
-               <TranslatedText xml:lang="en">Subcategory for Lab Test</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
@@ -1408,30 +862,6 @@
             <def:ValueListRef ValueListOID="VL.LB.LBORRESU" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.LB.LBRESSCL" Name="LBRESSCL" DataType="text" Length="8" SASFieldName="LBRESSCL">
-            <Description>
-               <TranslatedText xml:lang="en">Result Scale</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBRESTYP" Name="LBRESTYP" DataType="text" Length="8" SASFieldName="LBRESTYP">
-            <Description>
-               <TranslatedText xml:lang="en">Result Type</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBCOLSRT" Name="LBCOLSRT" DataType="text" Length="8" SASFieldName="LBCOLSRT">
-            <Description>
-               <TranslatedText xml:lang="en">Collected Summary Result Type</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.DOMAIN" Name="DOMAIN" DataType="text" Length="8" SASFieldName="DOMAIN">
-            <Description>
-               <TranslatedText xml:lang="en">Domain Abbreviation</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
          <ItemDef OID="IT.LB.LBORNRLO" Name="LBORNRLO" DataType="text" Length="8" SASFieldName="LBORNRLO">
             <Description>
                <TranslatedText xml:lang="en">Reference Range Lower Limit in Orig Unit</TranslatedText>
@@ -1441,12 +871,6 @@
          <ItemDef OID="IT.LB.LBORNRHI" Name="LBORNRHI" DataType="text" Length="8" SASFieldName="LBORNRHI">
             <Description>
                <TranslatedText xml:lang="en">Reference Range Upper Limit in Orig Unit</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBLLOD" Name="LBLLOD" DataType="text" Length="8" SASFieldName="LBLLOD">
-            <Description>
-               <TranslatedText xml:lang="en">Lower Limit of Detection</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
@@ -1480,87 +904,9 @@
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.LB.LBSTNRC" Name="LBSTNRC" DataType="text" Length="8" SASFieldName="LBSTNRC">
-            <Description>
-               <TranslatedText xml:lang="en">Reference Range for Char Rslt-Std Units</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
          <ItemDef OID="IT.LB.LBNRIND" Name="LBNRIND" DataType="text" Length="8" SASFieldName="LBNRIND">
             <Description>
                <TranslatedText xml:lang="en">Reference Range Indicator</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.USUBJID" Name="USUBJID" DataType="text" Length="8" SASFieldName="USUBJID">
-            <Description>
-               <TranslatedText xml:lang="en">Unique Subject Identifier</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBSTAT" Name="LBSTAT" DataType="text" Length="8" SASFieldName="LBSTAT">
-            <Description>
-               <TranslatedText xml:lang="en">Completion Status</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBREASND" Name="LBREASND" DataType="text" Length="8" SASFieldName="LBREASND">
-            <Description>
-               <TranslatedText xml:lang="en">Reason Test Not Done</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBNAM" Name="LBNAM" DataType="text" Length="8" SASFieldName="LBNAM">
-            <Description>
-               <TranslatedText xml:lang="en">Vendor Name</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBLOINC" Name="LBLOINC" DataType="text" Length="8" SASFieldName="LBLOINC">
-            <Description>
-               <TranslatedText xml:lang="en">LOINC Code</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBSPEC" Name="LBSPEC" DataType="text" Length="8" SASFieldName="LBSPEC">
-            <Description>
-               <TranslatedText xml:lang="en">Specimen Type</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBSPCCND" Name="LBSPCCND" DataType="text" Length="8" SASFieldName="LBSPCCND">
-            <Description>
-               <TranslatedText xml:lang="en">Specimen Condition</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBSPCUFL" Name="LBSPCUFL" DataType="text" Length="8" SASFieldName="LBSPCUFL">
-            <Description>
-               <TranslatedText xml:lang="en">Specimen Usability for the Test</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBMETHOD" Name="LBMETHOD" DataType="text" Length="8" SASFieldName="LBMETHOD">
-            <Description>
-               <TranslatedText xml:lang="en">Method of Test or Examination</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBANMETH" Name="LBANMETH" DataType="text" Length="8" SASFieldName="LBANMETH">
-            <Description>
-               <TranslatedText xml:lang="en">Analysis Method</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBTMTHSN" Name="LBTMTHSN" DataType="text" Length="8" SASFieldName="LBTMTHSN">
-            <Description>
-               <TranslatedText xml:lang="en">Test Method Sensitivity</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBSEQ" Name="LBSEQ" DataType="integer" Length="8" SASFieldName="LBSEQ">
-            <Description>
-               <TranslatedText xml:lang="en">Sequence Number</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
@@ -1570,75 +916,9 @@
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.LB.LBBLFL" Name="LBBLFL" DataType="text" Length="8" SASFieldName="LBBLFL">
-            <Description>
-               <TranslatedText xml:lang="en">Baseline Flag</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBFAST" Name="LBFAST" DataType="text" Length="8" SASFieldName="LBFAST">
-            <Description>
-               <TranslatedText xml:lang="en">Fasting Status</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBDRVFL" Name="LBDRVFL" DataType="text" Length="8" SASFieldName="LBDRVFL">
-            <Description>
-               <TranslatedText xml:lang="en">Derived Flag</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBTOX" Name="LBTOX" DataType="text" Length="8" SASFieldName="LBTOX">
-            <Description>
-               <TranslatedText xml:lang="en">Toxicity</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBTOXGR" Name="LBTOXGR" DataType="text" Length="8" SASFieldName="LBTOXGR">
-            <Description>
-               <TranslatedText xml:lang="en">Standard Toxicity Grade</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBCLSIG" Name="LBCLSIG" DataType="text" Length="8" SASFieldName="LBCLSIG">
-            <Description>
-               <TranslatedText xml:lang="en">Clinically Significant, Collected</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
          <ItemDef OID="IT.LB.VISITNUM" Name="VISITNUM" DataType="integer" Length="8" SASFieldName="VISITNUM">
             <Description>
                <TranslatedText xml:lang="en">Visit Number</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.VISIT" Name="VISIT" DataType="text" Length="8" SASFieldName="VISIT">
-            <Description>
-               <TranslatedText xml:lang="en">Visit Name</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.VISITDY" Name="VISITDY" DataType="integer" Length="8" SASFieldName="VISITDY">
-            <Description>
-               <TranslatedText xml:lang="en">Planned Study Day of Visit</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBGRPID" Name="LBGRPID" DataType="text" Length="8" SASFieldName="LBGRPID">
-            <Description>
-               <TranslatedText xml:lang="en">Group ID</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.TAETORD" Name="TAETORD" DataType="integer" Length="8" SASFieldName="TAETORD">
-            <Description>
-               <TranslatedText xml:lang="en">Planned Order of Element within Arm</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.EPOCH" Name="EPOCH" DataType="text" Length="8" SASFieldName="EPOCH">
-            <Description>
-               <TranslatedText xml:lang="en">Epoch</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
@@ -1648,87 +928,15 @@
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.LB.LBENDTC" Name="LBENDTC" DataType="text" Length="8" SASFieldName="LBENDTC">
+         <ItemDef OID="IT.LB.LBMETHOD" Name="LBMETHOD" DataType="text" Length="8" SASFieldName="LBMETHOD">
             <Description>
-               <TranslatedText xml:lang="en">End Date/Time of Specimen Collection</TranslatedText>
+               <TranslatedText xml:lang="en">Method of Test or Examination</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.LB.LBDY" Name="LBDY" DataType="integer" Length="8" SASFieldName="LBDY">
+         <ItemDef OID="IT.LB.LBSPEC" Name="LBSPEC" DataType="text" Length="8" SASFieldName="LBSPEC">
             <Description>
-               <TranslatedText xml:lang="en">Study Day of Specimen Collection</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBENDY" Name="LBENDY" DataType="integer" Length="8" SASFieldName="LBENDY">
-            <Description>
-               <TranslatedText xml:lang="en">Study Day of End of Observation</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBTPT" Name="LBTPT" DataType="text" Length="8" SASFieldName="LBTPT">
-            <Description>
-               <TranslatedText xml:lang="en">Planned Time Point Name</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBTPTNUM" Name="LBTPTNUM" DataType="integer" Length="8" SASFieldName="LBTPTNUM">
-            <Description>
-               <TranslatedText xml:lang="en">Planned Time Point Number</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBELTM" Name="LBELTM" DataType="text" Length="8" SASFieldName="LBELTM">
-            <Description>
-               <TranslatedText xml:lang="en">Planned Elapsed Time from Time Point Ref</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBTPTREF" Name="LBTPTREF" DataType="text" Length="8" SASFieldName="LBTPTREF">
-            <Description>
-               <TranslatedText xml:lang="en">Time Point Reference</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBREFID" Name="LBREFID" DataType="text" Length="8" SASFieldName="LBREFID">
-            <Description>
-               <TranslatedText xml:lang="en">Specimen ID</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBRFTDTC" Name="LBRFTDTC" DataType="text" Length="8" SASFieldName="LBRFTDTC">
-            <Description>
-               <TranslatedText xml:lang="en">Date/Time of Reference Time Point</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBPTFL" Name="LBPTFL" DataType="text" Length="8" SASFieldName="LBPTFL">
-            <Description>
-               <TranslatedText xml:lang="en">Point in Time Flag</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBPDUR" Name="LBPDUR" DataType="text" Length="8" SASFieldName="LBPDUR">
-            <Description>
-               <TranslatedText xml:lang="en">Planned Duration</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBSPID" Name="LBSPID" DataType="text" Length="8" SASFieldName="LBSPID">
-            <Description>
-               <TranslatedText xml:lang="en">Sponsor-Defined Identifier</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBTESTCD" Name="LBTESTCD" DataType="text" Length="8" SASFieldName="LBTESTCD">
-            <Description>
-               <TranslatedText xml:lang="en">Lab Test or Examination Short Name</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.LB.LBTEST" Name="LBTEST" DataType="text" Length="8" SASFieldName="LBTEST">
-            <Description>
-               <TranslatedText xml:lang="en">Lab Test or Examination Name</TranslatedText>
+               <TranslatedText xml:lang="en">Specimen Type</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
@@ -1738,17 +946,34 @@
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.VS.VSSCAT" Name="VSSCAT" DataType="text" Length="8" SASFieldName="VSSCAT">
+         <ItemDef OID="IT.VS.DOMAIN" Name="DOMAIN" DataType="text" Length="8" SASFieldName="DOMAIN">
             <Description>
-               <TranslatedText xml:lang="en">Subcategory for Vital Signs</TranslatedText>
+               <TranslatedText xml:lang="en">Domain Abbreviation</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.VS.VSPOS" Name="VSPOS" DataType="text" Length="8" SASFieldName="VSPOS">
+         <ItemDef OID="IT.VS.USUBJID" Name="USUBJID" DataType="text" Length="8" SASFieldName="USUBJID">
             <Description>
-               <TranslatedText xml:lang="en">Vital Signs Position of Subject</TranslatedText>
+               <TranslatedText xml:lang="en">Unique Subject Identifier</TranslatedText>
             </Description>
-            <def:ValueListRef ValueListOID="VL.VS.VSPOS" />
+            <def:Origin Type="Collected" Source="Sponsor" />
+         </ItemDef>
+         <ItemDef OID="IT.VS.VSSEQ" Name="VSSEQ" DataType="integer" Length="8" SASFieldName="VSSEQ">
+            <Description>
+               <TranslatedText xml:lang="en">Sequence Number</TranslatedText>
+            </Description>
+            <def:Origin Type="Collected" Source="Sponsor" />
+         </ItemDef>
+         <ItemDef OID="IT.VS.VSTESTCD" Name="VSTESTCD" DataType="text" Length="8" SASFieldName="VSTESTCD">
+            <Description>
+               <TranslatedText xml:lang="en">Vital Signs Test Short Name</TranslatedText>
+            </Description>
+            <def:Origin Type="Collected" Source="Sponsor" />
+         </ItemDef>
+         <ItemDef OID="IT.VS.VSTEST" Name="VSTEST" DataType="text" Length="8" SASFieldName="VSTEST">
+            <Description>
+               <TranslatedText xml:lang="en">Vital Signs Test Name</TranslatedText>
+            </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
          <ItemDef OID="IT.VS.VSORRES" Name="VSORRES" DataType="text" Length="8" SASFieldName="VSORRES">
@@ -1782,15 +1007,21 @@
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.VS.VSSTAT" Name="VSSTAT" DataType="text" Length="8" SASFieldName="VSSTAT">
+         <ItemDef OID="IT.VS.VSLOBXFL" Name="VSLOBXFL" DataType="text" Length="8" SASFieldName="VSLOBXFL">
             <Description>
-               <TranslatedText xml:lang="en">Completion Status</TranslatedText>
+               <TranslatedText xml:lang="en">Last Observation Before Exposure Flag</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.VS.VSREASND" Name="VSREASND" DataType="text" Length="8" SASFieldName="VSREASND">
+         <ItemDef OID="IT.VS.VISITNUM" Name="VISITNUM" DataType="integer" Length="8" SASFieldName="VISITNUM">
             <Description>
-               <TranslatedText xml:lang="en">Reason Not Performed</TranslatedText>
+               <TranslatedText xml:lang="en">Visit Number</TranslatedText>
+            </Description>
+            <def:Origin Type="Collected" Source="Sponsor" />
+         </ItemDef>
+         <ItemDef OID="IT.VS.VSDTC" Name="VSDTC" DataType="text" Length="8" SASFieldName="VSDTC">
+            <Description>
+               <TranslatedText xml:lang="en">Date/Time of Measurements</TranslatedText>
             </Description>
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
@@ -1801,291 +1032,136 @@
             <def:ValueListRef ValueListOID="VL.VS.VSLOC" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
-         <ItemDef OID="IT.VS.DOMAIN" Name="DOMAIN" DataType="text" Length="8" SASFieldName="DOMAIN">
+         <ItemDef OID="IT.VS.VSPOS" Name="VSPOS" DataType="text" Length="8" SASFieldName="VSPOS">
             <Description>
-               <TranslatedText xml:lang="en">Domain Abbreviation</TranslatedText>
+               <TranslatedText xml:lang="en">Vital Signs Position of Subject</TranslatedText>
             </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VSLAT" Name="VSLAT" DataType="text" Length="8" SASFieldName="VSLAT">
-            <Description>
-               <TranslatedText xml:lang="en">Laterality</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VSLOBXFL" Name="VSLOBXFL" DataType="text" Length="8" SASFieldName="VSLOBXFL">
-            <Description>
-               <TranslatedText xml:lang="en">Last Observation Before Exposure Flag</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VSBLFL" Name="VSBLFL" DataType="text" Length="8" SASFieldName="VSBLFL">
-            <Description>
-               <TranslatedText xml:lang="en">Baseline Flag</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VSDRVFL" Name="VSDRVFL" DataType="text" Length="8" SASFieldName="VSDRVFL">
-            <Description>
-               <TranslatedText xml:lang="en">Derived Flag</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VSTOX" Name="VSTOX" DataType="text" Length="8" SASFieldName="VSTOX">
-            <Description>
-               <TranslatedText xml:lang="en">Toxicity</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VSTOXGR" Name="VSTOXGR" DataType="text" Length="8" SASFieldName="VSTOXGR">
-            <Description>
-               <TranslatedText xml:lang="en">Standard Toxicity Grade</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VSCLSIG" Name="VSCLSIG" DataType="text" Length="8" SASFieldName="VSCLSIG">
-            <Description>
-               <TranslatedText xml:lang="en">Clinically Significant, Collected</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VISITNUM" Name="VISITNUM" DataType="integer" Length="8" SASFieldName="VISITNUM">
-            <Description>
-               <TranslatedText xml:lang="en">Visit Number</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VISIT" Name="VISIT" DataType="text" Length="8" SASFieldName="VISIT">
-            <Description>
-               <TranslatedText xml:lang="en">Visit Name</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VISITDY" Name="VISITDY" DataType="integer" Length="8" SASFieldName="VISITDY">
-            <Description>
-               <TranslatedText xml:lang="en">Planned Study Day of Visit</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.USUBJID" Name="USUBJID" DataType="text" Length="8" SASFieldName="USUBJID">
-            <Description>
-               <TranslatedText xml:lang="en">Unique Subject Identifier</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.TAETORD" Name="TAETORD" DataType="integer" Length="8" SASFieldName="TAETORD">
-            <Description>
-               <TranslatedText xml:lang="en">Planned Order of Element within Arm</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.EPOCH" Name="EPOCH" DataType="text" Length="8" SASFieldName="EPOCH">
-            <Description>
-               <TranslatedText xml:lang="en">Epoch</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VSDTC" Name="VSDTC" DataType="text" Length="8" SASFieldName="VSDTC">
-            <Description>
-               <TranslatedText xml:lang="en">Date/Time of Measurements</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VSDY" Name="VSDY" DataType="integer" Length="8" SASFieldName="VSDY">
-            <Description>
-               <TranslatedText xml:lang="en">Study Day of Vital Signs</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VSTPT" Name="VSTPT" DataType="text" Length="8" SASFieldName="VSTPT">
-            <Description>
-               <TranslatedText xml:lang="en">Planned Time Point Name</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VSTPTNUM" Name="VSTPTNUM" DataType="integer" Length="8" SASFieldName="VSTPTNUM">
-            <Description>
-               <TranslatedText xml:lang="en">Planned Time Point Number</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VSELTM" Name="VSELTM" DataType="text" Length="8" SASFieldName="VSELTM">
-            <Description>
-               <TranslatedText xml:lang="en">Planned Elapsed Time from Time Point Ref</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VSTPTREF" Name="VSTPTREF" DataType="text" Length="8" SASFieldName="VSTPTREF">
-            <Description>
-               <TranslatedText xml:lang="en">Time Point Reference</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VSRFTDTC" Name="VSRFTDTC" DataType="text" Length="8" SASFieldName="VSRFTDTC">
-            <Description>
-               <TranslatedText xml:lang="en">Date/Time of Reference Time Point</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VSSEQ" Name="VSSEQ" DataType="integer" Length="8" SASFieldName="VSSEQ">
-            <Description>
-               <TranslatedText xml:lang="en">Sequence Number</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VSGRPID" Name="VSGRPID" DataType="text" Length="8" SASFieldName="VSGRPID">
-            <Description>
-               <TranslatedText xml:lang="en">Group ID</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VSSPID" Name="VSSPID" DataType="text" Length="8" SASFieldName="VSSPID">
-            <Description>
-               <TranslatedText xml:lang="en">Sponsor-Defined Identifier</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VSTESTCD" Name="VSTESTCD" DataType="text" Length="8" SASFieldName="VSTESTCD">
-            <Description>
-               <TranslatedText xml:lang="en">Vital Signs Test Short Name</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VSTEST" Name="VSTEST" DataType="text" Length="8" SASFieldName="VSTEST">
-            <Description>
-               <TranslatedText xml:lang="en">Vital Signs Test Name</TranslatedText>
-            </Description>
-            <def:Origin Type="Collected" Source="Sponsor" />
-         </ItemDef>
-         <ItemDef OID="IT.VS.VSCAT" Name="VSCAT" DataType="text" Length="8" SASFieldName="VSCAT">
-            <Description>
-               <TranslatedText xml:lang="en">Category for Vital Signs</TranslatedText>
-            </Description>
+            <def:ValueListRef ValueListOID="VL.VS.VSPOS" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
          <ItemDef OID="IDVO.LB.LBORRESU.ALT" Name="LBORRESU ALT" DataType="float" Length="8" SASFieldName="LBORRESU">
             <Description>
                <TranslatedText xml:lang="en">Original Units</TranslatedText>
             </Description>
-            <def:ValueListRef ValueListOID="VL.LB.LBORRESU" />
+            <CodeListRef CodeListOID="CL.LB.LBORRESU.ALT" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
          <ItemDef OID="IDVO.LB.LBORRESU.ALP" Name="LBORRESU ALP" DataType="float" Length="8" SASFieldName="LBORRESU">
             <Description>
                <TranslatedText xml:lang="en">Original Units</TranslatedText>
             </Description>
-            <def:ValueListRef ValueListOID="VL.LB.LBORRESU" />
+            <CodeListRef CodeListOID="CL.LB.LBORRESU.ALP" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
          <ItemDef OID="IDVO.LB.LBORRESU.AST" Name="LBORRESU AST" DataType="float" Length="8" SASFieldName="LBORRESU">
             <Description>
                <TranslatedText xml:lang="en">Original Units</TranslatedText>
             </Description>
-            <def:ValueListRef ValueListOID="VL.LB.LBORRESU" />
+            <CodeListRef CodeListOID="CL.LB.LBORRESU.AST" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
          <ItemDef OID="IDVO.LB.LBORRESU.CREAT" Name="LBORRESU CREAT" DataType="float" Length="8" SASFieldName="LBORRESU">
             <Description>
                <TranslatedText xml:lang="en">Original Units</TranslatedText>
             </Description>
-            <def:ValueListRef ValueListOID="VL.LB.LBORRESU" />
+            <CodeListRef CodeListOID="CL.LB.LBORRESU.CREAT" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
          <ItemDef OID="IDVO.LB.LBORRESU.HBA1C" Name="LBORRESU HBA1C" DataType="float" Length="8" SASFieldName="LBORRESU">
             <Description>
                <TranslatedText xml:lang="en">Original Units</TranslatedText>
             </Description>
-            <def:ValueListRef ValueListOID="VL.LB.LBORRESU" />
+            <CodeListRef CodeListOID="CL.LB.LBORRESU.HBA1C" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
          <ItemDef OID="IDVO.LB.LBORRESU.K" Name="LBORRESU K" DataType="float" Length="8" SASFieldName="LBORRESU">
             <Description>
                <TranslatedText xml:lang="en">Original Units</TranslatedText>
             </Description>
-            <def:ValueListRef ValueListOID="VL.LB.LBORRESU" />
+            <CodeListRef CodeListOID="CL.LB.LBORRESU.K" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
          <ItemDef OID="IDVO.LB.LBORRESU.SODIUM" Name="LBORRESU SODIUM" DataType="float" Length="8" SASFieldName="LBORRESU">
             <Description>
                <TranslatedText xml:lang="en">Original Units</TranslatedText>
             </Description>
-            <def:ValueListRef ValueListOID="VL.LB.LBORRESU" />
+            <CodeListRef CodeListOID="CL.LB.LBORRESU.SODIUM" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
          <ItemDef OID="IDVO.VS.VSLOC.DIABP" Name="VSLOC DIABP" DataType="string" Length="8" SASFieldName="VSLOC">
             <Description>
                <TranslatedText xml:lang="en">Location of Vital Signs Measurement</TranslatedText>
             </Description>
-            <def:ValueListRef ValueListOID="VL.VS.VSLOC" />
+            <CodeListRef CodeListOID="CL.VS.VSLOC.DIABP" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
          <ItemDef OID="IDVO.VS.VSPOS.DIABP" Name="VSPOS DIABP" DataType="string" Length="8" SASFieldName="VSPOS">
             <Description>
                <TranslatedText xml:lang="en">Vital Signs Position of Subject</TranslatedText>
             </Description>
-            <def:ValueListRef ValueListOID="VL.VS.VSPOS" />
+            <CodeListRef CodeListOID="CL.VS.VSPOS.DIABP" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
          <ItemDef OID="IDVO.VS.VSLOC.HR" Name="VSLOC HR" DataType="string" Length="8" SASFieldName="VSLOC">
             <Description>
                <TranslatedText xml:lang="en">Location of Vital Signs Measurement</TranslatedText>
             </Description>
-            <def:ValueListRef ValueListOID="VL.VS.VSLOC" />
+            <CodeListRef CodeListOID="CL.VS.VSLOC.HR" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
          <ItemDef OID="IDVO.VS.VSPOS.HR" Name="VSPOS HR" DataType="string" Length="8" SASFieldName="VSPOS">
             <Description>
                <TranslatedText xml:lang="en">Vital Signs Position of Subject</TranslatedText>
             </Description>
-            <def:ValueListRef ValueListOID="VL.VS.VSPOS" />
+            <CodeListRef CodeListOID="CL.VS.VSPOS.HR" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
          <ItemDef OID="IDVO.VS.VSORRESU.HEIGHT" Name="VSORRESU HEIGHT" DataType="float" Length="8" SASFieldName="VSORRESU">
             <Description>
                <TranslatedText xml:lang="en">Original Units</TranslatedText>
             </Description>
-            <def:ValueListRef ValueListOID="VL.VS.VSORRESU" />
+            <CodeListRef CodeListOID="CL.VS.VSORRESU.HEIGHT" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
          <ItemDef OID="IDVO.VS.VSLOC.SYSBP" Name="VSLOC SYSBP" DataType="string" Length="8" SASFieldName="VSLOC">
             <Description>
                <TranslatedText xml:lang="en">Location of Vital Signs Measurement</TranslatedText>
             </Description>
-            <def:ValueListRef ValueListOID="VL.VS.VSLOC" />
+            <CodeListRef CodeListOID="CL.VS.VSLOC.SYSBP" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
          <ItemDef OID="IDVO.VS.VSPOS.SYSBP" Name="VSPOS SYSBP" DataType="string" Length="8" SASFieldName="VSPOS">
             <Description>
                <TranslatedText xml:lang="en">Vital Signs Position of Subject</TranslatedText>
             </Description>
-            <def:ValueListRef ValueListOID="VL.VS.VSPOS" />
+            <CodeListRef CodeListOID="CL.VS.VSPOS.SYSBP" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
          <ItemDef OID="IDVO.VS.VSLOC.TEMP" Name="VSLOC TEMP" DataType="string" Length="8" SASFieldName="VSLOC">
             <Description>
                <TranslatedText xml:lang="en">Location of Vital Signs Measurement</TranslatedText>
             </Description>
-            <def:ValueListRef ValueListOID="VL.VS.VSLOC" />
+            <CodeListRef CodeListOID="CL.VS.VSLOC.TEMP" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
          <ItemDef OID="IDVO.VS.VSORRESU.TEMP" Name="VSORRESU TEMP" DataType="float" Length="8" SASFieldName="VSORRESU">
             <Description>
                <TranslatedText xml:lang="en">Original Units</TranslatedText>
             </Description>
-            <def:ValueListRef ValueListOID="VL.VS.VSORRESU" />
+            <CodeListRef CodeListOID="CL.VS.VSORRESU.TEMP" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
          <ItemDef OID="IDVO.VS.VSORRESU.WEIGHT" Name="VSORRESU WEIGHT" DataType="float" Length="8" SASFieldName="VSORRESU">
             <Description>
                <TranslatedText xml:lang="en">Original Units</TranslatedText>
             </Description>
-            <def:ValueListRef ValueListOID="VL.VS.VSORRESU" />
+            <CodeListRef CodeListOID="CL.VS.VSORRESU.WEIGHT" />
             <def:Origin Type="Collected" Source="Sponsor" />
          </ItemDef>
          <!--************************************-->
          <!--Code List Definitions Section-->
          <!--************************************-->
-         <CodeList OID="CL.AESER" Name="CL AESER" def:StandardOID="STD.2" DataType="string">
+         <CodeList OID="CL.AESER" Name="CL AESER" def:StandardOID="STD.2" DataType="text">
             <CodeListItem CodedValue="N">
                <Decode>
                   <TranslatedText xml:lang="en">No</TranslatedText>
@@ -2099,7 +1175,7 @@
                <Alias Context="nci:ExtCodeID" Name="C49488" />
             </CodeListItem>
          </CodeList>
-         <CodeList OID="CL.SEX" Name="CL SEX" def:StandardOID="STD.2" DataType="string">
+         <CodeList OID="CL.SEX" Name="CL SEX" def:StandardOID="STD.2" DataType="text">
             <CodeListItem CodedValue="M">
                <Decode>
                   <TranslatedText xml:lang="en">Male</TranslatedText>
@@ -2113,7 +1189,7 @@
                <Alias Context="nci:ExtCodeID" Name="C16576" />
             </CodeListItem>
          </CodeList>
-         <CodeList OID="CL.ETHNIC" Name="CL ETHNIC" def:StandardOID="STD.2" DataType="string">
+         <CodeList OID="CL.ETHNIC" Name="CL ETHNIC" def:StandardOID="STD.2" DataType="text">
             <CodeListItem CodedValue="M">
                <Decode>
                   <TranslatedText xml:lang="en">Male</TranslatedText>
@@ -2127,7 +1203,7 @@
                <Alias Context="nci:ExtCodeID" Name="C16576" />
             </CodeListItem>
          </CodeList>
-         <CodeList OID="CL.RACE" Name="CL RACE" def:StandardOID="STD.2" DataType="string">
+         <CodeList OID="CL.RACE" Name="CL RACE" def:StandardOID="STD.2" DataType="text">
             <CodeListItem CodedValue="M">
                <Decode>
                   <TranslatedText xml:lang="en">Male</TranslatedText>
@@ -2141,7 +1217,7 @@
                <Alias Context="nci:ExtCodeID" Name="C16576" />
             </CodeListItem>
          </CodeList>
-         <CodeList OID="CL.LBORRESU" Name="CL LBORRESU" def:StandardOID="STD.2" DataType="string">
+         <CodeList OID="CL.LBORRESU" Name="CL LBORRESU" def:StandardOID="STD.2" DataType="text">
             <CodeListItem CodedValue="mg/dL">
                <Decode>
                   <TranslatedText xml:lang="en">Milligram per Deciliter</TranslatedText>
@@ -2221,7 +1297,7 @@
                <Alias Context="nci:ExtCodeID" Name="C64783" />
             </CodeListItem>
          </CodeList>
-         <CodeList OID="CL.VSPOS" Name="CL VSPOS" def:StandardOID="STD.2" DataType="string">
+         <CodeList OID="CL.VSPOS" Name="CL VSPOS" def:StandardOID="STD.2" DataType="text">
             <CodeListItem CodedValue="SITTING">
                <Decode>
                   <TranslatedText xml:lang="en">Sitting</TranslatedText>
@@ -2241,7 +1317,7 @@
                <Alias Context="nci:ExtCodeID" Name="C62166" />
             </CodeListItem>
          </CodeList>
-         <CodeList OID="CL.VSLOC" Name="CL VSLOC" def:StandardOID="STD.2" DataType="string">
+         <CodeList OID="CL.VSLOC" Name="CL VSLOC" def:StandardOID="STD.2" DataType="text">
             <CodeListItem CodedValue="BRACHIAL ARTERY">
                <Decode>
                   <TranslatedText xml:lang="en">Brachial Artery</TranslatedText>
@@ -2303,7 +1379,7 @@
                <Alias Context="nci:ExtCodeID" Name="C12838" />
             </CodeListItem>
          </CodeList>
-         <CodeList OID="CL.VSORRESU" Name="CL VSORRESU" def:StandardOID="STD.2" DataType="string">
+         <CodeList OID="CL.VSORRESU" Name="CL VSORRESU" def:StandardOID="STD.2" DataType="text">
             <CodeListItem CodedValue="g">
                <Decode>
                   <TranslatedText xml:lang="en">Gram</TranslatedText>
@@ -2359,7 +1435,7 @@
                <Alias Context="nci:ExtCodeID" Name="C42537" />
             </CodeListItem>
          </CodeList>
-         <Codelist OID="VLM.CL.LB.LBORRESU.ALT" Name="CL LB LBORRESU ALT" def:StandardOID="STD.2" DataType="float" Length="8">
+         <Codelist OID="CL.LB.LBORRESU.ALT" Name="CL LB LBORRESU ALT" def:StandardOID="STD.2" DataType="float" Length="8">
             <CodeListItem CodedValue="U/L">
                <Decode>
                   <TranslatedText xml:lang="en">Unit per Liter</TranslatedText>
@@ -2391,7 +1467,7 @@
                <Alias Context="nci:ExtCodeID" Name="C67376" />
             </CodeListItem>
          </Codelist>
-         <Codelist OID="VLM.CL.LB.LBORRESU.ALP" Name="CL LB LBORRESU ALP" def:StandardOID="STD.2" DataType="float" Length="8">
+         <Codelist OID="CL.LB.LBORRESU.ALP" Name="CL LB LBORRESU ALP" def:StandardOID="STD.2" DataType="float" Length="8">
             <CodeListItem CodedValue="U/L">
                <Decode>
                   <TranslatedText xml:lang="en">Unit per Liter</TranslatedText>
@@ -2417,7 +1493,7 @@
                <Alias Context="nci:ExtCodeID" Name="C67376" />
             </CodeListItem>
          </Codelist>
-         <Codelist OID="VLM.CL.LB.LBORRESU.AST" Name="CL LB LBORRESU AST" def:StandardOID="STD.2" DataType="float" Length="8">
+         <Codelist OID="CL.LB.LBORRESU.AST" Name="CL LB LBORRESU AST" def:StandardOID="STD.2" DataType="float" Length="8">
             <CodeListItem CodedValue="U/L">
                <Decode>
                   <TranslatedText xml:lang="en">Unit per Liter</TranslatedText>
@@ -2443,7 +1519,7 @@
                <Alias Context="nci:ExtCodeID" Name="C67376" />
             </CodeListItem>
          </Codelist>
-         <Codelist OID="VLM.CL.LB.LBORRESU.CREAT" Name="CL LB LBORRESU CREAT" def:StandardOID="STD.2" DataType="float" Length="8">
+         <Codelist OID="CL.LB.LBORRESU.CREAT" Name="CL LB LBORRESU CREAT" def:StandardOID="STD.2" DataType="float" Length="8">
             <CodeListItem CodedValue="mg/dL">
                <Decode>
                   <TranslatedText xml:lang="en">Milligram per Deciliter</TranslatedText>
@@ -2475,7 +1551,7 @@
                <Alias Context="nci:ExtCodeID" Name="C64572" />
             </CodeListItem>
          </Codelist>
-         <Codelist OID="VLM.CL.LB.LBORRESU.HBA1C" Name="CL LB LBORRESU HBA1C" def:StandardOID="STD.2" DataType="float" Length="8">
+         <Codelist OID="CL.LB.LBORRESU.HBA1C" Name="CL LB LBORRESU HBA1C" def:StandardOID="STD.2" DataType="float" Length="8">
             <CodeListItem CodedValue="g/dL">
                <Decode>
                   <TranslatedText xml:lang="en">Gram per Deciliter</TranslatedText>
@@ -2483,7 +1559,7 @@
                <Alias Context="nci:ExtCodeID" Name="C64783" />
             </CodeListItem>
          </Codelist>
-         <Codelist OID="VLM.CL.LB.LBORRESU.K" Name="CL LB LBORRESU K" def:StandardOID="STD.2" DataType="float" Length="8">
+         <Codelist OID="CL.LB.LBORRESU.K" Name="CL LB LBORRESU K" def:StandardOID="STD.2" DataType="float" Length="8">
             <CodeListItem CodedValue="mmol/L">
                <Decode>
                   <TranslatedText xml:lang="en">Millimole per Liter</TranslatedText>
@@ -2503,7 +1579,7 @@
                <Alias Context="nci:ExtCodeID" Name="C67474" />
             </CodeListItem>
          </Codelist>
-         <Codelist OID="VLM.CL.LB.LBORRESU.SODIUM" Name="CL LB LBORRESU SODIUM" def:StandardOID="STD.2" DataType="float" Length="8">
+         <Codelist OID="CL.LB.LBORRESU.SODIUM" Name="CL LB LBORRESU SODIUM" def:StandardOID="STD.2" DataType="float" Length="8">
             <CodeListItem CodedValue="mmol/L">
                <Decode>
                   <TranslatedText xml:lang="en">Millimole per Liter</TranslatedText>
@@ -2523,7 +1599,7 @@
                <Alias Context="nci:ExtCodeID" Name="C67474" />
             </CodeListItem>
          </Codelist>
-         <Codelist OID="VLM.CL.VS.VSLOC.DIABP" Name="CL VS VSLOC DIABP" def:StandardOID="STD.2" DataType="string" Length="8">
+         <Codelist OID="CL.VS.VSLOC.DIABP" Name="CL VS VSLOC DIABP" def:StandardOID="STD.2" DataType="string" Length="8">
             <CodeListItem CodedValue="BRACHIAL ARTERY">
                <Decode>
                   <TranslatedText xml:lang="en">Brachial Artery</TranslatedText>
@@ -2555,7 +1631,7 @@
                <Alias Context="nci:ExtCodeID" Name="C12838" />
             </CodeListItem>
          </Codelist>
-         <Codelist OID="VLM.CL.VS.VSPOS.DIABP" Name="CL VS VSPOS DIABP" def:StandardOID="STD.2" DataType="string" Length="8">
+         <Codelist OID="CL.VS.VSPOS.DIABP" Name="CL VS VSPOS DIABP" def:StandardOID="STD.2" DataType="string" Length="8">
             <CodeListItem CodedValue="SITTING">
                <Decode>
                   <TranslatedText xml:lang="en">Sitting</TranslatedText>
@@ -2575,7 +1651,7 @@
                <Alias Context="nci:ExtCodeID" Name="C62166" />
             </CodeListItem>
          </Codelist>
-         <Codelist OID="VLM.CL.VS.VSLOC.HR" Name="CL VS VSLOC HR" def:StandardOID="STD.2" DataType="string" Length="8">
+         <Codelist OID="CL.VS.VSLOC.HR" Name="CL VS VSLOC HR" def:StandardOID="STD.2" DataType="string" Length="8">
             <CodeListItem CodedValue="BRACHIAL ARTERY">
                <Decode>
                   <TranslatedText xml:lang="en">Brachial Artery</TranslatedText>
@@ -2607,7 +1683,7 @@
                <Alias Context="nci:ExtCodeID" Name="C12838" />
             </CodeListItem>
          </Codelist>
-         <Codelist OID="VLM.CL.VS.VSPOS.HR" Name="CL VS VSPOS HR" def:StandardOID="STD.2" DataType="string" Length="8">
+         <Codelist OID="CL.VS.VSPOS.HR" Name="CL VS VSPOS HR" def:StandardOID="STD.2" DataType="string" Length="8">
             <CodeListItem CodedValue="SITTING">
                <Decode>
                   <TranslatedText xml:lang="en">Sitting</TranslatedText>
@@ -2627,7 +1703,7 @@
                <Alias Context="nci:ExtCodeID" Name="C62166" />
             </CodeListItem>
          </Codelist>
-         <Codelist OID="VLM.CL.VS.VSORRESU.HEIGHT" Name="CL VS VSORRESU HEIGHT" def:StandardOID="STD.2" DataType="float" Length="8">
+         <Codelist OID="CL.VS.VSORRESU.HEIGHT" Name="CL VS VSORRESU HEIGHT" def:StandardOID="STD.2" DataType="float" Length="8">
             <CodeListItem CodedValue="m">
                <Decode>
                   <TranslatedText xml:lang="en">Meter</TranslatedText>
@@ -2647,7 +1723,7 @@
                <Alias Context="nci:ExtCodeID" Name="C48500" />
             </CodeListItem>
          </Codelist>
-         <Codelist OID="VLM.CL.VS.VSLOC.SYSBP" Name="CL VS VSLOC SYSBP" def:StandardOID="STD.2" DataType="string" Length="8">
+         <Codelist OID="CL.VS.VSLOC.SYSBP" Name="CL VS VSLOC SYSBP" def:StandardOID="STD.2" DataType="string" Length="8">
             <CodeListItem CodedValue="BRACHIAL ARTERY">
                <Decode>
                   <TranslatedText xml:lang="en">Brachial Artery</TranslatedText>
@@ -2679,7 +1755,7 @@
                <Alias Context="nci:ExtCodeID" Name="C12838" />
             </CodeListItem>
          </Codelist>
-         <Codelist OID="VLM.CL.VS.VSPOS.SYSBP" Name="CL VS VSPOS SYSBP" def:StandardOID="STD.2" DataType="string" Length="8">
+         <Codelist OID="CL.VS.VSPOS.SYSBP" Name="CL VS VSPOS SYSBP" def:StandardOID="STD.2" DataType="string" Length="8">
             <CodeListItem CodedValue="SITTING">
                <Decode>
                   <TranslatedText xml:lang="en">Sitting</TranslatedText>
@@ -2699,7 +1775,7 @@
                <Alias Context="nci:ExtCodeID" Name="C62166" />
             </CodeListItem>
          </Codelist>
-         <Codelist OID="VLM.CL.VS.VSLOC.TEMP" Name="CL VS VSLOC TEMP" def:StandardOID="STD.2" DataType="string" Length="8">
+         <Codelist OID="CL.VS.VSLOC.TEMP" Name="CL VS VSLOC TEMP" def:StandardOID="STD.2" DataType="string" Length="8">
             <CodeListItem CodedValue="ORAL CAVITY">
                <Decode>
                   <TranslatedText xml:lang="en">Oral Cavity</TranslatedText>
@@ -2731,7 +1807,7 @@
                <Alias Context="nci:ExtCodeID" Name="C12394" />
             </CodeListItem>
          </Codelist>
-         <Codelist OID="VLM.CL.VS.VSORRESU.TEMP" Name="CL VS VSORRESU TEMP" def:StandardOID="STD.2" DataType="float" Length="8">
+         <Codelist OID="CL.VS.VSORRESU.TEMP" Name="CL VS VSORRESU TEMP" def:StandardOID="STD.2" DataType="float" Length="8">
             <CodeListItem CodedValue="C">
                <Decode>
                   <TranslatedText xml:lang="en">Degree Celsius</TranslatedText>
@@ -2751,7 +1827,7 @@
                <Alias Context="nci:ExtCodeID" Name="C42537" />
             </CodeListItem>
          </Codelist>
-         <Codelist OID="VLM.CL.VS.VSORRESU.WEIGHT" Name="CL VS VSORRESU WEIGHT" def:StandardOID="STD.2" DataType="float" Length="8">
+         <Codelist OID="CL.VS.VSORRESU.WEIGHT" Name="CL VS VSORRESU WEIGHT" def:StandardOID="STD.2" DataType="float" Length="8">
             <CodeListItem CodedValue="g">
                <Decode>
                   <TranslatedText xml:lang="en">Gram</TranslatedText>

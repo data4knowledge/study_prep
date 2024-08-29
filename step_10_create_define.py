@@ -164,13 +164,23 @@ def get_variables(uuid):
       # all_variables = [r['v'] for r in results]
       all_variables = [r['v'] for r in results.data()]
       required_variables = [v for v in all_variables if v['core'] == 'Req']
-
+      expected_variables = [v for v in all_variables if v['core'] == 'Exp']
+      vars_in_use = required_variables + expected_variables
       # CRM linked vars
       query = variables_crm_link_query(uuid)
       results = session.run(query)
-      vars_in_use = [r['v'] for r in results.data()]
+      vlm_variables = [r['v'] for r in results.data()]
+      for v in vlm_variables:
+          if next((w for w in vars_in_use if w['name'] == v['name']),None):
+            pass
+          else:
+            vlm_v = next((w for w in all_variables if w['name'] == v['name']),None)
+            if vlm_v:
+              vars_in_use.append(vlm_v)
+
     db.close()
-    # return vars_in_use
+    return vars_in_use
+    return expected_variables
     return all_variables
 
 
@@ -532,15 +542,15 @@ def vlm_item_defs(domains):
             idf.append(description('en',item['label']))
             # if next((x for x in d['codelist'] if x['uuid'] == item['uuid']), None):
             #   print("found codelist", d['name'], item['name'])
-            # cl_ref = ET.Element('CodeListRef')
-            # cl_ref.set('CodeListOID', vlm_codelist_oid(item))
-            # idf.append(cl_ref)
+            cl_ref = ET.Element('CodeListRef')
+            cl_ref.set('CodeListOID', vlm_codelist_oid(item))
+            idf.append(cl_ref)
 
-            if next((x for x in d['vlm'] if x['uuid'] == item['uuid']), None):
-              debug.append(f"  Check def:ValueListRef {value_list_oid(item)}")
-              vl_ref = ET.Element('def:ValueListRef')
-              vl_ref.set('ValueListOID', value_list_oid(item))
-              idf.append(vl_ref)
+            # if next((x for x in d['vlm'] if x['uuid'] == item['uuid']), None):
+            #   debug.append(f"  Check def:ValueListRef {value_list_oid(item)}")
+            #   vl_ref = ET.Element('def:ValueListRef')
+            #   vl_ref.set('ValueListOID', value_list_oid(item))
+            #   idf.append(vl_ref)
             # <def:ValueListRef ValueListOID="VL.LB.LBORRES"/>
             idf.append(origin('Collected','Sponsor'))
 
@@ -561,12 +571,12 @@ def codelist_oid(item):
 
 def test_codelist_oid(item):
     # return f"CL.{item['domain']}.{pretty_string(variable)}"
-    return f"TEST.CL.{item['domain']}.{item['domain']}TESTCD"
-    # return f"CL.{variable}"
+    return f"CL.CL.{item['domain']}.{item['domain']}TESTCD"
+    # return f"CL.CL.{variable}"
 
 def vlm_codelist_oid(item):
     # return f"CL.{item['domain']}.{pretty_string(variable)}"
-    return f"VLM.CL.{item['domain']}.{pretty_string(item['name'])}.{item['testcd']}"
+    return f"CL.{item['domain']}.{pretty_string(item['name'])}.{item['testcd']}"
     # return f"CL.{variable}"
 
 def alias(context, code):
@@ -612,7 +622,7 @@ def codelist_defs(domains):
             # NOTE: Using SDTM datatype. Not always correct e.g. VISITNUM
             # datatype = DATATYPES[item['data_type']]
             datatype = "string"
-
+          datatype = "text"
           if datatype == "":
             print("-- codelist_defs CHECK", item['name'])
           cl.set('DataType', datatype)
