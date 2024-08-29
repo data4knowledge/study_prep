@@ -10,6 +10,8 @@ from utility.define_query import define_vlm_query, crm_link_query, _add_missing_
 from datetime import datetime
 import xmlschema
 import xml.etree.ElementTree as ET
+from lxml import etree
+from bs4 import BeautifulSoup as bs
 
 # NOTE: Length
 
@@ -236,6 +238,8 @@ def pretty_string(text):
 def odm_properties(root):
   # now = datetime.now().replace(tzinfo=datetime.timezone.utc).isoformat()
   now = datetime.now().isoformat()
+  # Using a static time to be able to see differencec in generated output
+  now = "2024-08-29T09:53:42.385602"
   root.set('xmlns',"http://www.cdisc.org/ns/odm/v1.3")
   root.set('xmlns:xlink',"http://www.w3.org/1999/xlink")
   root.set('xmlns:def',"http://www.cdisc.org/ns/def/v2.1")
@@ -322,7 +326,9 @@ def metadata_version(oid = 'Not set', name = 'Not set', description = 'Not set')
 #  'si': {'instanceType': 'StudyIdentifier', 'id': 'StudyIdentifier_1', 'studyIdentifier': 'H2Q-MC-LZZT', 'uuid': '224be614-0648-440e-b8ae-2cb0c642c1f1'},
 #  'sv': {'versionIdentifier': '2', 'instanceType': 'StudyVersion', 'id': 'StudyVersion_1', 'uuid': 'f347c6df-94ea-406e-a5df-c3e6d6942dbd', 'rationale': 'The discontinuation rate associated with this oral dosing regimen was 58.6% in previous studies, and alternative clinical strategies have been sought to improve tolerance for the compound. To that end, development of a Transdermal Therapeutic System (TTS) has been initiated.'}}
 
-def get_unique_vars(vars):
+def get_unique_vars(original_vars):
+  # Don't want to modify original list, so make a copy of it
+  vars = copy.deepcopy(original_vars)
   unique_vars = []
   for v in vars:
       if 'bc' in v:
@@ -364,7 +370,7 @@ def get_domains_and_variables(uuid):
     item['goc'] = next((x for x,y in DOMAIN_CLASS.items() if d['name'] in y), "Fix")
 
     print(d['name'],"len(vlm_metadata)", len(vlm_metadata))
-    unique_vars = get_unique_vars(copy.deepcopy(vlm_metadata))
+    unique_vars = get_unique_vars(vlm_metadata)
     # print(unique_vars)
 
     # item['variables'] = unique_vars
@@ -466,19 +472,29 @@ def item_defs_variable(domains):
           idf.set('Length', '8')
           idf.set('SASFieldName', item['name'])
           idf.append(description('en',item['label']))
-          if next((x for x in d['codelist'] if x['uuid'] == item['uuid']), None):
-            # print("found codelist", d['name'], item['name'])
-            cl_ref = ET.Element('CodeListRef')
-            cl_ref.set('CodeListOID', codelist_oid(item))
-            idf.append(cl_ref)
           if d['goc'] in ['FINDINGS','FINDINGS ABOUT']:
+            # If variable has vlm
             if next((x for x in d['vlm'] if x['uuid'] == item['uuid']), None):
-              print("referencing valuelist ", d['name'], item['name'])
+              print("-- referencing valuelist ", d['name'], item['name'])
+              debug.append(f"-- adding ValueList {d['name']} {item['name']}")
               vl_ref = ET.Element('def:ValueListRef')
               vl_ref.set('ValueListOID', value_list_oid(item))
               idf.append(vl_ref)
+            # If variable only has codelist
+            elif next((x for x in d['codelist'] if x['uuid'] == item['uuid']), None):
+              debug.append(f"-- adding CodelistRef (abnormal) {d['name']} {item['name']}")
+              # print("found codelist", d['name'], item['name'])
+              cl_ref = ET.Element('CodeListRef')
+              cl_ref.set('CodeListOID', codelist_oid(item))
+              idf.append(cl_ref)
           else:
-            pass
+            if next((x for x in d['codelist'] if x['uuid'] == item['uuid']), None):
+              debug.append(f"-- adding CodelistRef (normal) {d['name']} {item['name']}")
+              # print("found codelist", d['name'], item['name'])
+              cl_ref = ET.Element('CodeListRef')
+              cl_ref.set('CodeListOID', codelist_oid(item))
+              idf.append(cl_ref)
+
           idf.append(origin('Collected','Sponsor'))
               # print("Not referencing ", d['name'], item['name'])
             # <def:ValueListRef ValueListOID="VL.LB.LBORRES"/>
@@ -816,17 +832,17 @@ def where_clause_defs(domains):
     # return wcds
     return list(wcds.values())
 
-DEFINE_JSON = Path.cwd() / "tmp" / "define.json"
-DEFINE_XML = Path.cwd() / "tmp" / "define.xml"
+DEFINE_XML = Path.cwd() / "data" / "define" / "define.xml"
+DEFINE_XLS = Path.cwd() / "data" / "define" / "stylesheets" / "define2-1.xsl"
+DEFINE_HTML = Path.cwd() / "data" / "define" / "define.html"
 # DEFINE_XML = Path('/Users/johannes/dev/python/github/study_service/uploads/define.xml')
 
-def main():
+def generate_define():
   try:
     study_info = get_study_info()
     domains = get_domains_and_variables(study_info['uuid'])
     # debug.append(f"study_info {study_info}")
 
-    define = {}
     root = ET.Element('ODM')
     odm_properties(root)
     study = set_study_info(study_name=study_info['study_name'])
@@ -913,11 +929,17 @@ def main():
     root.append(study)
 
     write_tmp("define-debug.txt",debug)
+    return root
 
-    # debug.append(define)
-    write_tmp_json("define-debug",define)
-    json_data = write_define_json(DEFINE_JSON,define)
-    tree = ET.ElementTree(root)
+  except Exception as e:
+    write_tmp("define-debug.txt",debug)
+    print("Error",e)
+    print(traceback.format_exc())
+    debug.append(f"Error: {e}")
+
+def save_xml(xml):
+    print("Saving xml...", DEFINE_XML)
+    tree = ET.ElementTree(xml)
     # ET.indent(tree, space="\t", level=0)
     ET.indent(tree, space="   ", level=0)
     tree.write(DEFINE_XML, encoding="utf-8")
@@ -930,15 +952,26 @@ def main():
          f.write(line)
       # lines = f.readlines()
 
-    # write_define_xml(DEFINE_XML,define)
-    # write_define_xml(DEFINE_XML,json_data)
-    # write_define_xml1(DEFINE_XML,define)
-    # write_define_xml2(DEFINE_XML,json_data)
-  except Exception as e:
-    write_tmp("define-debug.txt",debug)
-    print("Error",e)
-    print(traceback.format_exc())
-    debug.append(f"Error: {e}")
+def xml_to_html():
+    print("Saving html...", DEFINE_HTML)
+    dom = etree.parse(DEFINE_XML)
+    xslt =etree.parse(DEFINE_XLS)
+    transform = etree.XSLT(xslt)
+    newdom = transform(dom)
+    raw_html = etree.tostring(newdom, pretty_print=True)
+
+    soup = bs(raw_html, features="lxml")
+    prettyHTML = soup.prettify()
+
+
+    with open(DEFINE_HTML,'w') as f:
+          # f.write(str(html))
+          f.write(prettyHTML)
+
+def main():
+  xml = generate_define()
+  save_xml(xml)
+  xml_to_html()
 
 def check_define():
     from pprint import pprint
