@@ -39,6 +39,28 @@ def _query_study_service(query):
     # return [result.data() for result in results]
     return results
 
+def _query_sdtm_service(query):
+    NEO4J_CONNECTION_URI="bolt://localhost:7687"
+    NEO4J_USERNAME="neo4j"
+    NEO4J_PASSWORD="adminadmin"
+    NEO4J_DB="sdtm-service-dev"
+
+    # Driver instantiation
+    driver = GraphDatabase.driver(NEO4J_CONNECTION_URI,auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
+
+    # session = self._driver.session(database=self._db_name)
+    # response = list(session.run(query))
+
+    with driver.session(database=NEO4J_DB) as session:
+        results = session.run(query).data()
+        # response = session.run(query)
+        # results = [result.data() for result in response]
+
+    driver.close()
+    
+    # return [result.data() for result in results]
+    return results
+
 def query_study_service():
     print("Connecting to local Neo4j...",end="")
     if db_is_down():
@@ -70,6 +92,23 @@ def query_study_service():
 
     write_tmp("query-neo4j-local-study-service.txt",debug)
 
+def query_sdtm_service():
+    print("Connecting to local Neo4j...",end="")
+    if db_is_down():
+        print("is not running")
+        exit()
+    print("connected")
+
+    query = """call db.labels()"""
+    results = _query_sdtm_service(query)
+    l = []
+    for result in results:
+        debug.append(result)
+
+
+    write_tmp("query-neo4j-local-sdtm-service.txt",debug)
+
 
 if __name__ == "__main__":
-    query_study_service()
+    # query_study_service()
+    query_sdtm_service()
