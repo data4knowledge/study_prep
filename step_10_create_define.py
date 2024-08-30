@@ -66,6 +66,16 @@ DOMAIN_CLASS = {
   'TRIAL DESIGN'    :['TA', 'TD', 'TE', 'TI', 'TM', 'TS', 'TV'],
 }
 
+DOMAIN_KEY_SEQUENCE = {
+  'AE' : {'STUDYID': '1', 'USUBJID': '2', 'AEDECOD': '3', 'AESTDTC': '4'},
+  'DM' : {'STUDYID': '1', 'USUBJID': '2'},
+  'DS' : {'STUDYID': '1', 'USUBJID': '2', 'DSDECOD': '3', 'DSSTDTC': '4'},
+  'EX' : {'STUDYID': '1', 'USUBJID': '2', 'EXTRT': '3', 'EXSTDTC': '4'},
+#  'LB' : {'STUDYID': '1', 'USUBJID': '2', 'LBTESTCD': '3', 'LBSPEC': '4', 'VISITNUM': '5', 'LBTPTREF': '6', 'LBTPTNUM': '7'},
+  'LB' : {'STUDYID': '1', 'USUBJID': '2', 'LBTESTCD': '3', 'LBSPEC': '4', 'VISITNUM': '5', 'LBDTC': '6'},
+  'VS' : {'STUDYID': '1', 'USUBJID': '2', 'VSTESTCD': '3', 'VSSPEC': '4', 'VISITNUM': '5', 'VSTPTREF': '6', 'VSTPTNUM': '7'}
+}
+
 xml_header = """<?xml version="1.0" encoding="UTF-8"?>\n<?xml-stylesheet type="text/xsl" href="stylesheets/define2-1.xsl"?>\n"""
 
 
@@ -152,8 +162,9 @@ def get_domains(uuid):
       query = domains_query(uuid)
       # print("domains query", query)
       results = session.run(query)
-      return [r['d'] for r in results]
+      data = [r['d'] for r in results]
     db.close()
+    return data
 
 def get_variables(uuid):
     db = Neo4jConnection()
@@ -301,8 +312,6 @@ def comment_defs():
 
 # ISSUE: Hardcoded
 def standards():
-
-
   standards = ET.Element('def:Standards')
 
   standard1 = ET.Element('def:Standard')
@@ -331,10 +340,6 @@ def metadata_version(oid = 'Not set', name = 'Not set', description = 'Not set')
   metadata.set("Description", description)
   metadata.set("def:DefineVersion", "2.1.7")
   return metadata
-
-# {'sd': {'instanceType': 'StudyDesign', 'name': 'Study Design 1', 'description': 'The main design for the study', 'id': 'StudyDesign_1', 'label': '', 'uuid': '39309ff3-546c-4439-aa6f-74f16ad36f8f', 'rationale': 'The discontinuation rate associated with this oral dosing regimen was 58.6% in previous studies, and alternative clinical strategies have been sought to improve tolerance for the compound. To that end, development of a Transdermal Therapeutic System (TTS) has been initiated.'},
-#  'si': {'instanceType': 'StudyIdentifier', 'id': 'StudyIdentifier_1', 'studyIdentifier': 'H2Q-MC-LZZT', 'uuid': '224be614-0648-440e-b8ae-2cb0c642c1f1'},
-#  'sv': {'versionIdentifier': '2', 'instanceType': 'StudyVersion', 'id': 'StudyVersion_1', 'uuid': 'f347c6df-94ea-406e-a5df-c3e6d6942dbd', 'rationale': 'The discontinuation rate associated with this oral dosing regimen was 58.6% in previous studies, and alternative clinical strategies have been sought to improve tolerance for the compound. To that end, development of a Transdermal Therapeutic System (TTS) has been initiated.'}}
 
 def get_unique_vars(original_vars):
   # Don't want to modify original list, so make a copy of it
@@ -372,10 +377,6 @@ def get_domains_and_variables(uuid):
     vlm_metadata = get_define_vlm(d['uuid'])
     debug.append(f"len(vlm_metadata) {len(vlm_metadata)}")
     item['vlm'] = vlm_metadata
-    # # vlm = vlm_metadata
-    # for m in vlm_metadata:
-    #   # debug.append(f"check var {m['name']}")
-    #   vs = [v for v in all_variables if v['name'] == m['name']]
 
     item['goc'] = next((x for x,y in DOMAIN_CLASS.items() if d['name'] in y), "Fix")
 
@@ -424,7 +425,8 @@ def set_variable_refs(variables):
       ref.set('Mandatory', mandatory)
       order = int(v['ordinal'])
       ref.set('OrderNumber', str(order))
-      # ref.set('KeySequence', "1")
+      if v['name'] in DOMAIN_KEY_SEQUENCE[v['domain']]:
+        ref.set('KeySequence', DOMAIN_KEY_SEQUENCE[v['domain']][v['name']])
       variable_refs.append(ref)
     return variable_refs
 
@@ -439,7 +441,7 @@ def item_group_defs(domains):
         igd.set('Repeating', 'No')
         igd.set('IsReferenceData', 'No')
         igd.set('SASDatasetName', d['name'])
-        igd.set('def:Structure', 'tbc')
+        igd.set('def:Structure', d['structure'])
         igd.set('Purpose', 'Tabulation')
         igd.set('def:StandardOID', 'STD.1')
         igd.set('def:ArchiveLocationID', f"LI.{d['name']}")
