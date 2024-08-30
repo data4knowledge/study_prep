@@ -486,7 +486,7 @@ def item_defs_variable(domains):
             # If variable has vlm
             if next((x for x in d['vlm'] if x['uuid'] == item['uuid']), None):
               print("-- referencing valuelist ", d['name'], item['name'])
-              debug.append(f"-- adding ValueList {d['name']} {item['name']}")
+              debug.append(f"-- adding ValueListRef {d['name']} {item['name']}")
               vl_ref = ET.Element('def:ValueListRef')
               vl_ref.set('ValueListOID', value_list_oid(item))
               idf.append(vl_ref)
@@ -540,20 +540,10 @@ def vlm_item_defs(domains):
             idf.set('Length', '8')
             idf.set('SASFieldName', item['name'])
             idf.append(description('en',item['label']))
-            # if next((x for x in d['codelist'] if x['uuid'] == item['uuid']), None):
-            #   print("found codelist", d['name'], item['name'])
             cl_ref = ET.Element('CodeListRef')
             cl_ref.set('CodeListOID', vlm_codelist_oid(item))
             idf.append(cl_ref)
-
-            # if next((x for x in d['vlm'] if x['uuid'] == item['uuid']), None):
-            #   debug.append(f"  Check def:ValueListRef {value_list_oid(item)}")
-            #   vl_ref = ET.Element('def:ValueListRef')
-            #   vl_ref.set('ValueListOID', value_list_oid(item))
-            #   idf.append(vl_ref)
-            # <def:ValueListRef ValueListOID="VL.LB.LBORRES"/>
             idf.append(origin('Collected','Sponsor'))
-
             idfs[key] = idf
 
 
@@ -564,20 +554,13 @@ def vlm_item_defs(domains):
     return list(idfs.values())
 
 def codelist_oid(item):
-    # return f"CL.{pretty_string(variable)}.{uuid}"
-    # return f"CL.{pretty_string(item['name'])}.{item['uuid']}"
     return f"CL.{pretty_string(item['name'])}"
-    # return f"CL.{variable}"
 
 def test_codelist_oid(item):
-    # return f"CL.{item['domain']}.{pretty_string(variable)}"
     return f"CL.CL.{item['domain']}.{item['domain']}TESTCD"
-    # return f"CL.CL.{variable}"
 
 def vlm_codelist_oid(item):
-    # return f"CL.{item['domain']}.{pretty_string(variable)}"
     return f"CL.{item['domain']}.{pretty_string(item['name'])}.{item['testcd']}"
-    # return f"CL.{variable}"
 
 def alias(context, code):
     a = ET.Element('Alias')
@@ -592,7 +575,6 @@ def enumerated_item(code, context, value):
     return e
 
 def codelist_item(code, short, long, context):
-    # debug.append(f"code {code} short {short} long {long} context {context}")
     e = ET.Element('CodeListItem')
     e.set('CodedValue', short)
     d = ET.SubElement(e,'Decode')
@@ -620,8 +602,8 @@ def codelist_defs(domains):
           datatype = DATATYPES[item['datatype']] if 'datatype' in item else ""
           if datatype == "":
             # NOTE: Using SDTM datatype. Not always correct e.g. VISITNUM
-            # datatype = DATATYPES[item['data_type']]
-            datatype = "string"
+            datatype = DATATYPES[item['data_type']]
+            # datatype = "string"
           datatype = "text"
           if datatype == "":
             print("-- codelist_defs CHECK", item['name'])
@@ -650,7 +632,7 @@ def vlm_codelists_defs(domains):
             debug.append(f"  Ignoring key: {key}")
           else:
             debug.append(f"  Add vml_codelist: {key}")
-            cl = ET.Element('Codelist')
+            cl = ET.Element('CodeList')
             cl.set('OID', vlm_codelist_oid(item))
             cl.set('Name', vlm_codelist_name(item))
             cl.set('def:StandardOID', "STD.2")
@@ -914,12 +896,12 @@ def generate_define():
     metadata.append(ET.Comment("************************************"))
     metadata.append(ET.Comment("Code List Definitions Section"))
     metadata.append(ET.Comment("************************************"))
-    codelists = codelist_defs(domains)
-    for codelist in codelists:
-      metadata.append(codelist)
-    test_codelists = test_codes_defs(domains)
-    for codelist in test_codelists:
-      metadata.append(codelist)
+    # codelists = codelist_defs(domains)
+    # for codelist in codelists:
+    #   metadata.append(codelist)
+    # test_codelists = test_codes_defs(domains)
+    # for codelist in test_codelists:
+    #   metadata.append(codelist)
     vlm_codelists = vlm_codelists_defs(domains)
     for codelist in vlm_codelists:
       metadata.append(codelist)
