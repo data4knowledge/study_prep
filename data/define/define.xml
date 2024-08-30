@@ -7,7 +7,7 @@
          <StudyDescription>The discontinuation rate associated with this oral dosing regimen was 58.6% in previous studies, and alternative clinical strategies have been sought to improve tolerance for the compound. To that end, development of a Transdermal Therapeutic System (TTS) has been initiated.</StudyDescription>
          <ProtocolName>Protocol_Document_CDISC PILOT - LZZT</ProtocolName>
       </GlobalVariables>
-      <MetaDataVersion OID="39309ff3-546c-4439-aa6f-74f16ad36f8f" Name="H2Q-MC-LZZT" Description="This is some kind of description" def:DefineVersion="2.1.7">
+      <MetaDataVersion OID="e3651ef6-0d46-4f98-8c44-1dae4e77cb4d" Name="H2Q-MC-LZZT" Description="This is some kind of description" def:DefineVersion="2.1.7">
          <!--*********************************-->
          <!--Standard Definitions-->
          <!--*********************************-->
@@ -169,14 +169,14 @@
          <!--************************************************************************************-->
          <!--ItemGroupDef Definitions Section (Datasets and and first set of variable properties)-->
          <!--************************************************************************************-->
-         <ItemGroupDef OID="15c1e6b3-9678-487f-b25f-b3a5ae490bf0" Domain="AE" Name="AE" Repeating="No" IsReferenceData="No" SASDatasetName="AE" def:Structure="tbc" Purpose="Tabulation" def:StandardOID="STD.1" def:ArchiveLocationID="LI.AE">
+         <ItemGroupDef OID="2863a994-be1c-4a32-8bcd-1d3e23fabc33" Domain="AE" Name="AE" Repeating="No" IsReferenceData="No" SASDatasetName="AE" def:Structure="One record per adverse event per subject" Purpose="Tabulation" def:StandardOID="STD.1" def:ArchiveLocationID="LI.AE">
             <Description>
                <TranslatedText xml:lang="en">Adverse Events</TranslatedText>
             </Description>
-            <ItemRef ItemOID="IT.AE.STUDYID" Mandatory="Yes" OrderNumber="1" />
-            <ItemRef ItemOID="IT.AE.AEDECOD" Mandatory="Yes" OrderNumber="13" />
+            <ItemRef ItemOID="IT.AE.STUDYID" Mandatory="Yes" OrderNumber="1" KeySequence="1" />
+            <ItemRef ItemOID="IT.AE.AEDECOD" Mandatory="Yes" OrderNumber="13" KeySequence="3" />
             <ItemRef ItemOID="IT.AE.DOMAIN" Mandatory="Yes" OrderNumber="2" />
-            <ItemRef ItemOID="IT.AE.USUBJID" Mandatory="Yes" OrderNumber="3" />
+            <ItemRef ItemOID="IT.AE.USUBJID" Mandatory="Yes" OrderNumber="3" KeySequence="2" />
             <ItemRef ItemOID="IT.AE.AESEQ" Mandatory="Yes" OrderNumber="5" />
             <ItemRef ItemOID="IT.AE.AETERM" Mandatory="Yes" OrderNumber="9" />
             <ItemRef ItemOID="IT.AE.AELLT" Mandatory="Yes" OrderNumber="11" />
@@ -193,7 +193,7 @@
             <ItemRef ItemOID="IT.AE.AESER" Mandatory="Yes" OrderNumber="28" />
             <ItemRef ItemOID="IT.AE.AEACN" Mandatory="Yes" OrderNumber="29" />
             <ItemRef ItemOID="IT.AE.AEREL" Mandatory="Yes" OrderNumber="32" />
-            <ItemRef ItemOID="IT.AE.AESTDTC" Mandatory="Yes" OrderNumber="53" />
+            <ItemRef ItemOID="IT.AE.AESTDTC" Mandatory="Yes" OrderNumber="53" KeySequence="4" />
             <ItemRef ItemOID="IT.AE.AEENDTC" Mandatory="Yes" OrderNumber="54" />
             <ItemRef ItemOID="IT.AE.AEACNDEV" Mandatory="No" OrderNumber="31" />
             <ItemRef ItemOID="IT.AE.AEACNOTH" Mandatory="No" OrderNumber="30" />
@@ -206,15 +206,15 @@
                <def:title>ae.xpt</def:title>
             </def:leaf>
          </ItemGroupDef>
-         <ItemGroupDef OID="778db8bb-eb88-4660-ada9-86164db38779" Domain="DM" Name="DM" Repeating="No" IsReferenceData="No" SASDatasetName="DM" def:Structure="tbc" Purpose="Tabulation" def:StandardOID="STD.1" def:ArchiveLocationID="LI.DM">
+         <ItemGroupDef OID="4ca5f489-378c-42fd-a9e7-b1dbee52115f" Domain="DM" Name="DM" Repeating="No" IsReferenceData="No" SASDatasetName="DM" def:Structure="One record per subject" Purpose="Tabulation" def:StandardOID="STD.1" def:ArchiveLocationID="LI.DM">
             <Description>
                <TranslatedText xml:lang="en">Demographics</TranslatedText>
             </Description>
-            <ItemRef ItemOID="IT.DM.STUDYID" Mandatory="Yes" OrderNumber="1" />
+            <ItemRef ItemOID="IT.DM.STUDYID" Mandatory="Yes" OrderNumber="1" KeySequence="1" />
             <ItemRef ItemOID="IT.DM.SITEID" Mandatory="Yes" OrderNumber="15" />
             <ItemRef ItemOID="IT.DM.DOMAIN" Mandatory="Yes" OrderNumber="2" />
             <ItemRef ItemOID="IT.DM.SEX" Mandatory="Yes" OrderNumber="21" />
-            <ItemRef ItemOID="IT.DM.USUBJID" Mandatory="Yes" OrderNumber="3" />
+            <ItemRef ItemOID="IT.DM.USUBJID" Mandatory="Yes" OrderNumber="3" KeySequence="2" />
             <ItemRef ItemOID="IT.DM.COUNTRY" Mandatory="Yes" OrderNumber="30" />
             <ItemRef ItemOID="IT.DM.SUBJID" Mandatory="Yes" OrderNumber="4" />
             <ItemRef ItemOID="IT.DM.RFICDTC" Mandatory="Yes" OrderNumber="11" />
@@ -242,18 +242,18 @@
                <def:title>dm.xpt</def:title>
             </def:leaf>
          </ItemGroupDef>
-         <ItemGroupDef OID="46b93bca-5c50-488c-a206-ba5f0144337a" Domain="DS" Name="DS" Repeating="No" IsReferenceData="No" SASDatasetName="DS" def:Structure="tbc" Purpose="Tabulation" def:StandardOID="STD.1" def:ArchiveLocationID="LI.DS">
+         <ItemGroupDef OID="8e9a5c84-16f3-4133-af69-f9b16ade95b7" Domain="DS" Name="DS" Repeating="No" IsReferenceData="No" SASDatasetName="DS" def:Structure="One record per disposition status or protocol milestone per subject" Purpose="Tabulation" def:StandardOID="STD.1" def:ArchiveLocationID="LI.DS">
             <Description>
                <TranslatedText xml:lang="en">Disposition</TranslatedText>
             </Description>
-            <ItemRef ItemOID="IT.DS.STUDYID" Mandatory="Yes" OrderNumber="1" />
+            <ItemRef ItemOID="IT.DS.STUDYID" Mandatory="Yes" OrderNumber="1" KeySequence="1" />
             <ItemRef ItemOID="IT.DS.DOMAIN" Mandatory="Yes" OrderNumber="2" />
-            <ItemRef ItemOID="IT.DS.USUBJID" Mandatory="Yes" OrderNumber="3" />
+            <ItemRef ItemOID="IT.DS.USUBJID" Mandatory="Yes" OrderNumber="3" KeySequence="2" />
             <ItemRef ItemOID="IT.DS.DSSEQ" Mandatory="Yes" OrderNumber="4" />
             <ItemRef ItemOID="IT.DS.DSTERM" Mandatory="Yes" OrderNumber="8" />
-            <ItemRef ItemOID="IT.DS.DSDECOD" Mandatory="Yes" OrderNumber="9" />
+            <ItemRef ItemOID="IT.DS.DSDECOD" Mandatory="Yes" OrderNumber="9" KeySequence="3" />
             <ItemRef ItemOID="IT.DS.DSCAT" Mandatory="Yes" OrderNumber="10" />
-            <ItemRef ItemOID="IT.DS.DSSTDTC" Mandatory="Yes" OrderNumber="14" />
+            <ItemRef ItemOID="IT.DS.DSSTDTC" Mandatory="Yes" OrderNumber="14" KeySequence="4" />
             <ItemRef ItemOID="IT.DS.DSSTDY" Mandatory="Yes" OrderNumber="16" />
             <ItemRef ItemOID="IT.DS.DSDTC" Mandatory="No" OrderNumber="13" />
             <def:Class Name="EVENTS" />
@@ -261,19 +261,19 @@
                <def:title>ds.xpt</def:title>
             </def:leaf>
          </ItemGroupDef>
-         <ItemGroupDef OID="32efba2c-e6d2-4e62-80bf-8de0952453c2" Domain="EX" Name="EX" Repeating="No" IsReferenceData="No" SASDatasetName="EX" def:Structure="tbc" Purpose="Tabulation" def:StandardOID="STD.1" def:ArchiveLocationID="LI.EX">
+         <ItemGroupDef OID="3a8d4f14-b607-4ee4-bad7-6920f55559ae" Domain="EX" Name="EX" Repeating="No" IsReferenceData="No" SASDatasetName="EX" def:Structure="One record per protocol-specified study treatment, constant-dosing interval, per subject" Purpose="Tabulation" def:StandardOID="STD.1" def:ArchiveLocationID="LI.EX">
             <Description>
                <TranslatedText xml:lang="en">Exposure</TranslatedText>
             </Description>
-            <ItemRef ItemOID="IT.EX.STUDYID" Mandatory="Yes" OrderNumber="1" />
-            <ItemRef ItemOID="IT.EX.EXTRT" Mandatory="Yes" OrderNumber="10" />
+            <ItemRef ItemOID="IT.EX.STUDYID" Mandatory="Yes" OrderNumber="1" KeySequence="1" />
+            <ItemRef ItemOID="IT.EX.EXTRT" Mandatory="Yes" OrderNumber="10" KeySequence="3" />
             <ItemRef ItemOID="IT.EX.DOMAIN" Mandatory="Yes" OrderNumber="2" />
-            <ItemRef ItemOID="IT.EX.USUBJID" Mandatory="Yes" OrderNumber="3" />
+            <ItemRef ItemOID="IT.EX.USUBJID" Mandatory="Yes" OrderNumber="3" KeySequence="2" />
             <ItemRef ItemOID="IT.EX.EXSEQ" Mandatory="Yes" OrderNumber="4" />
             <ItemRef ItemOID="IT.EX.EXDOSE" Mandatory="Yes" OrderNumber="13" />
             <ItemRef ItemOID="IT.EX.EXDOSU" Mandatory="Yes" OrderNumber="15" />
             <ItemRef ItemOID="IT.EX.EXDOSFRM" Mandatory="Yes" OrderNumber="16" />
-            <ItemRef ItemOID="IT.EX.EXSTDTC" Mandatory="Yes" OrderNumber="28" />
+            <ItemRef ItemOID="IT.EX.EXSTDTC" Mandatory="Yes" OrderNumber="28" KeySequence="4" />
             <ItemRef ItemOID="IT.EX.EXENDTC" Mandatory="Yes" OrderNumber="29" />
             <ItemRef ItemOID="IT.EX.EXDOSFRQ" Mandatory="No" OrderNumber="17" />
             <ItemRef ItemOID="IT.EX.EXROUTE" Mandatory="No" OrderNumber="19" />
@@ -282,15 +282,15 @@
                <def:title>ex.xpt</def:title>
             </def:leaf>
          </ItemGroupDef>
-         <ItemGroupDef OID="629d6b86-3fbe-4ad8-a38d-9e690d221a99" Domain="LB" Name="LB" Repeating="No" IsReferenceData="No" SASDatasetName="LB" def:Structure="tbc" Purpose="Tabulation" def:StandardOID="STD.1" def:ArchiveLocationID="LI.LB">
+         <ItemGroupDef OID="3bc88925-4736-4e85-9721-e5d9a6e3dfd5" Domain="LB" Name="LB" Repeating="No" IsReferenceData="No" SASDatasetName="LB" def:Structure="One record per lab test per time point per visit per subject" Purpose="Tabulation" def:StandardOID="STD.1" def:ArchiveLocationID="LI.LB">
             <Description>
                <TranslatedText xml:lang="en">Laboratory Test Results</TranslatedText>
             </Description>
-            <ItemRef ItemOID="IT.LB.STUDYID" Mandatory="Yes" OrderNumber="1" />
+            <ItemRef ItemOID="IT.LB.STUDYID" Mandatory="Yes" OrderNumber="1" KeySequence="1" />
             <ItemRef ItemOID="IT.LB.DOMAIN" Mandatory="Yes" OrderNumber="2" />
-            <ItemRef ItemOID="IT.LB.USUBJID" Mandatory="Yes" OrderNumber="3" />
+            <ItemRef ItemOID="IT.LB.USUBJID" Mandatory="Yes" OrderNumber="3" KeySequence="2" />
             <ItemRef ItemOID="IT.LB.LBSEQ" Mandatory="Yes" OrderNumber="4" />
-            <ItemRef ItemOID="IT.LB.LBTESTCD" Mandatory="Yes" OrderNumber="8" />
+            <ItemRef ItemOID="IT.LB.LBTESTCD" Mandatory="Yes" OrderNumber="8" KeySequence="3" />
             <ItemRef ItemOID="IT.LB.LBTEST" Mandatory="Yes" OrderNumber="9" />
             <ItemRef ItemOID="IT.LB.LBCAT" Mandatory="Yes" OrderNumber="13" />
             <ItemRef ItemOID="IT.LB.LBORRES" Mandatory="Yes" OrderNumber="15" />
@@ -304,24 +304,24 @@
             <ItemRef ItemOID="IT.LB.LBSTNRHI" Mandatory="Yes" OrderNumber="27" />
             <ItemRef ItemOID="IT.LB.LBNRIND" Mandatory="Yes" OrderNumber="29" />
             <ItemRef ItemOID="IT.LB.LBLOBXFL" Mandatory="Yes" OrderNumber="40" />
-            <ItemRef ItemOID="IT.LB.VISITNUM" Mandatory="Yes" OrderNumber="47" />
-            <ItemRef ItemOID="IT.LB.LBDTC" Mandatory="Yes" OrderNumber="52" />
+            <ItemRef ItemOID="IT.LB.VISITNUM" Mandatory="Yes" OrderNumber="47" KeySequence="5" />
+            <ItemRef ItemOID="IT.LB.LBDTC" Mandatory="Yes" OrderNumber="52" KeySequence="6" />
             <ItemRef ItemOID="IT.LB.LBMETHOD" Mandatory="No" OrderNumber="37" />
-            <ItemRef ItemOID="IT.LB.LBSPEC" Mandatory="No" OrderNumber="34" />
+            <ItemRef ItemOID="IT.LB.LBSPEC" Mandatory="No" OrderNumber="34" KeySequence="4" />
             <def:Class Name="FINDINGS" />
             <def:leaf ID="LI.LB" xlink:href="lb.xpt">
                <def:title>lb.xpt</def:title>
             </def:leaf>
          </ItemGroupDef>
-         <ItemGroupDef OID="4ac65a7a-f3df-41c6-acda-bce50d9c241f" Domain="VS" Name="VS" Repeating="No" IsReferenceData="No" SASDatasetName="VS" def:Structure="tbc" Purpose="Tabulation" def:StandardOID="STD.1" def:ArchiveLocationID="LI.VS">
+         <ItemGroupDef OID="72fe0552-a1c7-4b1f-a2b7-b85c699abb0d" Domain="VS" Name="VS" Repeating="No" IsReferenceData="No" SASDatasetName="VS" def:Structure="One record per vital sign measurement per time point per visit per subject" Purpose="Tabulation" def:StandardOID="STD.1" def:ArchiveLocationID="LI.VS">
             <Description>
                <TranslatedText xml:lang="en">Vital Signs</TranslatedText>
             </Description>
-            <ItemRef ItemOID="IT.VS.STUDYID" Mandatory="Yes" OrderNumber="1" />
+            <ItemRef ItemOID="IT.VS.STUDYID" Mandatory="Yes" OrderNumber="1" KeySequence="1" />
             <ItemRef ItemOID="IT.VS.DOMAIN" Mandatory="Yes" OrderNumber="2" />
-            <ItemRef ItemOID="IT.VS.USUBJID" Mandatory="Yes" OrderNumber="3" />
+            <ItemRef ItemOID="IT.VS.USUBJID" Mandatory="Yes" OrderNumber="3" KeySequence="2" />
             <ItemRef ItemOID="IT.VS.VSSEQ" Mandatory="Yes" OrderNumber="4" />
-            <ItemRef ItemOID="IT.VS.VSTESTCD" Mandatory="Yes" OrderNumber="7" />
+            <ItemRef ItemOID="IT.VS.VSTESTCD" Mandatory="Yes" OrderNumber="7" KeySequence="3" />
             <ItemRef ItemOID="IT.VS.VSTEST" Mandatory="Yes" OrderNumber="8" />
             <ItemRef ItemOID="IT.VS.VSORRES" Mandatory="Yes" OrderNumber="12" />
             <ItemRef ItemOID="IT.VS.VSORRESU" Mandatory="Yes" OrderNumber="13" />
@@ -329,7 +329,7 @@
             <ItemRef ItemOID="IT.VS.VSSTRESN" Mandatory="Yes" OrderNumber="15" />
             <ItemRef ItemOID="IT.VS.VSSTRESU" Mandatory="Yes" OrderNumber="16" />
             <ItemRef ItemOID="IT.VS.VSLOBXFL" Mandatory="Yes" OrderNumber="21" />
-            <ItemRef ItemOID="IT.VS.VISITNUM" Mandatory="Yes" OrderNumber="27" />
+            <ItemRef ItemOID="IT.VS.VISITNUM" Mandatory="Yes" OrderNumber="27" KeySequence="5" />
             <ItemRef ItemOID="IT.VS.VSDTC" Mandatory="Yes" OrderNumber="32" />
             <ItemRef ItemOID="IT.VS.VSLOC" Mandatory="No" OrderNumber="19" />
             <ItemRef ItemOID="IT.VS.VSPOS" Mandatory="No" OrderNumber="11" />
@@ -1174,17 +1174,17 @@
                </Decode>
                <Alias Context="nci:ExtCodeID" Name="C67376" />
             </CodeListItem>
-            <CodeListItem CodedValue="nkat/L">
-               <Decode>
-                  <TranslatedText xml:lang="en">Nanokatal per Liter</TranslatedText>
-               </Decode>
-               <Alias Context="nci:ExtCodeID" Name="C70510" />
-            </CodeListItem>
             <CodeListItem CodedValue="ukat/L">
                <Decode>
                   <TranslatedText xml:lang="en">Microkatal per Liter</TranslatedText>
                </Decode>
                <Alias Context="nci:ExtCodeID" Name="C67397" />
+            </CodeListItem>
+            <CodeListItem CodedValue="nkat/L">
+               <Decode>
+                  <TranslatedText xml:lang="en">Nanokatal per Liter</TranslatedText>
+               </Decode>
+               <Alias Context="nci:ExtCodeID" Name="C70510" />
             </CodeListItem>
             <CodeListItem CodedValue="IU/L">
                <Decode>
@@ -1252,11 +1252,11 @@
                </Decode>
                <Alias Context="nci:ExtCodeID" Name="C67015" />
             </CodeListItem>
-            <CodeListItem CodedValue="mmol/L">
+            <CodeListItem CodedValue="umol/L">
                <Decode>
-                  <TranslatedText xml:lang="en">Millimole per Liter</TranslatedText>
+                  <TranslatedText xml:lang="en">Micromole per Liter</TranslatedText>
                </Decode>
-               <Alias Context="nci:ExtCodeID" Name="C64387" />
+               <Alias Context="nci:ExtCodeID" Name="C48508" />
             </CodeListItem>
             <CodeListItem CodedValue="ug/mL">
                <Decode>
@@ -1264,11 +1264,11 @@
                </Decode>
                <Alias Context="nci:ExtCodeID" Name="C64572" />
             </CodeListItem>
-            <CodeListItem CodedValue="umol/L">
+            <CodeListItem CodedValue="mmol/L">
                <Decode>
-                  <TranslatedText xml:lang="en">Micromole per Liter</TranslatedText>
+                  <TranslatedText xml:lang="en">Millimole per Liter</TranslatedText>
                </Decode>
-               <Alias Context="nci:ExtCodeID" Name="C48508" />
+               <Alias Context="nci:ExtCodeID" Name="C64387" />
             </CodeListItem>
             <CodeListItem CodedValue="mg/L">
                <Decode>
@@ -1292,17 +1292,17 @@
                </Decode>
                <Alias Context="nci:ExtCodeID" Name="C64387" />
             </CodeListItem>
-            <CodeListItem CodedValue="mEq/L">
-               <Decode>
-                  <TranslatedText xml:lang="en">Milliequivalent per Liter</TranslatedText>
-               </Decode>
-               <Alias Context="nci:ExtCodeID" Name="C67474" />
-            </CodeListItem>
             <CodeListItem CodedValue="mEq/dL">
                <Decode>
                   <TranslatedText xml:lang="en">Milliequivalent per Deciliter</TranslatedText>
                </Decode>
                <Alias Context="nci:ExtCodeID" Name="C67473" />
+            </CodeListItem>
+            <CodeListItem CodedValue="mEq/L">
+               <Decode>
+                  <TranslatedText xml:lang="en">Milliequivalent per Liter</TranslatedText>
+               </Decode>
+               <Alias Context="nci:ExtCodeID" Name="C67474" />
             </CodeListItem>
          </CodeList>
          <CodeList OID="CL.LB.LBORRESU.SODIUM" Name="CL LB LBORRESU SODIUM" def:StandardOID="STD.2" DataType="float" Length="8">
@@ -1312,43 +1312,31 @@
                </Decode>
                <Alias Context="nci:ExtCodeID" Name="C64387" />
             </CodeListItem>
-            <CodeListItem CodedValue="mEq/L">
-               <Decode>
-                  <TranslatedText xml:lang="en">Milliequivalent per Liter</TranslatedText>
-               </Decode>
-               <Alias Context="nci:ExtCodeID" Name="C67474" />
-            </CodeListItem>
             <CodeListItem CodedValue="mEq/dL">
                <Decode>
                   <TranslatedText xml:lang="en">Milliequivalent per Deciliter</TranslatedText>
                </Decode>
                <Alias Context="nci:ExtCodeID" Name="C67473" />
             </CodeListItem>
+            <CodeListItem CodedValue="mEq/L">
+               <Decode>
+                  <TranslatedText xml:lang="en">Milliequivalent per Liter</TranslatedText>
+               </Decode>
+               <Alias Context="nci:ExtCodeID" Name="C67474" />
+            </CodeListItem>
          </CodeList>
          <CodeList OID="CL.VS.VSLOC.DIABP" Name="CL VS VSLOC DIABP" def:StandardOID="STD.2" DataType="string" Length="8">
-            <CodeListItem CodedValue="FEMORAL ARTERY">
-               <Decode>
-                  <TranslatedText xml:lang="en">Femoral Artery</TranslatedText>
-               </Decode>
-               <Alias Context="nci:ExtCodeID" Name="C12715" />
-            </CodeListItem>
             <CodeListItem CodedValue="BRACHIAL ARTERY">
                <Decode>
                   <TranslatedText xml:lang="en">Brachial Artery</TranslatedText>
                </Decode>
                <Alias Context="nci:ExtCodeID" Name="C12681" />
             </CodeListItem>
-            <CodeListItem CodedValue="RADIAL ARTERY">
+            <CodeListItem CodedValue="FEMORAL ARTERY">
                <Decode>
-                  <TranslatedText xml:lang="en">Radial Artery</TranslatedText>
+                  <TranslatedText xml:lang="en">Femoral Artery</TranslatedText>
                </Decode>
-               <Alias Context="nci:ExtCodeID" Name="C12838" />
-            </CodeListItem>
-            <CodeListItem CodedValue="DORSALIS PEDIS ARTERY">
-               <Decode>
-                  <TranslatedText xml:lang="en">Dorsalis Pedis Artery</TranslatedText>
-               </Decode>
-               <Alias Context="nci:ExtCodeID" Name="C32478" />
+               <Alias Context="nci:ExtCodeID" Name="C12715" />
             </CodeListItem>
             <CodeListItem CodedValue="CAROTID ARTERY">
                <Decode>
@@ -1356,19 +1344,31 @@
                </Decode>
                <Alias Context="nci:ExtCodeID" Name="C12687" />
             </CodeListItem>
+            <CodeListItem CodedValue="DORSALIS PEDIS ARTERY">
+               <Decode>
+                  <TranslatedText xml:lang="en">Dorsalis Pedis Artery</TranslatedText>
+               </Decode>
+               <Alias Context="nci:ExtCodeID" Name="C32478" />
+            </CodeListItem>
+            <CodeListItem CodedValue="RADIAL ARTERY">
+               <Decode>
+                  <TranslatedText xml:lang="en">Radial Artery</TranslatedText>
+               </Decode>
+               <Alias Context="nci:ExtCodeID" Name="C12838" />
+            </CodeListItem>
          </CodeList>
          <CodeList OID="CL.VS.VSPOS.DIABP" Name="CL VS VSPOS DIABP" def:StandardOID="STD.2" DataType="string" Length="8">
-            <CodeListItem CodedValue="SUPINE">
-               <Decode>
-                  <TranslatedText xml:lang="en">Supine Position</TranslatedText>
-               </Decode>
-               <Alias Context="nci:ExtCodeID" Name="C62167" />
-            </CodeListItem>
             <CodeListItem CodedValue="SITTING">
                <Decode>
                   <TranslatedText xml:lang="en">Sitting</TranslatedText>
                </Decode>
                <Alias Context="nci:ExtCodeID" Name="C62122" />
+            </CodeListItem>
+            <CodeListItem CodedValue="SUPINE">
+               <Decode>
+                  <TranslatedText xml:lang="en">Supine Position</TranslatedText>
+               </Decode>
+               <Alias Context="nci:ExtCodeID" Name="C62167" />
             </CodeListItem>
             <CodeListItem CodedValue="STANDING">
                <Decode>
@@ -1378,29 +1378,17 @@
             </CodeListItem>
          </CodeList>
          <CodeList OID="CL.VS.VSLOC.HR" Name="CL VS VSLOC HR" def:StandardOID="STD.2" DataType="string" Length="8">
-            <CodeListItem CodedValue="FEMORAL ARTERY">
-               <Decode>
-                  <TranslatedText xml:lang="en">Femoral Artery</TranslatedText>
-               </Decode>
-               <Alias Context="nci:ExtCodeID" Name="C12715" />
-            </CodeListItem>
             <CodeListItem CodedValue="BRACHIAL ARTERY">
                <Decode>
                   <TranslatedText xml:lang="en">Brachial Artery</TranslatedText>
                </Decode>
                <Alias Context="nci:ExtCodeID" Name="C12681" />
             </CodeListItem>
-            <CodeListItem CodedValue="RADIAL ARTERY">
+            <CodeListItem CodedValue="FEMORAL ARTERY">
                <Decode>
-                  <TranslatedText xml:lang="en">Radial Artery</TranslatedText>
+                  <TranslatedText xml:lang="en">Femoral Artery</TranslatedText>
                </Decode>
-               <Alias Context="nci:ExtCodeID" Name="C12838" />
-            </CodeListItem>
-            <CodeListItem CodedValue="DORSALIS PEDIS ARTERY">
-               <Decode>
-                  <TranslatedText xml:lang="en">Dorsalis Pedis Artery</TranslatedText>
-               </Decode>
-               <Alias Context="nci:ExtCodeID" Name="C32478" />
+               <Alias Context="nci:ExtCodeID" Name="C12715" />
             </CodeListItem>
             <CodeListItem CodedValue="CAROTID ARTERY">
                <Decode>
@@ -1408,19 +1396,31 @@
                </Decode>
                <Alias Context="nci:ExtCodeID" Name="C12687" />
             </CodeListItem>
+            <CodeListItem CodedValue="DORSALIS PEDIS ARTERY">
+               <Decode>
+                  <TranslatedText xml:lang="en">Dorsalis Pedis Artery</TranslatedText>
+               </Decode>
+               <Alias Context="nci:ExtCodeID" Name="C32478" />
+            </CodeListItem>
+            <CodeListItem CodedValue="RADIAL ARTERY">
+               <Decode>
+                  <TranslatedText xml:lang="en">Radial Artery</TranslatedText>
+               </Decode>
+               <Alias Context="nci:ExtCodeID" Name="C12838" />
+            </CodeListItem>
          </CodeList>
          <CodeList OID="CL.VS.VSPOS.HR" Name="CL VS VSPOS HR" def:StandardOID="STD.2" DataType="string" Length="8">
-            <CodeListItem CodedValue="SUPINE">
-               <Decode>
-                  <TranslatedText xml:lang="en">Supine Position</TranslatedText>
-               </Decode>
-               <Alias Context="nci:ExtCodeID" Name="C62167" />
-            </CodeListItem>
             <CodeListItem CodedValue="SITTING">
                <Decode>
                   <TranslatedText xml:lang="en">Sitting</TranslatedText>
                </Decode>
                <Alias Context="nci:ExtCodeID" Name="C62122" />
+            </CodeListItem>
+            <CodeListItem CodedValue="SUPINE">
+               <Decode>
+                  <TranslatedText xml:lang="en">Supine Position</TranslatedText>
+               </Decode>
+               <Alias Context="nci:ExtCodeID" Name="C62167" />
             </CodeListItem>
             <CodeListItem CodedValue="STANDING">
                <Decode>
@@ -1450,29 +1450,17 @@
             </CodeListItem>
          </CodeList>
          <CodeList OID="CL.VS.VSLOC.SYSBP" Name="CL VS VSLOC SYSBP" def:StandardOID="STD.2" DataType="string" Length="8">
-            <CodeListItem CodedValue="FEMORAL ARTERY">
-               <Decode>
-                  <TranslatedText xml:lang="en">Femoral Artery</TranslatedText>
-               </Decode>
-               <Alias Context="nci:ExtCodeID" Name="C12715" />
-            </CodeListItem>
             <CodeListItem CodedValue="BRACHIAL ARTERY">
                <Decode>
                   <TranslatedText xml:lang="en">Brachial Artery</TranslatedText>
                </Decode>
                <Alias Context="nci:ExtCodeID" Name="C12681" />
             </CodeListItem>
-            <CodeListItem CodedValue="RADIAL ARTERY">
+            <CodeListItem CodedValue="FEMORAL ARTERY">
                <Decode>
-                  <TranslatedText xml:lang="en">Radial Artery</TranslatedText>
+                  <TranslatedText xml:lang="en">Femoral Artery</TranslatedText>
                </Decode>
-               <Alias Context="nci:ExtCodeID" Name="C12838" />
-            </CodeListItem>
-            <CodeListItem CodedValue="DORSALIS PEDIS ARTERY">
-               <Decode>
-                  <TranslatedText xml:lang="en">Dorsalis Pedis Artery</TranslatedText>
-               </Decode>
-               <Alias Context="nci:ExtCodeID" Name="C32478" />
+               <Alias Context="nci:ExtCodeID" Name="C12715" />
             </CodeListItem>
             <CodeListItem CodedValue="CAROTID ARTERY">
                <Decode>
@@ -1480,19 +1468,31 @@
                </Decode>
                <Alias Context="nci:ExtCodeID" Name="C12687" />
             </CodeListItem>
+            <CodeListItem CodedValue="DORSALIS PEDIS ARTERY">
+               <Decode>
+                  <TranslatedText xml:lang="en">Dorsalis Pedis Artery</TranslatedText>
+               </Decode>
+               <Alias Context="nci:ExtCodeID" Name="C32478" />
+            </CodeListItem>
+            <CodeListItem CodedValue="RADIAL ARTERY">
+               <Decode>
+                  <TranslatedText xml:lang="en">Radial Artery</TranslatedText>
+               </Decode>
+               <Alias Context="nci:ExtCodeID" Name="C12838" />
+            </CodeListItem>
          </CodeList>
          <CodeList OID="CL.VS.VSPOS.SYSBP" Name="CL VS VSPOS SYSBP" def:StandardOID="STD.2" DataType="string" Length="8">
-            <CodeListItem CodedValue="SUPINE">
-               <Decode>
-                  <TranslatedText xml:lang="en">Supine Position</TranslatedText>
-               </Decode>
-               <Alias Context="nci:ExtCodeID" Name="C62167" />
-            </CodeListItem>
             <CodeListItem CodedValue="SITTING">
                <Decode>
                   <TranslatedText xml:lang="en">Sitting</TranslatedText>
                </Decode>
                <Alias Context="nci:ExtCodeID" Name="C62122" />
+            </CodeListItem>
+            <CodeListItem CodedValue="SUPINE">
+               <Decode>
+                  <TranslatedText xml:lang="en">Supine Position</TranslatedText>
+               </Decode>
+               <Alias Context="nci:ExtCodeID" Name="C62167" />
             </CodeListItem>
             <CodeListItem CodedValue="STANDING">
                <Decode>
@@ -1502,24 +1502,6 @@
             </CodeListItem>
          </CodeList>
          <CodeList OID="CL.VS.VSLOC.TEMP" Name="CL VS VSLOC TEMP" def:StandardOID="STD.2" DataType="string" Length="8">
-            <CodeListItem CodedValue="EAR">
-               <Decode>
-                  <TranslatedText xml:lang="en">Ear</TranslatedText>
-               </Decode>
-               <Alias Context="nci:ExtCodeID" Name="C12394" />
-            </CodeListItem>
-            <CodeListItem CodedValue="RECTUM">
-               <Decode>
-                  <TranslatedText xml:lang="en">Rectum</TranslatedText>
-               </Decode>
-               <Alias Context="nci:ExtCodeID" Name="C12390" />
-            </CodeListItem>
-            <CodeListItem CodedValue="AXILLA">
-               <Decode>
-                  <TranslatedText xml:lang="en">Axilla</TranslatedText>
-               </Decode>
-               <Alias Context="nci:ExtCodeID" Name="C12674" />
-            </CodeListItem>
             <CodeListItem CodedValue="ORAL CAVITY">
                <Decode>
                   <TranslatedText xml:lang="en">Oral Cavity</TranslatedText>
@@ -1532,6 +1514,24 @@
                </Decode>
                <Alias Context="nci:ExtCodeID" Name="C89803" />
             </CodeListItem>
+            <CodeListItem CodedValue="AXILLA">
+               <Decode>
+                  <TranslatedText xml:lang="en">Axilla</TranslatedText>
+               </Decode>
+               <Alias Context="nci:ExtCodeID" Name="C12674" />
+            </CodeListItem>
+            <CodeListItem CodedValue="RECTUM">
+               <Decode>
+                  <TranslatedText xml:lang="en">Rectum</TranslatedText>
+               </Decode>
+               <Alias Context="nci:ExtCodeID" Name="C12390" />
+            </CodeListItem>
+            <CodeListItem CodedValue="EAR">
+               <Decode>
+                  <TranslatedText xml:lang="en">Ear</TranslatedText>
+               </Decode>
+               <Alias Context="nci:ExtCodeID" Name="C12394" />
+            </CodeListItem>
          </CodeList>
          <CodeList OID="CL.VS.VSORRESU.TEMP" Name="CL VS VSORRESU TEMP" def:StandardOID="STD.2" DataType="float" Length="8">
             <CodeListItem CodedValue="C">
@@ -1540,17 +1540,17 @@
                </Decode>
                <Alias Context="nci:ExtCodeID" Name="C42559" />
             </CodeListItem>
-            <CodeListItem CodedValue="K">
-               <Decode>
-                  <TranslatedText xml:lang="en">Kelvin</TranslatedText>
-               </Decode>
-               <Alias Context="nci:ExtCodeID" Name="C42537" />
-            </CodeListItem>
             <CodeListItem CodedValue="F">
                <Decode>
                   <TranslatedText xml:lang="en">Degree Fahrenheit</TranslatedText>
                </Decode>
                <Alias Context="nci:ExtCodeID" Name="C44277" />
+            </CodeListItem>
+            <CodeListItem CodedValue="K">
+               <Decode>
+                  <TranslatedText xml:lang="en">Kelvin</TranslatedText>
+               </Decode>
+               <Alias Context="nci:ExtCodeID" Name="C42537" />
             </CodeListItem>
          </CodeList>
          <CodeList OID="CL.VS.VSORRESU.WEIGHT" Name="CL VS VSORRESU WEIGHT" def:StandardOID="STD.2" DataType="float" Length="8">
