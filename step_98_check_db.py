@@ -68,6 +68,45 @@ def get_bc_property_terms():
 
 debug = []
 
+def check_query():
+    query = f"""
+        // Find BC's used
+        MATCH (sd:StudyDesign {{uuid: '39309ff3-546c-4439-aa6f-74f16ad36f8f'}})-[:BIOMEDICAL_CONCEPTS_REL]->(bc:BiomedicalConcept)
+        WITH distinct bc.name as bc_name
+        WITH collect(bc_name) as names
+        unwind names as name
+        // Get only one match per name
+        CALL {{
+            WITH name
+            MATCH (bc:BiomedicalConcept)
+            WHERE bc.name = name
+            return bc
+            limit 1
+        }}
+        WITH bc
+        MATCH (bc)-[:CODE_REL]-(:AliasCode)-[:STANDARD_CODE_REL]->(cd:Code)
+        MATCH (bc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
+        MATCH (bcp)-[:IS_A_REL]->(crm:CRMNode)
+        OPTIONAL MATCH (d:Domain)-[:USING_BC_REL]->(bc)
+        OPTIONAL MATCH (crm)<-[:IS_A_REL]-(var:Variable)<-[:VARIABLE_REL]-(d)
+        WHERE NOT EXISTS {{
+        (bcp)-[:RESPONSE_CODES_REL]->(:ResponseCode)-[:CODE_REL]->(:Code)
+        }}
+        return "first" as from, bc.name as bc, cd.decode as bc_name, bcp.name as name, crm.datatype as data_type, collect({{domain:d.name,variable:var.name}}) as sdtm, [] as terms
+        union
+        MATCH (bc)-[:CODE_REL]-(:AliasCode)-[:STANDARD_CODE_REL]->(cd:Code)
+        MATCH (bc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
+        MATCH (bcp)-[:IS_A_REL]->(crm:CRMNode)
+        MATCH (bcp)-[:RESPONSE_CODES_REL]->(rc:ResponseCode)-[:CODE_REL]->(c:Code)
+        OPTIONAL MATCH (d:Domain)-[:USING_BC_REL]->(bc)
+        OPTIONAL MATCH (crm)<-[:IS_A_REL]-(var:Variable)<-[:VARIABLE_REL]-(d)
+        WITH distinct bc.name as bc, cd.decode as bc_name, bcp.name as name, crm.datatype as data_type, d.name as domain, var.name as variable, c.code as code, c.decode as pref_label, c.decode as notation
+        return "second" as from, bc, bc_name, name, data_type, collect({{domain:domain,variable:variable}}) as sdtm, collect({{code:code,pref_label:pref_label,notation:notation}}) as terms
+    """
+    results = db_query(query)
+    for x in results:
+        debug.append(f"{x}")
+
 def check_coding_terms():
     results = get_bc_property_terms()
 
@@ -116,6 +155,7 @@ def find_bc():
 
 if __name__ == "__main__":
     # check_coding_terms()
-    find_bc()
+    check_query()
+    # find_bc()
     write_tmp("check_db.txt", debug)
     pass
