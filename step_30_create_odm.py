@@ -457,8 +457,9 @@ def studyeventdefs(study_info, activities):
     seds.append(d)
   return seds
 
-def itemgroupdef_oid(activity):
-  return f"igd_{activity['name']}"
+# def itemgroupdef_oid(activity):
+  # return f"igd_{activity['name']}"
+def itemgroupdef_oid(item):
   return f"igd_{item['bc_name']}"
 
 def item_group_ref(item):
@@ -487,19 +488,43 @@ def formdefs(study_info, activities):
       fds.append(d)
   return fds
 
+def odm_item_def_oid(p):
+    # return f"IT.{item['domain']}.{pretty_string(item['name'])}"
+    return f"IT.{pretty_string(p['bcp'])}.{p['dc']}"
+
 def item_ref(item):
-  igd = ET.Element('ItemRef')
+  ir = ET.Element('ItemRef')
+  ir.set('OID', odm_item_def_oid(item))
+  ir.set('Mandatory', 'No')
+  return ir
 
 def form_itemgroupdefs(activities):
   igds = []
   has_items = [x for x in activities if x['items']]
   for activity in has_items:
-    igd = ET.Element('ItemGroupDef')
-    igd.set('OID', itemgroupdef_oid(activity))
     for item in activity['items']:
-      igd.append(item_ref(item))
+      igd = ET.Element('ItemGroupDef')
+      # igd.set('OID', itemgroupdef_oid(activity))
+      igd.set('OID', itemgroupdef_oid(item))
+      for p in item['bcps']:
+        igd.append(item_ref(p))
       igds.append(igd)
   return igds
+
+def form_itemdefs(activities):
+  idfs = []
+  has_items = [x for x in activities if x['items']]
+  for activity in has_items:
+    for item in activity['items']:
+      for p in item['bcps']:
+        idf = ET.Element('ItemDef')
+        idf.set('OID', odm_item_def_oid(p))
+        question = ET.Element('Question')
+        question.append(translated_text('en', p['bcp']))
+        idf.append(question)
+        # idf.append(item_ref(p))
+        idfs.append(idf)
+  return idfs
 
 
 
@@ -794,30 +819,6 @@ def vlm_codelists_defs(domains):
               cl.append(codelist_item(cli['code'], cli['notation'], cli['pref_label'], "nci:ExtCodeID"))
             vlm_codelists[key] = cl
 
-    #         # if next((x for x in d['codelist'] if x['uuid'] == item['uuid']), None):
-    #         #   print("found codelist", d['name'], item['name'])
-    #         #   cl_ref = ET.Element('CodeListRef')
-    #         #   cl_ref.set('CodeListOID', codelist_oid(item['name'], item['uuid']))
-    #         #   idf.append(cl_ref)
-
-
-
-
-        # if 'test_codes' in d:
-        #   for item in d['test_codes']:
-        #     debug.append(f"vlm_codelists_defs {item}")
-        #     cl = ET.Element('CodeList')
-        #     cl.set('OID', test_codelist_oid(item))
-        #     cl.set('Name', vlm_codelist_name(item))
-        #     cl.set('def:StandardOID', "STD.1")
-        #     cl.set('DataType', "text")
-        #     # debug.append(f"1 codelist {item}")
-        #     for test in item['test_codes']:
-        #       # debug.append(f"testcodes {test}")
-        #       # cl.append(enumerated_item(x['code'], "nci:ExtCodeID",x['decode']))
-        #       cl.append(codelist_item(test['code'], test['testcd'], test['test'], "nci:ExtCodeID"))
-        #     test_codes.append(cl)
-        # # debug.append(f"len(test_codes) {len(test_codes)}")
     return list(vlm_codelists.values())
 
 
@@ -1006,6 +1007,11 @@ def generate_odm():
 
     # ItemGroupDef -------->
     igds = form_itemgroupdefs(activities)
+    for igd in igds:
+      metadata.append(igd)
+
+    # ItemDef -------->
+    igds = form_itemdefs(activities)
     for igd in igds:
       metadata.append(igd)
  

@@ -194,7 +194,8 @@ def get_activities_query(sd_uuid):
       OPTIONAL MATCH (act)<-[:ACTIVITY_REL]-(sai:ScheduledActivityInstance)
       OPTIONAL MATCH (act)-[:BIOMEDICAL_CONCEPT_REL]->(bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
       OPTIONAL MATCH (sai)<-[:INSTANCES_REL]-(dc:DataContract)-[:PROPERTIES_REL]->(bcp)
-      RETURN toInteger(split(act.id,'_')[1]) as order, act.id as id, act.name as activity_name, bc.name as bc_name, collect(bcp.name) as bcps
+      RETURN toInteger(split(act.id,'_')[1]) as order, act.id as id, act.name as activity_name, bc.name as bc_name, collect({bcp:bcp.name,dc:dc.uri}) as bcps
       order by order
     """ % (sd_uuid)
+    print(query)
     return query
