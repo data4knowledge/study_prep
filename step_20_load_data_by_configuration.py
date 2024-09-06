@@ -18,13 +18,83 @@ def write_tmp(name, data):
 debug = []
 matches = []
 issues = []
-row_datapoints = {}
+collection_datapoints = {}
 
 DATA_CONTRACTS_LOOKUP = Path.cwd() / "data" / "output" / "data_contracts.json"
 assert DATA_CONTRACTS_LOOKUP.exists(), "DATA_CONTRACTS_LOOKUP not found"
 print("\nGetting data contracts from file",DATA_CONTRACTS_LOOKUP)
 with open(DATA_CONTRACTS_LOOKUP) as f:
     data_contracts = json.load(f)
+
+def clear_created_nodes():
+    db = Neo4jConnection()
+    with db.session() as session:
+        query = "match (n:Datapoint|DataPoint) detach delete n return count(n)"
+        results = session.run(query)
+        print("Removing Datapoint/DataPoint",results)
+        query = "match (n:Subject) detach delete n return count(n)"
+        results = session.run(query)
+        print("Removing Subject",results)
+    db.close()
+
+def get_bc_properties( bc_label, row):
+    results = []
+    if row['VISIT'] in DATA_VISITS_TO_ENCOUNTER_LABELS:
+        visit = DATA_VISITS_TO_ENCOUNTER_LABELS[row['VISIT']]
+    else:
+        add_issue("visit not found:",row['VISIT'])
+        return []
+    query = f"""
+        MATCH (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp)<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(act_inst)-[:ENCOUNTER_REL]-(enc)
+        WHERE enc.label = '{visit}'
+        AND  bc.label = '{bc_label}'
+        return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, enc.label as ENCOUNTER_LABEL, dc.uri as DC_URI
+    """
+    results = db_query(query)
+    if results == []:
+        add_issue("DataContract has errors in it",row['VISIT'],visit,bc_label,query)
+        return []
+    return results
+
+def get_bc_properties_sub_timeline(bc_label, tpt, row):
+    if row['VISIT'] in DATA_VISITS_TO_ENCOUNTER_LABELS:
+        visit = DATA_VISITS_TO_ENCOUNTER_LABELS[row['VISIT']]
+    else:
+        add_issue("visit not found:",row['VISIT'])
+        return []
+    query = f"""
+        match (msai:ScheduledActivityInstance)<-[:INSTANCES_REL]-(dc:DataContract)-[:INSTANCES_REL]-(ssai:ScheduledActivityInstance)
+        match (msai)-[:ENCOUNTER_REL]->(enc:Encounter)
+        match (ssai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
+        match (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)<-[:PROPERTIES_REL]-(bc:BiomedicalConcept)
+        WHERE enc.label = '{visit}'
+        and    t.value = '{tpt}'
+        AND  bc.label = '{bc_label}'
+        return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, enc.label as ENCOUNTER_LABEL, t.value as TIMEPOINT_VALUE, dc.uri as DC_URI
+    """
+    results = db_query(query)
+    if results == []:
+        add_issue("timeline DataContract query has errors in it",visit,bc_label,tpt,query)
+        return []
+    else:
+        return results
+
+def get_bc_properties_ae(bc_label):
+    query = f"""
+        match (msai:ScheduledActivityInstance)<-[:INSTANCES_REL]-(dc:DataContract)-[:INSTANCES_REL]-(ssai:ScheduledActivityInstance)
+        match (ssai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
+        match (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)<-[:PROPERTIES_REL]-(bc:BiomedicalConcept)
+        WHERE bc.label = '{bc_label}'
+        return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, dc.uri as DC_URI,"" as ENCOUNTER_LABEL
+    """
+    # print("ae query", query)
+    results = db_query(query)
+    if results == []:
+        add_issue("DataContract has errors in it",bc_label,query)
+        return []
+    return results
+
+
 
 def add_issue(*txts):
     add = []
@@ -44,32 +114,9 @@ def add_row_dp(domain: str, variables: list, row, dp_uri = None):
 
     key = "_".join(keys)
     if dp_uri == None:
-        row_datapoints[str(key)] = []
+        collection_datapoints[str(key)] = []
     else:
-        row_datapoints[str(key)].append(dp_uri)
-
-def output_json(path, name, data):
-    OUTPUT_FILE = path / f"{name}.json"
-    if OUTPUT_FILE.exists():
-        os.unlink(OUTPUT_FILE)
-    print("Saving to",OUTPUT_FILE)
-    with open(OUTPUT_FILE, 'w') as f:
-        f.write(json.dumps(data, indent = 2))
-
-def output_csv(path, name, data):
-    OUTPUT_FILE = path / name
-    if OUTPUT_FILE.exists():
-        os.unlink(OUTPUT_FILE)
-    print("Saving to",OUTPUT_FILE)
-    output_variables = list(data[0].keys())
-    with open(OUTPUT_FILE, 'w') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=output_variables)
-        writer.writeheader()
-        writer.writerows(data)
-
-def save_file(path: Path, name, data):
-    output_json(path, f"{name}.csv",data)
-    output_csv(path, f"{name}.csv",data)
+        collection_datapoints[str(key)].append(dp_uri)
 
 def db_query(query):
     db = Neo4jConnection()
@@ -272,8 +319,21 @@ def get_lb_data(data):
         get_lb_variable(data, row, 'LBORRESU', 'LBORRESU')
         get_lb_variable(data, row, 'date', 'LBDTC')
 
+def get_bc_properties_dm( bc_label):
+    query = f"""
+        MATCH (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp)<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(act_inst)-[:ENCOUNTER_REL]-(enc)
+        WHERE bc.label in {bc_label}
+        return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, enc.label as ENCOUNTER_LABEL, dc.uri as DC_URI
+    """
+    results = db_query(query)
+    if results == []:
+        return []
+    return results
+
 def get_dm_variable(data, row, data_label, data_property, sdtm_variable):
     # DM does not contain VISIT
+    # dm_visit ='SCREENING 1'
+    # bc_label = "Sex"
     dm_visit = "Screening 1"
     item = {}
     bc_label = get_bc_label(data_label)
@@ -302,149 +362,77 @@ def get_dm_variable(data, row, data_label, data_property, sdtm_variable):
     else:
         add_issue("Add property_name for DM",data_label,'value',row[sdtm_variable])
 
+def add_dm_variable(dc, subject, value, xtra = None):
+    if xtra:
+        dp = f"{dc}/{subject}/{xtra}"
+    else:
+        dp = f"{dc}/{subject}"
+    
+    return dp
+
+data_load = []
+
+def add_datapoint(dc, data):
+    item = {}
+    item['USUBJID'] = data['USUBJID']
+    item['DC_URI'] = data['DC_URI']
+    item['DATAPOINT_URI'] = data['DATAPOINT_URI']
+    data_load.append
+
 def get_dm_data(data):
-    print("\nGetting DM data")
-    DM_DATA = Path.cwd() / "data" / "input" / "dm.json"
-    assert DM_DATA.exists(), "DM_DATA not found"
-    with open(DM_DATA) as f:
-        dm_data = json.load(f)
+    print("-- Converting DM data")
+    print("-- Get data contracts")
+    properties = get_bc_properties_dm(['Sex', 'Race','Informed Consent Obtained'])
+    for x in properties:
+        debug.append(x)
 
-    for row in dm_data:
-        add_row_dp('DM',['USUBJID'],row)
-        get_dm_variable(data, row, 'Sex', 'value', 'SEX')
-        get_dm_variable(data, row, 'Race', 'value', 'RACE')
-        get_dm_variable(data, row, 'Informed Consent', 'value', 'RFICDTC')
-        # NB: Faking Informed consent date
-        get_dm_variable(data, row, 'Informed Consent', 'date', 'RFICDTC')
-        get_dm_variable(data, row, 'Date of Birth', 'value', 'BRTHDTC')
-        get_dm_variable(data, row, 'Sex', 'date', 'DMDTC')
-        # Ethnicity. No BC
+    # Sex
+    SEX_DC = next((p['DC_URI'] for p in properties if p['BC_LABEL'] == 'Sex' and p['BCP_NAME'] == 'Sex'), None)
+    values = [{'s':r['USUBJID'],'v':r['SEX']} for r in data]
+    for v in values:
+        debug.append(v)
+        data_load.append()
+    # for row in data:
+    #     datapoints = []
+    #     add_row_dp('DM',['USUBJID'],row)
+    #     data_load.append(add_dm_variable(SEX_DC,row['USUBJID'],row['SEX']))
+    #     datapoints.append(datapoint_uri)
+
+    # DTC_URI = next((p['DC_URI'] for p in properties if p['BC_LABEL'] == 'Sex' and p['BCP_NAME'] == '--DTC'), None)
+
+
+    # for row in data:
+    #     get_dm_variable(data, row, 'Sex', 'value', 'SEX')
+        # get_dm_variable(data, row, 'Race', 'value', 'RACE')
+        # get_dm_variable(data, row, 'Informed Consent', 'value', 'RFICDTC')
+        # # NB: Faking Informed consent date
+        # get_dm_variable(data, row, 'Informed Consent', 'date', 'RFICDTC')
+        # get_dm_variable(data, row, 'Date of Birth', 'value', 'BRTHDTC')
+        # get_dm_variable(data, row, 'Sex', 'date', 'DMDTC')
+        # # Ethnicity. No BC
    
-def get_ae_variable(data, row, bc_label, data_label, sdtm_variable):
-    item = {}
-    # property = get_property_for_variable("AE",'term')
-    property = get_property_for_variable(bc_label,data_label)
-    # print("property",bc_label,"-",data_label,"-",property)
-    if property:
-        data_contract = get_data_contract_ae(bc_label,property)
-        if data_contract:
-            if row[sdtm_variable]:
-                item['USUBJID'] = row['USUBJID']
-                item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['AESEQ']}"
-                item['VALUE'] = f"{row[sdtm_variable]}"
-                data.append(item)
-                add_row_dp('AE',['USUBJID','AESEQ'],row, item['DATAPOINT_URI'])
-            else:
-                add_issue(f"Ignoring missing value value is missing: {sdtm_variable}")
+
+
+
+def import_domains(domain_files):
+    # OUTPUT_PATH = Path.cwd() / "data" / "output"
+    # assert OUTPUT_PATH.exists(), "OUTPUT_PATH not found"
+    clear_created_nodes()
+
+    for file in domain_files:
+        with open(file) as f:
+            data = json.load(f)
+        domain_name = Path(file).stem
+        if domain_name == "dm":
+            get_dm_data(data)
         else:
-            # add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
-            add_issue(f"-!-!-! No dc RESULT bc_label: {bc_label} - property: {property}")
-    else:
-        add_issue(f"Add property for data_label:{data_label} {property}")
+            print(f"Not handling {domain_name}")
+        # if 
 
-def get_ae_data(data):
-    print("\nGetting AE data")
-    AE_DATA = Path.cwd() / "data" / "input" / "ae.json"
-    assert AE_DATA.exists(), "EX_DATA not found"
-    with open(AE_DATA) as f:
-        ae_data = json.load(f)
+    write_tmp("step-20-load-data-configuration.txt",debug)
 
-    bc_label = get_bc_label("AE")
-    for row in ae_data:
-        add_row_dp('AE',['USUBJID','AESEQ'],row)
-        get_ae_variable(data, row, bc_label, 'date','AEDTC'),
-        get_ae_variable(data, row, bc_label, 'start', 'AESTDTC')
-        get_ae_variable(data, row, bc_label, 'endtc','AEENDTC'),
-        get_ae_variable(data, row, bc_label, 'term', 'AETERM')
-        get_ae_variable(data, row, bc_label, 'decode', 'AEDECOD')
-        get_ae_variable(data, row, bc_label, 'severity', 'AESEV')
+    return
 
-        get_ae_variable(data, row, bc_label, 'ser','AESER'),
-        get_ae_variable(data, row, bc_label, 'acn','AEACN'),
-        get_ae_variable(data, row, bc_label, 'rel','AEREL'),
-        get_ae_variable(data, row, bc_label, 'out','AEOUT'),
-        get_ae_variable(data, row, bc_label, 'scan','AESCAN'),
-        get_ae_variable(data, row, bc_label, 'scong','AESCONG'),
-        get_ae_variable(data, row, bc_label, 'sdisab','AESDISAB'),
-        get_ae_variable(data, row, bc_label, 'sdth','AESDTH'),
-        get_ae_variable(data, row, bc_label, 'shosp','AESHOSP'),
-        get_ae_variable(data, row, bc_label, 'slife','AESLIFE'),
-        get_ae_variable(data, row, bc_label, 'sod','AESOD'),
-
-
-        # Missing BCP
-        get_ae_variable(data, row, bc_label, 'llt', "AELLT"),
-        # get_ae_variable(data, row, bc_label, 'lltcd': "AELLTCD"),
-        # get_ae_variable(data, row, bc_label, 'ptcd','AEPTCD'),
-        # get_ae_variable(data, row, bc_label, 'hltcd','AEHLTCD'),
-        # get_ae_variable(data, row, bc_label, 'hlgt','AEHLGT'),
-        # get_ae_variable(data, row, bc_label, 'hlgtcd','AEHLGTCD'),
-        # get_ae_variable(data, row, bc_label, 'bodsys','AEBODSYS'),
-        # get_ae_variable(data, row, bc_label, 'bdsycd','AEBDSYCD'),
-        # get_ae_variable(data, row, bc_label, 'soc','AESOC'),
-        # get_ae_variable(data, row, bc_label, 'soccd','AESOCCD'),
-
-        # Derivations - ignore
-        # get_ae_variable(data, row, bc_label, 'stdy','AESTDY'),
-        # get_ae_variable(data, row, bc_label, 'endy','AEENDY'),
-
-
-
-
-def get_ex_variable(data, row, data_property, sdtm_variable):
-    item = {}
-    encounter = get_encounter(row)
-    if encounter != "":
-        bc_label = get_bc_label(row['EXTRT'])
-        tpt = ""
-        property = get_property_for_variable(bc_label, data_property)
-        if property:
-            data_contract = get_data_contract(encounter, bc_label, property,tpt)
-            if data_contract:
-                if row[sdtm_variable]:
-                    item['USUBJID'] = row['USUBJID']
-                    item['DC_URI'] = data_contract
-                    item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['EXSEQ']}"
-                    item['VALUE'] = f"{row[sdtm_variable]}"
-                    data.append(item)
-                    add_row_dp('EX',['USUBJID','EXSEQ'],row, item['DATAPOINT_URI'])
-            else:
-                add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
-        else:
-            add_issue("Add property for EX",row['EXTRT'], data_property)
-    else:
-        add_issue("Add encounter for EX",row['EXTRT'],row['VISIT'])
-
-def get_ex_data(data):
-    print("\nGetting EX data")
-    EX_DATA = Path.cwd() / "data" / "input" / "ex.json"
-    assert EX_DATA.exists(), "EX_DATA not found"
-    with open(EX_DATA) as f:
-        ex_data = json.load(f)
-
-    for row in ex_data:
-        add_row_dp('EX',['USUBJID','EXSEQ'],row)
-        get_ex_variable(data, row, 'description', 'EXTRT')
-        get_ex_variable(data, row, 'dose', 'EXDOSE')
-        get_ex_variable(data, row, 'unit', 'EXDOSU')
-        get_ex_variable(data, row, 'form', 'EXDOSFRM')
-        get_ex_variable(data, row, 'frequency', 'EXDOSFRQ')
-        get_ex_variable(data, row, 'start', 'EXSTDTC')
-        get_ex_variable(data, row, 'end', 'EXENDTC')
-        get_ex_variable(data, row, 'route', 'EXROUTE')
-
-
-
-def create_subject_data_load_file():
-    ENROLMENT_DATA = Path.cwd() / "data" / "output" / "enrolment.json"
-    assert ENROLMENT_DATA.exists(), "ENROLMENT_DATA not found"
-    # print("\nGetting subjects from file",ENROLMENT_DATA)
-    with open(ENROLMENT_DATA) as f:
-        enrolment_data = json.load(f)
-
-    OUTPUT_PATH = Path.cwd() / "data" / "output"
-    assert OUTPUT_PATH.exists(), "OUTPUT_PATH not found"
 
     # Get subjects from the enrolment file
     subjects = [row['USUBJID'] for row in enrolment_data]
@@ -470,7 +458,7 @@ def create_subject_data_load_file():
         print(issue)
     print("")
 
-    for k,v in row_datapoints.items():
+    for k,v in collection_datapoints.items():
         debug.append(f"{k}-{v}")
 
 
@@ -485,19 +473,20 @@ def create_subject_data_load_file():
     # row datapoints
     print("\nCreating datapoints relation to row")
     for_csv = []
-    for key,dps in row_datapoints.items():
+    for key,dps in collection_datapoints.items():
         for dp in dps:
             item = {}
             item["key"] = key
             item['datapoint_uri'] = dp
             for_csv.append(item)
-    output_csv(OUTPUT_PATH,"row_datapoints.csv",for_csv)
-    output_json(OUTPUT_PATH,"row_datapoints",row_datapoints)
-    # save_file(OUTPUT_PATH,"row_datapoints",row_datapoints)
+    output_csv(OUTPUT_PATH,"collection_datapoints.csv",for_csv)
+    output_json(OUTPUT_PATH,"collection_datapoints",collection_datapoints)
+    # save_file(OUTPUT_PATH,"collection_datapoints",collection_datapoints)
 
-    write_tmp("step-2-dc-debug.txt",debug)
 
     print("\ndone")
 
 if __name__ == "__main__":
-    create_subject_data_load_file()
+    DM_DATA = Path.cwd() / "data" / "input" / "dm.json"
+    domain_files = [DM_DATA]
+    import_domains(domain_files)

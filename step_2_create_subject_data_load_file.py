@@ -18,7 +18,7 @@ def write_tmp(name, data):
 debug = []
 matches = []
 issues = []
-row_datapoints = {}
+collection_datapoints = {}
 
 DATA_CONTRACTS_LOOKUP = Path.cwd() / "data" / "output" / "data_contracts.json"
 assert DATA_CONTRACTS_LOOKUP.exists(), "DATA_CONTRACTS_LOOKUP not found"
@@ -44,9 +44,9 @@ def add_row_dp(domain: str, variables: list, row, dp_uri = None):
 
     key = "_".join(keys)
     if dp_uri == None:
-        row_datapoints[str(key)] = []
+        collection_datapoints[str(key)] = []
     else:
-        row_datapoints[str(key)].append(dp_uri)
+        collection_datapoints[str(key)].append(dp_uri)
 
 def output_json(path, name, data):
     OUTPUT_FILE = path / f"{name}.json"
@@ -470,7 +470,7 @@ def create_subject_data_load_file():
         print(issue)
     print("")
 
-    for k,v in row_datapoints.items():
+    for k,v in collection_datapoints.items():
         debug.append(f"{k}-{v}")
 
 
@@ -485,15 +485,15 @@ def create_subject_data_load_file():
     # row datapoints
     print("\nCreating datapoints relation to row")
     for_csv = []
-    for key,dps in row_datapoints.items():
+    for key,dps in collection_datapoints.items():
         for dp in dps:
             item = {}
             item["key"] = key
             item['datapoint_uri'] = dp
             for_csv.append(item)
-    output_csv(OUTPUT_PATH,"row_datapoints.csv",for_csv)
-    output_json(OUTPUT_PATH,"row_datapoints",row_datapoints)
-    # save_file(OUTPUT_PATH,"row_datapoints",row_datapoints)
+    output_csv(OUTPUT_PATH,"collection_datapoints.csv",for_csv)
+    output_json(OUTPUT_PATH,"collection_datapoints",collection_datapoints)
+    # save_file(OUTPUT_PATH,"collection_datapoints",collection_datapoints)
 
     write_tmp("step-2-dc-debug.txt",debug)
 
