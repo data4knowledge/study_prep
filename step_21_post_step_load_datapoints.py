@@ -284,7 +284,22 @@ value.bc as bc,
 value.bc_prop as bc_prop, 
 value. act_inst_uuid as  act_inst_uuid
 WITH study, sd, tl,act,act_inst_main,act_inst,bc,bc_prop,act_inst_uuid
-return *
+return study.name as study_name, sd.name as sd_name, tl.name as tl_name, act.name as act_name, act_inst_main.name as act_inst_main_name, act_inst.name as act_inst_name, bc.name as bc_name, bc_prop.name as bc_prop_name, act_inst_uuid
+        """ % ()
+        # My new fantastic
+
+        query = """
+match (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
+MATCH (bcp)<-[:PROPERTIES_REL]-(ignore_dc:DataContract)
+match (ignore_dc)-[:INSTANCES_REL]->(enc_msai:ScheduledActivityInstance)-[:ENCOUNTER_REL]->(enc:Encounter)
+with distinct bc.name as bc_name, bcp.name as bcp_name, enc.label as visit, enc_msai.uuid as enc_msai_uuid
+MATCH (msai:ScheduledActivityInstance {uuid: enc_msai_uuid})<-[:INSTANCES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(sub_sai:ScheduledActivityInstance)
+MATCH (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty {name: bcp_name})
+MATCH (sub_sai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
+// WITH bc_name, bcp, dc, sub_sai, t
+WITH bc_name, bcp.name as bcp_name, sub_sai.name as sub_sai_name, visit, t.value as tpt, dc.uri as dc_uri
+// return *
+return bc_name, bcp_name, sub_sai_name, visit, tpt, dc_uri
         """ % ()
         print("datapoint query\n",query)
         results = session.run(query)
@@ -477,7 +492,7 @@ def load_datapoints():
 
     debug.append("\n------- test")
     res = test_datapoints()
-    for r in res:
+    for r in res[0:5]:
         debug.append(r)
 
     write_tmp("step-21-post_step.txt",debug)
