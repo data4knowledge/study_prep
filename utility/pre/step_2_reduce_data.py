@@ -49,7 +49,7 @@ def save_data(data,domain):
     df.to_csv(OUTPUT_CSV, index = False)
     print("saved csv: ",OUTPUT_CSV)
 
-    OUTPUT_XLSX = OUTPUT_PATH / f"{domain}.csv"
+    OUTPUT_XLSX = OUTPUT_PATH / f"{domain}.xlsx"
     df = pd.DataFrame(data)
     df.to_excel(OUTPUT_XLSX, index = False)
     print("saved xlsx: ",OUTPUT_XLSX)
@@ -93,7 +93,7 @@ def reduce_vs(subjects):
     save_data(data,domain)
 
 IMPORT_PATH = Path('/Users/johannes/Library/CloudStorage/OneDrive-data4knowledge/shared_mac/pilots/updated_pilot_submission_package/Updated Pilot Submission Package/900172/m5/datasets/cdiscpilot01/tabulations/sdtm')
-OUTPUT_PATH = Path('/Users/johannes/Library/CloudStorage/OneDrive-data4knowledge/shared_mac/pilots')
+OUTPUT_PATH = Path('/Users/johannes/Library/CloudStorage/OneDrive-data4knowledge/shared_mac/pilots/data/pilot')
 
 if __name__ == "__main__":
     subjects = get_subjects()
