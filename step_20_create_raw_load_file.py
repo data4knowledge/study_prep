@@ -458,6 +458,10 @@ def create_raw_data_load_file():
     data = []
 
     get_vs_data(data)
+    print("\n -- vs")
+    for r in data:
+        debug.append(r)
+
     # get_lb_data(data)
     # get_dm_data(data)
     # get_ex_data(data)
@@ -474,8 +478,8 @@ def create_raw_data_load_file():
         print(issue)
     print("")
 
-    for k,v in row_datapoints.items():
-        debug.append(f"{k}-{v}")
+    # for k,v in row_datapoints.items():
+    #     debug.append(f"{k}-{v}")
 
 
     print("--- number of Datapoints:",len(data))
@@ -499,7 +503,7 @@ def create_raw_data_load_file():
     # output_json(OUTPUT_PATH,"row_datapoints",row_datapoints)
     # # save_file(OUTPUT_PATH,"row_datapoints",row_datapoints)
 
-    write_tmp("step-2-dc-debug.txt",debug)
+    write_tmp("step-20-dc-debug.txt",debug)
 
     print("\ndone")
 

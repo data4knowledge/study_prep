@@ -235,6 +235,57 @@ def test_datapoints():
             match (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)<-[:PROPERTIES_REL]-(bc:BiomedicalConcept)
             return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, enc.label as ENCOUNTER_LABEL, t.value as TIMEPOINT_VALUE, dc.uri as DC_URI
         """ % ()
+        # From study service create data contract sub timeline
+        query = """
+            MATCH(study:Study{name:'Study_CDISC PILOT - LZZT'})-[r1:VERSIONS_REL]->(StudyVersion)-[r2:STUDY_DESIGNS_REL]->(sd:StudyDesign)
+            MATCH(sd)-[r3:SCHEDULE_TIMELINES_REL]->(tl:ScheduleTimeline)<-[r4:TIMELINE_REL]-(act_main)<-[r5:ACTIVITY_REL]-(act_inst_main:ScheduledActivityInstance)
+            MATCH(tl)-[r6:INSTANCES_REL]->(act_inst:ScheduledActivityInstance)-[r7:ACTIVITY_REL]->(act:Activity)-[r8:BIOMEDICAL_CONCEPT_REL]->(bc:BiomedicalConcept)-[r9:PROPERTIES_REL]->(bc_prop:BiomedicalConceptProperty) 
+            where bc.label = "Diastolic Blood Pressure"
+            and   bc_prop.name = "VSORRES"
+            return distinct study, sd, tl, act, act_inst_main, act_inst_main.uuid+'/'+ act_inst.uuid as act_inst_uuid, act_inst, bc,bc_prop
+        """ % ()
+        query = """
+call apoc.cypher.run("MATCH(study:Study{name:$s})-[r1:VERSIONS_REL]->(StudyVersion)-[r2:STUDY_DESIGNS_REL]->(sd:StudyDesign)
+MATCH(sd)-[r3:SCHEDULE_TIMELINES_REL]->(tl:ScheduleTimeline) where not (tl)<-[:TIMELINE_REL]-()
+MATCH(tl)-[r4:INSTANCES_REL]->(act_inst_main:ScheduledActivityInstance)-[r5:ACTIVITY_REL]->(act:Activity)-[r6:BIOMEDICAL_CONCEPT_REL]->(bc:BiomedicalConcept)-[r7:PROPERTIES_REL]->(bc_prop:BiomedicalConceptProperty) 
+WHERE bc.name = 'Diastolic Blood Pressure'
+and   bc_prop.name = 'VSORRES'
+return distinct study, 
+sd, 
+tl, 
+act, 
+act_inst_main,
+act_inst_main.uuid as act_inst_uuid,
+null as act_inst,  
+bc,
+bc_prop
+      UNION
+MATCH(study:Study{name:$s})-[r1:VERSIONS_REL]->(StudyVersion)-[r2:STUDY_DESIGNS_REL]->(sd:StudyDesign)
+MATCH(sd)-[r3:SCHEDULE_TIMELINES_REL]->(tl:ScheduleTimeline)<-[r4:TIMELINE_REL]-(act_main)<-[r5:ACTIVITY_REL]-(act_inst_main:ScheduledActivityInstance)
+MATCH(tl)-[r6:INSTANCES_REL]->(act_inst:ScheduledActivityInstance)-[r7:ACTIVITY_REL]->(act:Activity)-[r8:BIOMEDICAL_CONCEPT_REL]->(bc:BiomedicalConcept)-[r9:PROPERTIES_REL]->(bc_prop:BiomedicalConceptProperty) 
+WHERE bc.name = 'Diastolic Blood Pressure'
+and   bc_prop.name = 'VSORRES'
+return distinct study, 
+sd, 
+tl, 
+act, 
+act_inst_main,
+act_inst_main.uuid+'/'+ act_inst.uuid as act_inst_uuid,
+act_inst,  
+bc,
+bc_prop",{s:'Study_CDISC PILOT - LZZT'}) YIELD value
+WITH value.study as study, 
+value.sd as sd, 
+value.tl as tl, 
+value.act as act, 
+value.act_inst_main as act_inst_main, 
+value.act_inst as act_inst, 
+value.bc as bc, 
+value.bc_prop as bc_prop, 
+value. act_inst_uuid as  act_inst_uuid
+WITH study, sd, tl,act,act_inst_main,act_inst,bc,bc_prop,act_inst_uuid
+return *
+        """ % ()
         print("datapoint query\n",query)
         results = session.run(query)
         res = [result.data() for result in results]
@@ -374,6 +425,7 @@ def get_unique_activities(data):
     # SUBJID,ROW_NO,VISIT,VARIABLE,LABEL,TIMEPOINT,VALUE
     unique_activities = {}
     for item in data:
+        # if item['TIMEPOINT'] != "":
         if item['TIMEPOINT'] != "":
             activity = {'visit':item['VISIT'],'label':item['LABEL'],'variable':item['VARIABLE'],'timepoint':item['TIMEPOINT']}
             key = str(activity)
@@ -401,22 +453,34 @@ def load_datapoints():
     datapoints_file = Path.cwd() / "data" / "output" / "datapoints.csv"
     assert datapoints_file.exists(), f"datapoints_file does not exist: {datapoints_file}"
     data = get_datapoints_file(datapoints_file)
+    data = [r for r in data if r['LABEL'] == "Diastolic Blood Pressure"]
+
+    # debug.append("\n------- data")
+    # for r in data[0:4]:
+    # # for r in data:
+    #     debug.append(r)
 
     properties = get_bc_properties()
+    properties = [r for r in properties if r['BC_LABEL'] == "Diastolic Blood Pressure"]
+    debug.append(f"len(properties): {len(properties)}")
     # properties_dm = get_bc_properties_dm()
-    properties_sub_timeline = get_bc_properties_sub_timeline()
-    debug.append("------- properties")
     for r in properties[0:4]:
         debug.append(r)
 
+    properties_sub_timeline = get_bc_properties_sub_timeline()
+    properties_sub_timeline = [r for r in properties_sub_timeline if r['BC_LABEL'] == "Diastolic Blood Pressure"]
+    debug.append(f"len(properties_sub_timeline): {len(properties_sub_timeline)}")
+    debug.append("------- properties")
     debug.append("\n------- properties sub-timeline")
     for r in properties_sub_timeline[0:4]:
         debug.append(r)
 
-    # debug.append("\n------- activities")
-    # res = test_datapoints()
-    # for r in res:
-    #     debug.append(r)
+    debug.append("\n------- test")
+    res = test_datapoints()
+    for r in res:
+        debug.append(r)
+
+    write_tmp("step-21-post_step.txt",debug)
 
     print("\nadd datapoints")
     unique_activities = get_unique_activities(data)
