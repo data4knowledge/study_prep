@@ -56,66 +56,67 @@ VS_UNIT_NAME = 'VSORRESU'
 LB_UNIT_NAME = 'LBORRESU'
 VS_POSITION = 'VSPOS'
 VS_LOCATION = 'VSLOC'
-FINDINGS_DTC = '--DTC'
+FINDINGS_DTC_NAME = '--DTC'
+FINDINGS_DTC_LABEL = 'Date Time'
 TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME = {
     'Weight': {
         'VSORRES': VS_RESULT_NAME,
         'VSORRESU': VS_UNIT_NAME,
-        'date': FINDINGS_DTC,
+        'date': FINDINGS_DTC_NAME,
         'position': VS_POSITION,
         'location': VS_LOCATION
     },
     'Height': {
         'VSORRES': VS_RESULT_NAME,
         'VSORRESU': VS_UNIT_NAME,
-        'date': FINDINGS_DTC,
+        'date': FINDINGS_DTC_NAME,
         'position': VS_POSITION,
         'location': VS_LOCATION
     },
     'Temperature': {
         'VSORRES': VS_RESULT_NAME,
         'VSORRESU': VS_UNIT_NAME,
-        'date': FINDINGS_DTC,
+        'date': FINDINGS_DTC_NAME,
         'position': VS_POSITION,
         'location': VS_LOCATION
     },
     'Diastolic Blood Pressure': {
         'VSORRES': VS_RESULT_NAME,
         'VSORRESU': VS_UNIT_NAME,
-        'date': FINDINGS_DTC,
+        'date': FINDINGS_DTC_NAME,
         'position': VS_POSITION,
         'location': VS_LOCATION
     },
     'Systolic Blood Pressure': {
         'VSORRES': VS_RESULT_NAME,
         'VSORRESU': VS_UNIT_NAME,
-        'date': FINDINGS_DTC,
+        'date': FINDINGS_DTC_NAME,
         'position': VS_POSITION,
         'location': VS_LOCATION
     },
     'Pulse Rate': {
         'VSORRES': VS_RESULT_NAME,
         'VSORRESU': VS_UNIT_NAME,
-        'date': FINDINGS_DTC,
+        'date': FINDINGS_DTC_NAME,
         'position': VS_POSITION,
         'location': VS_LOCATION
     },
     'Aspartate Aminotransferase': {
         'LBORRES': LB_RESULT_NAME,
         'LBORRESU': LB_UNIT_NAME,
-        'date': FINDINGS_DTC
+        'date': FINDINGS_DTC_NAME
     },
     'Alkaline Phosphatase': {
         'LBORRES': LB_RESULT_NAME,
         'LBORRESU': LB_UNIT_NAME,
-        'date': FINDINGS_DTC,
+        'date': FINDINGS_DTC_NAME,
         'LBFAST': 'LBFAST',
         'LBSPEC': 'LBSPEC'
     },
     'Alanine Aminotransferase': {
         'LBORRES': LB_RESULT_NAME,
         'LBORRESU': LB_UNIT_NAME,
-        'date': FINDINGS_DTC,
+        'date': FINDINGS_DTC_NAME,
         'LBFAST': 'LBFAST',
         'LBSPEC': 'LBSPEC'
     },

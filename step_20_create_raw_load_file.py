@@ -207,9 +207,9 @@ def get_vs_variable(data, row, data_property, sdtm_variable):
             if row[sdtm_variable]:
                 item['SUBJID'] = row['USUBJID']
                 item['ROW_NO'] = row['VSSEQ']
-                item['VISIT'] = encounter
-                item['VARIABLE'] = property
                 item['LABEL'] = bc_label
+                item['VARIABLE'] = property
+                item['VISIT'] = encounter
                 item['TIMEPOINT'] = tpt
                 # item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['VSSEQ']}"
                 item['VALUE'] = f"{row[sdtm_variable]}"
