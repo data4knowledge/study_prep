@@ -139,7 +139,7 @@ def get_bc_properties():
         MATCH(sd)-[r3:SCHEDULE_TIMELINES_REL]->(tl:ScheduleTimeline) where not (tl)<-[:TIMELINE_REL]-()
         MATCH(tl)-[r4:INSTANCES_REL]->(act_inst_main:ScheduledActivityInstance)-[r5:ACTIVITY_REL]->(act:Activity)-[r6:BIOMEDICAL_CONCEPT_REL]->(bc:BiomedicalConcept)-[r7:PROPERTIES_REL]->(bc_prop:BiomedicalConceptProperty)
         MATCH (bcp)<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(act_inst_main)-[:ENCOUNTER_REL]-(enc)
-        return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, enc.label as ENCOUNTER_LABEL, dc.uri as DC_URI
+        return distinct bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, enc.label as ENCOUNTER_LABEL, dc.uri as DC_URI
     """
     db = Neo4jConnection()
     with db.session() as session:
@@ -163,31 +163,16 @@ def get_bc_properties():
 
 
 def get_bc_properties_sub_timeline():
-    query = f"""
-        match (msai:ScheduledActivityInstance)<-[:INSTANCES_REL]-(dc:DataContract)-[:INSTANCES_REL]-(ssai:ScheduledActivityInstance)
-        match (msai)-[:ENCOUNTER_REL]->(enc:Encounter)
-        match (ssai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
-        match (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)<-[:PROPERTIES_REL]-(bc:BiomedicalConcept)
-        return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, enc.label as ENCOUNTER_LABEL, t.value as TIMEPOINT_VALUE, dc.uri as DC_URI
-    """
     query = """
-        MATCH(study:Study{name:'Study_CDISC PILOT - LZZT'})-[r1:VERSIONS_REL]->(StudyVersion)-[r2:STUDY_DESIGNS_REL]->(sd:StudyDesign)
-        MATCH(sd)-[r3:SCHEDULE_TIMELINES_REL]->(tl:ScheduleTimeline)<-[r4:TIMELINE_REL]-(act_main)<-[r5:ACTIVITY_REL]-(act_inst_main:ScheduledActivityInstance)
-        MATCH(tl)-[r6:INSTANCES_REL]->(act_inst:ScheduledActivityInstance)-[r7:ACTIVITY_REL]->(act:Activity)-[r8:BIOMEDICAL_CONCEPT_REL]->(bc:BiomedicalConcept)-[r9:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty) 
-        MATCH (bcp)<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(act_inst_main)-[:ENCOUNTER_REL]-(enc)
-        MATCH (act_inst)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
-        return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, enc.label as ENCOUNTER_LABEL, t.value as TIMEPOINT_VALUE, dc.uri as DC_URI
-    """
-    query = """
-        MATCH(study:Study{name:'Study_CDISC PILOT - LZZT'})-[r1:VERSIONS_REL]->(StudyVersion)-[r2:STUDY_DESIGNS_REL]->(sd:StudyDesign)
-        MATCH(sd)-[r3:SCHEDULE_TIMELINES_REL]->(tl:ScheduleTimeline)<-[r4:TIMELINE_REL]-(act_main)<-[r5:ACTIVITY_REL]-(act_inst_main:ScheduledActivityInstance)
-        MATCH(tl)-[r6:INSTANCES_REL]->(act_inst:ScheduledActivityInstance)-[r7:ACTIVITY_REL]->(act:Activity)-[r8:BIOMEDICAL_CONCEPT_REL]->(bc:BiomedicalConcept)-[r9:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty) 
-        MATCH (bcp)<-[:PROPERTIES_REL]-(dc:DataContract)
-        MATCH (dc)-[:INSTANCES_REL]->(act_inst_main)-[:ENCOUNTER_REL]-(enc)
-        MATCH (act_inst)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
-        with bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, enc.label as ENCOUNTER_LABEL, t.value as TIMEPOINT_VALUE, dc.uri as DC_URI
-        return distinct BC_LABEL, BCP_NAME, BCP_LABEL, ENCOUNTER_LABEL, TIMEPOINT_VALUE, DC_URI
-        order by BC_LABEL, BCP_NAME, ENCOUNTER_LABEL, TIMEPOINT_VALUE
+        match (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
+        MATCH (bcp)<-[:PROPERTIES_REL]-(ignore_dc:DataContract)
+        match (ignore_dc)-[:INSTANCES_REL]->(enc_msai:ScheduledActivityInstance)-[:ENCOUNTER_REL]->(enc:Encounter)
+        with distinct bc.name as BC_NAME, bc.label as BC_LABEL, bcp.name as bcp_name, bcp.label as bcp_label, enc.label as ENCOUNTER_LABEL, enc_msai.uuid as enc_msai_uuid
+        MATCH (msai:ScheduledActivityInstance {uuid: enc_msai_uuid})<-[:INSTANCES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(sub_sai:ScheduledActivityInstance)
+        MATCH (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty {name: bcp_name})<-[:PROPERTIES_REL]-(bc:BiomedicalConcept {name: BC_NAME})
+        MATCH (sub_sai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
+        WITH BC_NAME, BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, sub_sai.name as sub_sai_name, ENCOUNTER_LABEL, t.value as TIMEPOINT_VALUE, dc.uri as DC_URI
+        return BC_NAME, BC_LABEL, BCP_NAME, BCP_LABEL, ENCOUNTER_LABEL, TIMEPOINT_VALUE, DC_URI
     """
     db = Neo4jConnection()
     with db.session() as session:
@@ -294,14 +279,14 @@ return study.name as study_name, sd.name as sd_name, tl.name as tl_name, act.nam
 match (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
 MATCH (bcp)<-[:PROPERTIES_REL]-(ignore_dc:DataContract)
 match (ignore_dc)-[:INSTANCES_REL]->(enc_msai:ScheduledActivityInstance)-[:ENCOUNTER_REL]->(enc:Encounter)
-with distinct bc.name as bc_name, bcp.name as bcp_name, enc.label as visit, enc_msai.uuid as enc_msai_uuid
+with distinct bc.name as BC_NAME, bc.label as BC_LABEL, bcp.name as bcp_name, bcp.label as bcp_label, enc.label as ENCOUNTER_LABEL, enc_msai.uuid as enc_msai_uuid
 MATCH (msai:ScheduledActivityInstance {uuid: enc_msai_uuid})<-[:INSTANCES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(sub_sai:ScheduledActivityInstance)
-MATCH (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty {name: bcp_name})
+MATCH (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty {name: bcp_name})<-[:PROPERTIES_REL]-(bc:BiomedicalConcept {name: BC_NAME})
 MATCH (sub_sai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
-WITH bc_name, bcp.name as bcp_name, sub_sai.name as sub_sai_name, visit, t.value as tpt, dc.uri as dc_uri
-return bc_name, bcp_name, sub_sai_name, visit, tpt, dc_uri
+WITH BC_NAME, BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, sub_sai.name as sub_sai_name, ENCOUNTER_LABEL, t.value as TIMEPOINT_VALUE, dc.uri as DC_URI
+return BC_NAME, BCP_NAME, BCP_LABEL, sub_sai_name, ENCOUNTER_LABEL, TIMEPOINT_VALUE, DC_URI
         """ % ()
-        print("datapoint query\n",query)
+        print("test query\n",query)
         results = session.run(query)
         res = [result.data() for result in results]
     db.close()
@@ -468,31 +453,40 @@ def load_datapoints():
     datapoints_file = Path.cwd() / "data" / "output" / "datapoints.csv"
     assert datapoints_file.exists(), f"datapoints_file does not exist: {datapoints_file}"
     data = get_datapoints_file(datapoints_file)
-    data = [r for r in data if r['LABEL'] == "Diastolic Blood Pressure"]
+    dia_data = [r for r in data if r['LABEL'] == "Diastolic Blood Pressure"]
 
-    # debug.append("\n------- data")
-    # for r in data[0:4]:
-    # # for r in data:
-    #     debug.append(r)
-
-    properties = get_bc_properties()
-    properties = [r for r in properties if r['BC_LABEL'] == "Diastolic Blood Pressure"]
-    debug.append(f"len(properties): {len(properties)}")
-    # properties_dm = get_bc_properties_dm()
-    for r in properties[0:4]:
+    debug.append("\n------- data")
+    debug.append("\n------- dia_data")
+    for r in dia_data:
         debug.append(r)
 
+    properties = get_bc_properties()
+
+    debug.append("\n------- dbp_properties")
+    dbp_properties = [r for r in properties if r['BC_LABEL'] == "Diastolic Blood Pressure"]
+    for r in dbp_properties:
+        debug.append(r)
+    debug.append(f"len(properties): {len(properties)}")
+    # properties_dm = get_bc_properties_dm()
+    debug.append("\n------- properties")
+    for r in properties[0:20]:
+        debug.append(r)
+
+    # NOTE: Not all blood pressure measurements are repeated, so data contracts for SCREENING 1, SCREENING 2, BASELINEWEEK 2, WEEK 4, WEEK 6, WEEK 8
+    # All records marked as baseline are STANDING VSREPNUM = 3 -> PT2M. So I'll use that for them
     properties_sub_timeline = get_bc_properties_sub_timeline()
-    properties_sub_timeline = [r for r in properties_sub_timeline if r['BC_LABEL'] == "Diastolic Blood Pressure"]
-    debug.append(f"len(properties_sub_timeline): {len(properties_sub_timeline)}")
-    debug.append("------- properties")
+    # properties_sub_timeline = [r for r in properties_sub_timeline if r['BC_LABEL'] == "Diastolic Blood Pressure"]
+    # debug.append(f"len(properties_sub_timeline): {len(properties_sub_timeline)}")
+    # debug.append("------- properties")
     debug.append("\n------- properties sub-timeline")
     for r in properties_sub_timeline[0:4]:
         debug.append(r)
 
+
+
     debug.append("\n------- test")
     res = test_datapoints()
-    for r in res:
+    for r in res[0:5]:
         debug.append(r)
 
     write_tmp("step-21-post_step.txt",debug)
@@ -506,13 +500,14 @@ def load_datapoints():
     bcp_label = 'Date Time'
     tpt = 'PT1M'
 
-    acts_for_dia = [i for i in properties if i['BC_LABEL'] == 'Diastolic Blood Pressure' and i['ENCOUNTER_LABEL'] == encounter and i['BCP_LABEL'] == bcp_label]
-    # acts_for_dia = [i for i in properties if i['BC_LABEL'] == 'Diastolic Blood Pressure' and i['ENCOUNTER_LABEL'] == encounter]
-    debug.append("\n------- acts_for_dia")
-    for r in acts_for_dia:
-        debug.append(r)
+    # acts_for_dia = [i for i in properties if i['BC_LABEL'] == 'Diastolic Blood Pressure' and i['ENCOUNTER_LABEL'] == encounter and i['BCP_LABEL'] == bcp_label]
+    # # acts_for_dia = [i for i in properties if i['BC_LABEL'] == 'Diastolic Blood Pressure' and i['ENCOUNTER_LABEL'] == encounter]
+    # debug.append("\n------- acts_for_dia")
+    # for r in acts_for_dia:
+    #     debug.append(r)
 
-    acts_for_dia_sub = [i for i in properties_sub_timeline if i['BC_LABEL'] == 'Diastolic Blood Pressure' and i['ENCOUNTER_LABEL'] == encounter and i['BCP_LABEL'] == bcp_label and i['TIMEPOINT_VALUE'] == tpt]
+    # acts_for_dia_sub = [i for i in properties_sub_timeline if i['BC_LABEL'] == 'Diastolic Blood Pressure' and i['ENCOUNTER_LABEL'] == encounter and i['BCP_LABEL'] == bcp_label and i['TIMEPOINT_VALUE'] == tpt]
+    acts_for_dia_sub = [i for i in properties_sub_timeline if i['BC_LABEL'] == 'Diastolic Blood Pressure' and i['BCP_LABEL'] == bcp_label]
     debug.append("\n------- acts_for_dia_sub")
     for r in acts_for_dia_sub:
         debug.append(r)
@@ -524,6 +519,7 @@ def load_datapoints():
         if 'timepoint' in v:
             # dc = [i for i in properties_sub_timeline if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable'] and i['TIMEPOINT_VALUE'] == v['timepoint']]
             dc = next((i for i in properties_sub_timeline if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable'] and i['TIMEPOINT_VALUE'] == v['timepoint']),[])
+            # dc = next((i for i in res if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable'] and i['TIMEPOINT_VALUE'] == v['timepoint']),[])
         else:
             # dc = [i for i in properties if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable']]
             dc = next((i for i in properties if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable']),[])
