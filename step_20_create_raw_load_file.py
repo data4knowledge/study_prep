@@ -3,7 +3,7 @@ import json
 import csv
 from pathlib import Path
 from d4kms_service import Neo4jConnection
-from utility.mappings import DATA_LABELS_TO_BC_LABELS, DATA_VISITS_TO_ENCOUNTER_LABELS, DATA_TPT_TO_TIMING_LABELS, TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME
+from utility.mappings import DATA_LABELS_TO_BC_LABELS, DATA_VISITS_TO_ENCOUNTER_LABELS, DATA_REPNUM_TO_TIMING_VALUE, TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME
 
 def write_tmp(name, data):
     TMP_PATH = Path.cwd() / "tmp" / "saved_debug"
@@ -198,8 +198,12 @@ def get_vs_variable(data, row, data_property, sdtm_variable):
     if encounter != "":
         bc_label = get_bc_label(row['VSTEST'])
         tpt = ""
-        if 'VSTPT' in row and row['VSTPT'] != "":
-            tpt = DATA_TPT_TO_TIMING_LABELS[row['VSTPT']]
+        if 'VSREPNUM' in row and row['VSREPNUM'] != "":
+            tpt = DATA_REPNUM_TO_TIMING_VALUE[str(row['VSREPNUM'])]
+        # NOTE: Not all blood pressure measurements are repeated. Found in SCREENING 1, SCREENING 2, BASELINE, WEEK 2, WEEK 4, WEEK 6, WEEK 8
+        # All records marked as baseline are VSPOS = STANDING, VSREPNUM = 3 -> PT2M. So I'll use that if VSREPNUM is missing
+        elif row['VSTESTCD'] in ['SYSBP','DIABP']:
+            tpt = 'PT2M'
 
         property = get_property_for_variable(row['VSTEST'],data_property)
         data_contract = get_data_contract(encounter,bc_label,property,tpt)
