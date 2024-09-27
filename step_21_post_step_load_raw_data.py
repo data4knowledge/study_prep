@@ -1,4 +1,6 @@
+import os
 import json
+import csv
 from pathlib import Path
 from d4kms_service import Neo4jConnection
 from model.configuration import Configuration, ConfigurationNode
@@ -14,6 +16,34 @@ def write_tmp(name, data):
             f.write(str(it))
             f.write('\n')
     print(" ...done")
+
+def output_json(path, name, data):
+    OUTPUT_FILE = path / f"{name}.json"
+    if OUTPUT_FILE.exists():
+        os.unlink(OUTPUT_FILE)
+    print("Saving to",OUTPUT_FILE)
+    with open(OUTPUT_FILE, 'w') as f:
+        f.write(json.dumps(data, indent = 2))
+
+def output_csv(path, name, data):
+    OUTPUT_FILE = path / f"{name}.csv"
+    if OUTPUT_FILE.exists():
+        os.unlink(OUTPUT_FILE)
+    print("Saving to",OUTPUT_FILE)
+    output_variables = list(data[0].keys())
+    with open(OUTPUT_FILE, 'w') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=output_variables)
+        writer.writeheader()
+        writer.writerows(data)
+
+    # OUTPUT_XLSX = path / f"{name}.xlsx"
+    # df = pd.DataFrame(data)
+    # df.to_excel(OUTPUT_XLSX, index = False)
+    # print("saved xlsx: ",OUTPUT_XLSX)
+
+def save_file(path: Path, name, data):
+    # output_json(path, name, data)
+    output_csv(path, name, data)
 
 
 def clear_created_nodes():
@@ -412,7 +442,7 @@ def link_row_datapoints():
         print("results row datapoints",[result.data() for result in results])
     db.close()
 
-def get_datapoints_file(file):
+def get_raw_data_file(file):
     df = pd.read_csv(file)
     df = df.fillna("")
     data = df.to_dict(orient="records")
@@ -439,37 +469,17 @@ issues = []
 
 
 def load_datapoints():
-    clear_created_nodes()
-    import_directory = get_import_directory()
-    copy_files_to_db_import(import_directory)
-    # add_identifiers_datapoints()
-    print("\nadd identifiers")
-    add_identifiers()
 
-    print("\nget distincts")
-    datapoints_file = Path.cwd() / "data" / "output" / "datapoints.csv"
-    assert datapoints_file.exists(), f"datapoints_file does not exist: {datapoints_file}"
-    data = get_datapoints_file(datapoints_file)
-    debug.append(f"\n------- data ({len(data)})")
-
-    # dia_data = [r for r in data if r['LABEL'] == "Diastolic Blood Pressure" and r['VARIABLE'] == "VSORRES"]
-    # debug.append("\n------- dia_data")
-    # for r in dia_data:
-    #     debug.append(r)
+    print("\nget raw data")
+    raw_data_file = Path.cwd() / "data" / "output" / "raw_data.csv"
+    assert raw_data_file.exists(), f"raw_data_file does not exist: {raw_data_file}"
+    raw_data = get_raw_data_file(raw_data_file)
+    debug.append(f"\n------- raw data ({len(raw_data)})")
+    for r in raw_data[0:5]:
+        debug.append(r)
 
     properties = get_bc_properties()
     debug.append(f"\n------- properties ({len(properties)})")
-
-    # debug.append("\n------- dbp_properties")
-    # dbp_properties = [r for r in properties if r['BC_LABEL'] == "Diastolic Blood Pressure" and r['BCP_LABEL'] == "VSORRES"]
-    # for r in dbp_properties:
-    #     debug.append(r)
-
-    # debug.append("\n------- properties")
-    # for r in properties[0:20]:
-    #     debug.append(r)
-
-    # properties_dm = get_bc_properties_dm()
 
     # NOTE: Not all blood pressure measurements are repeated, so data contracts for SCREENING 1, SCREENING 2, BASELINEWEEK 2, WEEK 4, WEEK 6, WEEK 8
     # All records marked as baseline are STANDING VSREPNUM = 3 -> PT2M. So I'll use that for them
@@ -477,19 +487,15 @@ def load_datapoints():
     debug.append(f"\n------- properties_sub_timeline ({len(properties_sub_timeline)})")
     for r in properties_sub_timeline[0:4]:
         debug.append(r)
-    # properties_sub_timeline = [r for r in properties_sub_timeline if r['BC_LABEL'] == "Diastolic Blood Pressure"]
-    # debug.append(f"len(properties_sub_timeline): {len(properties_sub_timeline)}")
-    # debug.append("------- properties")
-
-    # debug.append("\n------- test")
-    # res = test_datapoints()
-    # for r in res[0:5]:
-    #     debug.append(r)
+    
+    properties_sub_timeline = [r for r in properties_sub_timeline if r['BC_LABEL'] == "Diastolic Blood Pressure"]
+    debug.append(f"len(properties_sub_timeline): {len(properties_sub_timeline)}")
+    debug.append("------- properties")
 
     write_tmp("step-21-post_step.txt",debug)
 
-    print("\get unique activities from data")
-    unique_activities = get_unique_activities(data)
+    print("\get unique activities from raw_data")
+    unique_activities = get_unique_activities(raw_data)
     debug.append(f"\n------- unique_activities ({len(unique_activities)})")
     # debug.append("\n------- unique_activities before list(set)")
     # for r in unique_activities:
@@ -519,48 +525,76 @@ def load_datapoints():
 
     missing = []
     matches = []
+    datapoints = []
     # # res =               dict(list(test_dict.items())[0: K])
     debug.append("\n------- looping unique_activities")
     for k,v in unique_activities.items():
+        rows = []
         if 'timepoint' in v:
             # dc = [i for i in properties_sub_timeline if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable'] and i['TIMEPOINT_VALUE'] == v['timepoint']]
             # dc = next((i for i in properties_sub_timeline if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable'] and i['TIMEPOINT_VALUE'] == v['timepoint']),[])
-            dc = next((i for i in properties_sub_timeline if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_NAME'] == v['variable'] and i['TIMEPOINT_VALUE'] == v['timepoint']),[])
+            dc = next((i['DC_URI'] for i in properties_sub_timeline if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_NAME'] == v['variable'] and i['TIMEPOINT_VALUE'] == v['timepoint']),[])
+            # d = [r for r in raw_data if r['BC_LABEL'] == v['label'] and r['ENCOUNTER_LABEL'] == v['visit'] and r['BCP_NAME'] == v['variable'] and r['TIMEPOINT_VALUE'] == v['timepoint']]
+            if dc:
+                rows = [r for r in raw_data if r['LABEL'] == v['label'] and r['VISIT'] == v['visit'] and r['VARIABLE'] == v['variable'] and r['TIMEPOINT'] == v['timepoint']]
+            # debug.append(f"len(rows) {len(rows)}")
+
         else:
             # dc = [i for i in properties if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable']]
             dc = next((i for i in properties if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable']),[])
         # debug.append(f"len(dc): {len(dc)}")
+        for row in rows:
+            item = {}
+            item['USUBJID'] = row['SUBJID']
+            thing = f"{row['LABEL']}/{row['VARIABLE']}".replace(" ","").replace("-","")
+            if 'TIMEPOINT' in row:
+                dp_uri = f"{dc}{row['SUBJID']}/{thing}/{row['ROW_NO']}/{row['TIMEPOINT']}"
+            else:
+                dp_uri = f"{dc}{row['SUBJID']}/{thing}/{row['ROW_NO']}"
+            item['DATAPOINT_URI'] = dp_uri
+            item['VALUE'] = row['VALUE']
+            item['DC_URI'] = dc
+            datapoints.append(item)
+
         if not dc:
-            # v.pop('variable')
-            # v.pop('label')
             missing.append(v)
-            debug.append(f" -- missing {v}")
-        else:
-            matches.append(v)
-            debug.append(f"{v}")
-        # debug.append(f"dc: {dc}")
-    #     add_datapoints(v)
+
+    debug.append("\n------- building datapoints")
+    for r in datapoints:
+        debug.append(r)
+
+
     debug.append("\n------- missing")
     metadata = {}
     for r in missing:
         key = f"{r['visit']}-{r['timepoint']}" if 'timepoint' in r else r['visit']
-        debug.append(f"next key {key} {key in metadata}")
-
         if key in metadata:
-            debug.append(f"  updating key {key} with {r['label']}.{r['variable']}")
             metadata[key].append(f"{r['label']}.{r['variable']}")
         else:
-            debug.append(f"  adding key {key} {r['label']}.{r['variable']}")
             metadata[key] = [f"{r['label']}.{r['variable']}"]
 
-    # u_missing = list({v.values():v for v in missing}.values())
-    # u_missing = set([str(v) for v in missing])
-    for r in metadata.items():
-        debug.append(r)
+    # for r in metadata.items():
+    #     debug.append(r)
 
     write_tmp("step-21-post_step.txt",debug)
 
+    OUTPUT_PATH = Path.cwd() / "data" / "output"
+    assert OUTPUT_PATH.exists(), "OUTPUT_PATH not found"
+
+    save_file(OUTPUT_PATH,"datapoints_msg",datapoints)
+
+    # Save datapoints to file
+
     return
+    clear_created_nodes()
+    import_directory = get_import_directory()
+    copy_files_to_db_import(import_directory)
+    # add_identifiers_datapoints()
+    print("\nadd identifiers")
+    add_identifiers()
+
+
+
     # check_data_contracts()
     print("\nlink row datatpoints")
     link_row_datapoints()

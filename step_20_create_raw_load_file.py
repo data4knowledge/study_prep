@@ -217,7 +217,7 @@ def get_vs_variable(data, row, data_property, sdtm_variable):
         if data_contract:
             if row[sdtm_variable]:
                 item['SUBJID'] = row['USUBJID']
-                item['ROW_NO'] = row['VSSEQ']
+                item['ROW_NO'] = str(row['VSSEQ'])
                 item['LABEL'] = bc_label
                 item['VARIABLE'] = property
                 item['VISIT'] = encounter
