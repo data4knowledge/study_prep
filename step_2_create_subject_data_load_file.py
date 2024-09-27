@@ -317,7 +317,7 @@ def get_dm_data(data):
         # NB: Faking Informed consent date
         get_dm_variable(data, row, 'Informed Consent', 'date', 'RFICDTC')
         get_dm_variable(data, row, 'Date of Birth', 'value', 'BRTHDTC')
-        get_dm_variable(data, row, 'Sex', 'date', 'DMDTC')
+        # get_dm_variable(data, row, 'Sex', 'date', 'DMDTC')
         # Ethnicity. No BC
    
 def get_ae_variable(data, row, bc_label, data_label, sdtm_variable):

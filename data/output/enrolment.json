@@ -2,51 +2,51 @@
   {
     "STUDY_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt",
     "SITEID": "701",
-    "USUBJID": "01-701-1015"
+    "USUBJID": "CDISC001"
   },
   {
     "STUDY_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt",
     "SITEID": "701",
-    "USUBJID": "01-701-1023"
+    "USUBJID": "CDISC002"
   },
   {
     "STUDY_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt",
     "SITEID": "701",
-    "USUBJID": "01-701-1028"
+    "USUBJID": "CDISC003"
   },
   {
     "STUDY_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt",
     "SITEID": "701",
-    "USUBJID": "01-701-1033"
+    "USUBJID": "CDISC004"
   },
   {
     "STUDY_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt",
     "SITEID": "701",
-    "USUBJID": "01-701-1034"
+    "USUBJID": "CDISC005"
   },
   {
     "STUDY_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt",
     "SITEID": "701",
-    "USUBJID": "01-701-1047"
+    "USUBJID": "CDISC006"
   },
   {
     "STUDY_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt",
     "SITEID": "701",
-    "USUBJID": "01-701-1057"
+    "USUBJID": "CDISC007"
   },
   {
     "STUDY_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt",
-    "SITEID": "701",
-    "USUBJID": "01-701-1097"
+    "SITEID": "704",
+    "USUBJID": "CDISC008"
   },
   {
     "STUDY_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt",
-    "SITEID": "701",
-    "USUBJID": "01-701-1111"
+    "SITEID": "708",
+    "USUBJID": "CDISC009"
   },
   {
     "STUDY_URI": "https://study.d4k.dk/study-cdisc-pilot-lzzt",
-    "SITEID": "701",
-    "USUBJID": "01-701-1115"
+    "SITEID": "708",
+    "USUBJID": "CDISC010"
   }
 ]

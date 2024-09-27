@@ -272,9 +272,6 @@ WITH study, sd, tl,act,act_inst_main,act_inst,bc,bc_prop,act_inst_uuid
 return study.name as study_name, sd.name as sd_name, tl.name as tl_name, act.name as act_name, act_inst_main.name as act_inst_main_name, act_inst.name as act_inst_name, bc.name as bc_name, bc_prop.name as bc_prop_name, act_inst_uuid
         """ % ()
         # My new fantastic
-# where bc.name = "Diastolic Blood Pressure" and bcp.name = "VSORRES"
-# and   enc.label = "Screening 1"
-
         query = """
 match (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
 MATCH (bcp)<-[:PROPERTIES_REL]-(ignore_dc:DataContract)
@@ -453,52 +450,65 @@ def load_datapoints():
     datapoints_file = Path.cwd() / "data" / "output" / "datapoints.csv"
     assert datapoints_file.exists(), f"datapoints_file does not exist: {datapoints_file}"
     data = get_datapoints_file(datapoints_file)
-    dia_data = [r for r in data if r['LABEL'] == "Diastolic Blood Pressure"]
+    debug.append(f"\n------- data ({len(data)})")
 
-    debug.append("\n------- data")
-    debug.append("\n------- dia_data")
-    for r in dia_data:
-        debug.append(r)
+    # dia_data = [r for r in data if r['LABEL'] == "Diastolic Blood Pressure" and r['VARIABLE'] == "VSORRES"]
+    # debug.append("\n------- dia_data")
+    # for r in dia_data:
+    #     debug.append(r)
 
     properties = get_bc_properties()
+    debug.append(f"\n------- properties ({len(properties)})")
 
-    debug.append("\n------- dbp_properties")
-    dbp_properties = [r for r in properties if r['BC_LABEL'] == "Diastolic Blood Pressure"]
-    for r in dbp_properties:
-        debug.append(r)
-    debug.append(f"len(properties): {len(properties)}")
+    # debug.append("\n------- dbp_properties")
+    # dbp_properties = [r for r in properties if r['BC_LABEL'] == "Diastolic Blood Pressure" and r['BCP_LABEL'] == "VSORRES"]
+    # for r in dbp_properties:
+    #     debug.append(r)
+
+    # debug.append("\n------- properties")
+    # for r in properties[0:20]:
+    #     debug.append(r)
+
     # properties_dm = get_bc_properties_dm()
-    debug.append("\n------- properties")
-    for r in properties[0:20]:
-        debug.append(r)
 
     # NOTE: Not all blood pressure measurements are repeated, so data contracts for SCREENING 1, SCREENING 2, BASELINEWEEK 2, WEEK 4, WEEK 6, WEEK 8
     # All records marked as baseline are STANDING VSREPNUM = 3 -> PT2M. So I'll use that for them
     properties_sub_timeline = get_bc_properties_sub_timeline()
+    debug.append(f"\n------- properties_sub_timeline ({len(properties_sub_timeline)})")
+    for r in properties_sub_timeline[0:4]:
+        debug.append(r)
     # properties_sub_timeline = [r for r in properties_sub_timeline if r['BC_LABEL'] == "Diastolic Blood Pressure"]
     # debug.append(f"len(properties_sub_timeline): {len(properties_sub_timeline)}")
     # debug.append("------- properties")
-    debug.append("\n------- properties sub-timeline")
-    for r in properties_sub_timeline[0:4]:
-        debug.append(r)
 
-
-
-    debug.append("\n------- test")
-    res = test_datapoints()
-    for r in res[0:5]:
-        debug.append(r)
+    # debug.append("\n------- test")
+    # res = test_datapoints()
+    # for r in res[0:5]:
+    #     debug.append(r)
 
     write_tmp("step-21-post_step.txt",debug)
 
-    print("\nadd datapoints")
+    print("\get unique activities from data")
     unique_activities = get_unique_activities(data)
-    unique_activities = dict(list(unique_activities.items())[0:4])
+    debug.append(f"\n------- unique_activities ({len(unique_activities)})")
+    # debug.append("\n------- unique_activities before list(set)")
+    # for r in unique_activities:
+    #     debug.append(r)
 
-    encounter = 'Baseline'
-    encounter = 'Screening 1'
-    bcp_label = 'Date Time'
-    tpt = 'PT1M'
+    # Reducing when debugging
+    # unique_activities = dict(list(unique_activities.items())[0:4])
+
+
+    # encounter = 'Baseline'
+    # encounter = 'Screening 1'
+    # bcp_label = 'Date Time'
+    # tpt = 'PT1M'
+    # # acts_for_dia_sub = [i for i in properties_sub_timeline if i['BC_LABEL'] == 'Diastolic Blood Pressure' and i['ENCOUNTER_LABEL'] == encounter and i['BCP_LABEL'] == bcp_label and i['TIMEPOINT_VALUE'] == tpt]
+    # acts_for_dia_sub = [i for i in properties_sub_timeline if i['BC_LABEL'] == 'Diastolic Blood Pressure' and i['BCP_LABEL'] == bcp_label]
+    # debug.append("\n------- acts_for_dia_sub")
+    # for r in acts_for_dia_sub:
+    #     debug.append(r)
+
 
     # acts_for_dia = [i for i in properties if i['BC_LABEL'] == 'Diastolic Blood Pressure' and i['ENCOUNTER_LABEL'] == encounter and i['BCP_LABEL'] == bcp_label]
     # # acts_for_dia = [i for i in properties if i['BC_LABEL'] == 'Diastolic Blood Pressure' and i['ENCOUNTER_LABEL'] == encounter]
@@ -506,30 +516,47 @@ def load_datapoints():
     # for r in acts_for_dia:
     #     debug.append(r)
 
-    # acts_for_dia_sub = [i for i in properties_sub_timeline if i['BC_LABEL'] == 'Diastolic Blood Pressure' and i['ENCOUNTER_LABEL'] == encounter and i['BCP_LABEL'] == bcp_label and i['TIMEPOINT_VALUE'] == tpt]
-    acts_for_dia_sub = [i for i in properties_sub_timeline if i['BC_LABEL'] == 'Diastolic Blood Pressure' and i['BCP_LABEL'] == bcp_label]
-    debug.append("\n------- acts_for_dia_sub")
-    for r in acts_for_dia_sub:
-        debug.append(r)
 
+    missing = []
+    matches = []
     # # res =               dict(list(test_dict.items())[0: K])
-    debug.append("\n------- unique_activities")
+    debug.append("\n------- looping unique_activities")
     for k,v in unique_activities.items():
-        debug.append(f"{v}")
         if 'timepoint' in v:
             # dc = [i for i in properties_sub_timeline if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable'] and i['TIMEPOINT_VALUE'] == v['timepoint']]
-            dc = next((i for i in properties_sub_timeline if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable'] and i['TIMEPOINT_VALUE'] == v['timepoint']),[])
-            # dc = next((i for i in res if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable'] and i['TIMEPOINT_VALUE'] == v['timepoint']),[])
+            # dc = next((i for i in properties_sub_timeline if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable'] and i['TIMEPOINT_VALUE'] == v['timepoint']),[])
+            dc = next((i for i in properties_sub_timeline if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_NAME'] == v['variable'] and i['TIMEPOINT_VALUE'] == v['timepoint']),[])
         else:
             # dc = [i for i in properties if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable']]
             dc = next((i for i in properties if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable']),[])
         # debug.append(f"len(dc): {len(dc)}")
-        debug.append(f"dc: {dc}")
+        if not dc:
+            # v.pop('variable')
+            # v.pop('label')
+            missing.append(v)
+            debug.append(f" -- missing {v}")
+        else:
+            matches.append(v)
+            debug.append(f"{v}")
+        # debug.append(f"dc: {dc}")
     #     add_datapoints(v)
+    debug.append("\n------- missing")
+    metadata = {}
+    for r in missing:
+        key = f"{r['visit']}-{r['timepoint']}" if 'timepoint' in r else r['visit']
+        debug.append(f"next key {key} {key in metadata}")
 
-    # debug.append(data.__class__)
-    # for d in data:
-    #     debug.append(d)
+        if key in metadata:
+            debug.append(f"  updating key {key} with {r['label']}.{r['variable']}")
+            metadata[key].append(f"{r['label']}.{r['variable']}")
+        else:
+            debug.append(f"  adding key {key} {r['label']}.{r['variable']}")
+            metadata[key] = [f"{r['label']}.{r['variable']}"]
+
+    # u_missing = list({v.values():v for v in missing}.values())
+    # u_missing = set([str(v) for v in missing])
+    for r in metadata.items():
+        debug.append(r)
 
     write_tmp("step-21-post_step.txt",debug)
 

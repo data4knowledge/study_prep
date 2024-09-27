@@ -1,6 +1,7 @@
 import os
 import json
 import csv
+import pandas as pd
 from pathlib import Path
 from d4kms_service import Neo4jConnection
 from utility.mappings import DATA_LABELS_TO_BC_LABELS, DATA_VISITS_TO_ENCOUNTER_LABELS, DATA_REPNUM_TO_TIMING_VALUE, TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME
@@ -57,7 +58,7 @@ def output_json(path, name, data):
         f.write(json.dumps(data, indent = 2))
 
 def output_csv(path, name, data):
-    OUTPUT_FILE = path / name
+    OUTPUT_FILE = path / f"{name}.csv"
     if OUTPUT_FILE.exists():
         os.unlink(OUTPUT_FILE)
     print("Saving to",OUTPUT_FILE)
@@ -67,9 +68,15 @@ def output_csv(path, name, data):
         writer.writeheader()
         writer.writerows(data)
 
+    OUTPUT_XLSX = path / f"{name}.xlsx"
+    df = pd.DataFrame(data)
+    df.to_excel(OUTPUT_XLSX, index = False)
+    print("saved xlsx: ",OUTPUT_XLSX)
+
+
 def save_file(path: Path, name, data):
-    output_json(path, f"{name}.csv",data)
-    output_csv(path, f"{name}.csv",data)
+    output_json(path, name, data)
+    output_csv(path, name, data)
 
 def db_query(query):
     db = Neo4jConnection()
@@ -204,6 +211,7 @@ def get_vs_variable(data, row, data_property, sdtm_variable):
         # All records marked as baseline are VSPOS = STANDING, VSREPNUM = 3 -> PT2M. So I'll use that if VSREPNUM is missing
         elif row['VSTESTCD'] in ['SYSBP','DIABP']:
             tpt = 'PT2M'
+            item['imputed'] = "y"
 
         property = get_property_for_variable(row['VSTEST'],data_property)
         data_contract = get_data_contract(encounter,bc_label,property,tpt)
@@ -491,7 +499,7 @@ def create_raw_data_load_file():
         print("No data has been found")
         exit()
 
-    save_file(OUTPUT_PATH,"datapoints",data)
+    save_file(OUTPUT_PATH,"raw_data",data)
     # check_dc_in_file(OUTPUT_PATH,"datapoints")
 
     # # row datapoints
