@@ -78,21 +78,21 @@ def copy_file_to_db_import(source, import_directory):
     print("Written",target_file)
 
 def copy_files_to_db_import(import_directory):
-    enrolment_file = Path.cwd() / "data" / "output" / "enrolment.csv"
+    enrolment_file = Path.cwd() / "data" / "output" / "enrolment_msg.csv"
     assert enrolment_file.exists(), f"enrolment_file does not exist: {enrolment_file}"
     copy_file_to_db_import(enrolment_file, import_directory)
-    datapoints_file = Path.cwd() / "data" / "output" / "datapoints.csv"
+    datapoints_file = Path.cwd() / "data" / "output" / "datapoints_msg.csv"
     assert datapoints_file.exists(), f"datapoints_file does not exist: {datapoints_file}"
     copy_file_to_db_import(datapoints_file, import_directory)
-    row_datapoints_file = Path.cwd() / "data" / "output" / "row_datapoints.csv"
-    assert row_datapoints_file.exists(), f"row_datapoints_file does not exist: {row_datapoints_file}"
-    copy_file_to_db_import(row_datapoints_file, import_directory)
+    # row_datapoints_file = Path.cwd() / "data" / "output" / "row_datapoints.csv"
+    # assert row_datapoints_file.exists(), f"row_datapoints_file does not exist: {row_datapoints_file}"
+    # copy_file_to_db_import(row_datapoints_file, import_directory)
 
 def add_identifiers():
     db = Neo4jConnection()
     with db.session() as session:
         query = """
-            LOAD CSV WITH HEADERS FROM 'file:///enrolment.csv' AS site_row
+            LOAD CSV WITH HEADERS FROM 'file:///enrolment_msg.csv' AS site_row
             MATCH (design:StudyDesign {name:'Study Design 1'})
             MERGE (s:Subject {identifier:site_row['USUBJID']})
             MERGE (site:StudySite {name:site_row['SITEID']})
@@ -105,31 +105,6 @@ def add_identifiers():
         res = [result.data() for result in results]
     db.close()
     print("results datapoints",res)
-
-# def xx_get_bc_properties_sub_timeline(bc_label, tpt, row):
-#     if row['VISIT'] in DATA_VISITS_TO_ENCOUNTER_LABELS:
-#         visit = DATA_VISITS_TO_ENCOUNTER_LABELS[row['VISIT']]
-#     else:
-#         add_issue("visit not found:",row['VISIT'])
-#         return []
-#     query = f"""
-#         match (msai:ScheduledActivityInstance)<-[:INSTANCES_REL]-(dc:DataContract)-[:INSTANCES_REL]-(ssai:ScheduledActivityInstance)
-#         match (msai)-[:ENCOUNTER_REL]->(enc:Encounter)
-#         match (ssai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
-#         match (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)<-[:PROPERTIES_REL]-(bc:BiomedicalConcept)
-#         WHERE enc.label = '{visit}'
-#         and    t.value = '{tpt}'
-#         AND  bc.label = '{bc_label}'
-#         return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, enc.label as ENCOUNTER_LABEL, t.value as TIMEPOINT_VALUE, dc.uri as DC_URI
-#     """
-#     results = db_query(query)
-#     if results == []:
-#         add_issue("timeline DataContract query has errors in it",visit,bc_label,tpt,query)
-#         return []
-#     else:
-#         return results
-
-
 
 def create_data_contracts1():
     query = """
@@ -319,7 +294,25 @@ return BC_NAME, BCP_NAME, BCP_LABEL, sub_sai_name, ENCOUNTER_LABEL, TIMEPOINT_VA
     db.close()
     return res
 
-def add_datapoints(activity):
+def add_datapoints():
+    db = Neo4jConnection()
+    with db.session() as session:
+        query = """
+            LOAD CSV WITH HEADERS FROM 'file:///datapoints_msg.csv' AS data_row
+            MATCH (dc:DataContract {uri:data_row['DC_URI']})
+            MATCH (design:StudyDesign {name:'Study Design 1'})
+            MERGE (d:DataPoint {uri: data_row['DATAPOINT_URI'], value: data_row['VALUE']})
+            MERGE (s:Subject {identifier:data_row['USUBJID']})
+            MERGE (dc)<-[:FOR_DC_REL]-(d)
+            MERGE (d)-[:FOR_SUBJECT_REL]->(s)
+            RETURN count(*) as count
+        """
+        results = session.run(query)
+        res = [result.data() for result in results]
+    db.close()
+    print("results datapoints",res)
+
+def add_datapoints_alternative(activity):
     if 'timepoint' in activity:
         # activity = {'visit':item['VISIT'],'label':item['LABEL'],'variable':item['VARIABLE'],'timepoint':item['TIMEPOINT']}
         query = """
@@ -468,16 +461,24 @@ matches = []
 issues = []
 
 
-def load_datapoints():
+def create_enrolment_file(raw_data):
+    print("\ncreate enrolment file")
+    subject_no = set([r['SUBJID'] for r in raw_data])
 
-    print("\nget raw data")
-    raw_data_file = Path.cwd() / "data" / "output" / "raw_data.csv"
-    assert raw_data_file.exists(), f"raw_data_file does not exist: {raw_data_file}"
-    raw_data = get_raw_data_file(raw_data_file)
-    debug.append(f"\n------- raw data ({len(raw_data)})")
-    for r in raw_data[0:5]:
-        debug.append(r)
+    # NOTE: Fix so that SUBJID is loaded, not USUBJID
+    # Make it look like the previous load file
+    subjects = []
+    for subjid in subject_no:
+        item = {}
+        item['STUDY_URI'] = "https://study.d4k.dk/study-cdisc-pilot-lzzt"
+        item['SITEID'] = "701"
+        item['USUBJID'] = subjid
+        subjects.append(item)
 
+    save_file(OUTPUT_PATH,"enrolment_msg",subjects)
+
+def create_datapoint_file(raw_data):
+    print("\ncreate datapoint file")
     properties = get_bc_properties()
     debug.append(f"\n------- properties ({len(properties)})")
 
@@ -497,10 +498,6 @@ def load_datapoints():
     print("\get unique activities from raw_data")
     unique_activities = get_unique_activities(raw_data)
     debug.append(f"\n------- unique_activities ({len(unique_activities)})")
-    # debug.append("\n------- unique_activities before list(set)")
-    # for r in unique_activities:
-    #     debug.append(r)
-
     # Reducing when debugging
     # unique_activities = dict(list(unique_activities.items())[0:4])
 
@@ -578,29 +575,43 @@ def load_datapoints():
 
     write_tmp("step-21-post_step.txt",debug)
 
-    OUTPUT_PATH = Path.cwd() / "data" / "output"
-    assert OUTPUT_PATH.exists(), "OUTPUT_PATH not found"
-
     save_file(OUTPUT_PATH,"datapoints_msg",datapoints)
 
-    # Save datapoints to file
-
-    return
+def load_datapoints():
+    print("\load to db")
     clear_created_nodes()
     import_directory = get_import_directory()
     copy_files_to_db_import(import_directory)
-    # add_identifiers_datapoints()
+
     print("\nadd identifiers")
     add_identifiers()
 
+    print("\nadd datapoints")
+    add_datapoints()
+    # # check_data_contracts()
+    # print("\nlink row datatpoints")
+    # link_row_datapoints()
+    # c = Configuration()
+    # # ConfigurationNode.delete()
+    # ConfigurationNode.create(c._configuration)
 
 
-    # check_data_contracts()
-    print("\nlink row datatpoints")
-    link_row_datapoints()
-    c = Configuration()
-    # ConfigurationNode.delete()
-    ConfigurationNode.create(c._configuration)
+OUTPUT_PATH = Path.cwd() / "data" / "output"
+assert OUTPUT_PATH.exists(), "OUTPUT_PATH not found"
+
+
+def main():
+    print("\nget raw data")
+    raw_data_file = Path.cwd() / "data" / "output" / "raw_data.csv"
+    assert raw_data_file.exists(), f"raw_data_file does not exist: {raw_data_file}"
+    raw_data = get_raw_data_file(raw_data_file)
+    debug.append(f"\n------- raw data ({len(raw_data)})")
+    for r in raw_data[0:5]:
+        debug.append(r)
+
+    create_enrolment_file(raw_data)
+    create_datapoint_file(raw_data)
+    load_datapoints()
 
 if __name__ == "__main__":
-    load_datapoints()
+    main()
