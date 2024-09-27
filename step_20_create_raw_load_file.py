@@ -211,7 +211,6 @@ def get_vs_variable(data, row, data_property, sdtm_variable):
         # All records marked as baseline are VSPOS = STANDING, VSREPNUM = 3 -> PT2M. So I'll use that if VSREPNUM is missing
         elif row['VSTESTCD'] in ['SYSBP','DIABP']:
             tpt = 'PT2M'
-            item['imputed'] = "y"
 
         property = get_property_for_variable(row['VSTEST'],data_property)
         data_contract = get_data_contract(encounter,bc_label,property,tpt)
@@ -235,7 +234,7 @@ def get_vs_variable(data, row, data_property, sdtm_variable):
 
 def get_vs_data(data):
     print("\nGetting VS data")
-    VS_DATA = Path.cwd() / "data" / "input" / "vs.json"
+    VS_DATA = DATA_PATH / "vs.json"
     assert VS_DATA.exists(), "VS_DATA not found"
     with open(VS_DATA) as f:
         vs_data = json.load(f)
@@ -277,7 +276,7 @@ def get_lb_variable(data, row, data_property, sdtm_variable):
 
 def get_lb_data(data):
     print("\nGetting LB data")
-    LB_DATA = Path.cwd() / "data" / "input" / "lb.json"
+    LB_DATA = DATA_PATH / "lb.json"
     assert LB_DATA.exists(), "LB_DATA not found"
     with open(LB_DATA) as f:
         lb_data = json.load(f)
@@ -319,13 +318,13 @@ def get_dm_variable(data, row, data_label, data_property, sdtm_variable):
         add_issue("Add property_name for DM",data_label,'value',row[sdtm_variable])
 
 def get_dm_data(data):
-    print("\nGetting DM data")
-    DM_DATA = Path.cwd() / "data" / "input" / "dm.json"
-    assert DM_DATA.exists(), "DM_DATA not found"
-    with open(DM_DATA) as f:
-        dm_data = json.load(f)
+    # print("\nGetting DM data")
+    # DM_DATA = DATA_PATH / "dm.json"
+    # assert DM_DATA.exists(), "DM_DATA not found"
+    # with open(DM_DATA) as f:
+    #     dm_data = json.load(f)
 
-    for row in dm_data:
+    for row in data:
         add_row_dp('DM',['USUBJID'],row)
         get_dm_variable(data, row, 'Sex', 'value', 'SEX')
         get_dm_variable(data, row, 'Race', 'value', 'RACE')
@@ -361,7 +360,7 @@ def get_ae_variable(data, row, bc_label, data_label, sdtm_variable):
 
 def get_ae_data(data):
     print("\nGetting AE data")
-    AE_DATA = Path.cwd() / "data" / "input" / "ae.json"
+    AE_DATA = DATA_PATH / "ae.json"
     assert AE_DATA.exists(), "EX_DATA not found"
     with open(AE_DATA) as f:
         ae_data = json.load(f)
@@ -434,7 +433,7 @@ def get_ex_variable(data, row, data_property, sdtm_variable):
 
 def get_ex_data(data):
     print("\nGetting EX data")
-    EX_DATA = Path.cwd() / "data" / "input" / "ex.json"
+    EX_DATA = DATA_PATH / "ex.json"
     assert EX_DATA.exists(), "EX_DATA not found"
     with open(EX_DATA) as f:
         ex_data = json.load(f)
@@ -450,21 +449,26 @@ def get_ex_data(data):
         get_ex_variable(data, row, 'end', 'EXENDTC')
         get_ex_variable(data, row, 'route', 'EXROUTE')
 
-
+DATA_PATH = Path.cwd() / 'data' / 'input' / 'msg'
 
 def create_raw_data_load_file():
-    ENROLMENT_DATA = Path.cwd() / "data" / "output" / "enrolment.json"
-    assert ENROLMENT_DATA.exists(), "ENROLMENT_DATA not found"
-    # print("\nGetting subjects from file",ENROLMENT_DATA)
-    with open(ENROLMENT_DATA) as f:
-        enrolment_data = json.load(f)
+    # ENROLMENT_DATA = Path.cwd() / "data" / "output" / "enrolment.json"
+    # assert ENROLMENT_DATA.exists(), "ENROLMENT_DATA not found"
+    # # print("\nGetting subjects from file",ENROLMENT_DATA)
+    # with open(ENROLMENT_DATA) as f:
+    #     enrolment_data = json.load(f)
+    DM_DATA = DATA_PATH / "dm.json"
+    assert DM_DATA.exists(), "DM_DATA not found"
+    # print("\nGetting subjects from file ",DM_DATA)
+    with open(DM_DATA) as f:
+        dm_data = json.load(f)
 
     OUTPUT_PATH = Path.cwd() / "data" / "output"
     assert OUTPUT_PATH.exists(), "OUTPUT_PATH not found"
 
     # Get subjects from the enrolment file
-    subjects = [row['USUBJID'] for row in enrolment_data]
-
+    subjects = [row['USUBJID'] for row in dm_data]
+    print("subjects",subjects)
 
     print("\nCreating datapoint and value")
     data = []
