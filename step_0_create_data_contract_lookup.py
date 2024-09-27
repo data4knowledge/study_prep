@@ -201,20 +201,20 @@ def create_data_contracts_lookup():
     global unique_data_contracts
     assert OUTPUT_PATH.exists(), "OUTPUT_PATH not found"
 
-    VS_DATA = Path.cwd() / "data" / "input" / "vs.json"
+    VS_DATA = Path.cwd() / "data" / "input" / "pilot" / "vs.json"
     add_debug("Reading",VS_DATA)
     assert VS_DATA.exists(), "VS_DATA not found"
     with open(VS_DATA) as f:
         vs_data = json.load(f)
 
 
-    LB_DATA = Path.cwd() / "data" / "input" / "lb.json"
+    LB_DATA = Path.cwd() / "data" / "input" / "pilot" / "lb.json"
     add_debug("Reading",LB_DATA)
     assert LB_DATA.exists(), "LB_DATA not found"
     with open(LB_DATA) as f:
         lb_data = json.load(f)
 
-    EX_DATA = Path.cwd() / "data" / "input" / "ex.json"
+    EX_DATA = Path.cwd() / "data" / "input" / "pilot" / "ex.json"
     add_debug("Reading",EX_DATA)
     assert EX_DATA.exists(), "EX_DATA not found"
     with open(EX_DATA) as f:

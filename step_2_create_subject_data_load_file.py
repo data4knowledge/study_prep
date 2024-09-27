@@ -68,7 +68,7 @@ def output_csv(path, name, data):
         writer.writerows(data)
 
 def save_file(path: Path, name, data):
-    output_json(path, f"{name}.csv",data)
+    output_json(path, f"{name}",data)
     output_csv(path, f"{name}.csv",data)
 
 def db_query(query):
@@ -219,7 +219,7 @@ def get_vs_variable(data, row, data_property, sdtm_variable):
 
 def get_vs_data(data):
     print("\nGetting VS data")
-    VS_DATA = Path.cwd() / "data" / "input" / "vs.json"
+    VS_DATA = Path.cwd() / "data" / "input" / "pilot" / "vs.json"
     assert VS_DATA.exists(), "VS_DATA not found"
     with open(VS_DATA) as f:
         vs_data = json.load(f)
@@ -261,7 +261,7 @@ def get_lb_variable(data, row, data_property, sdtm_variable):
 
 def get_lb_data(data):
     print("\nGetting LB data")
-    LB_DATA = Path.cwd() / "data" / "input" / "lb.json"
+    LB_DATA = Path.cwd() / "data" / "input" / "pilot" / "lb.json"
     assert LB_DATA.exists(), "LB_DATA not found"
     with open(LB_DATA) as f:
         lb_data = json.load(f)
@@ -304,7 +304,7 @@ def get_dm_variable(data, row, data_label, data_property, sdtm_variable):
 
 def get_dm_data(data):
     print("\nGetting DM data")
-    DM_DATA = Path.cwd() / "data" / "input" / "dm.json"
+    DM_DATA = Path.cwd() / "data" / "input" / "pilot" / "dm.json"
     assert DM_DATA.exists(), "DM_DATA not found"
     with open(DM_DATA) as f:
         dm_data = json.load(f)
@@ -345,7 +345,7 @@ def get_ae_variable(data, row, bc_label, data_label, sdtm_variable):
 
 def get_ae_data(data):
     print("\nGetting AE data")
-    AE_DATA = Path.cwd() / "data" / "input" / "ae.json"
+    AE_DATA = Path.cwd() / "data" / "input" / "pilot" / "ae.json"
     assert AE_DATA.exists(), "EX_DATA not found"
     with open(AE_DATA) as f:
         ae_data = json.load(f)
@@ -418,7 +418,7 @@ def get_ex_variable(data, row, data_property, sdtm_variable):
 
 def get_ex_data(data):
     print("\nGetting EX data")
-    EX_DATA = Path.cwd() / "data" / "input" / "ex.json"
+    EX_DATA = Path.cwd() / "data" / "input" / "pilot" / "ex.json"
     assert EX_DATA.exists(), "EX_DATA not found"
     with open(EX_DATA) as f:
         ex_data = json.load(f)
@@ -437,7 +437,7 @@ def get_ex_data(data):
 
 
 def create_subject_data_load_file():
-    ENROLMENT_DATA = Path.cwd() / "data" / "output" / "enrolment.json"
+    ENROLMENT_DATA = Path.cwd() / "data" / "output" / "enrolment_pilot.json"
     assert ENROLMENT_DATA.exists(), "ENROLMENT_DATA not found"
     # print("\nGetting subjects from file",ENROLMENT_DATA)
     with open(ENROLMENT_DATA) as f:
@@ -491,8 +491,8 @@ def create_subject_data_load_file():
             item["key"] = key
             item['datapoint_uri'] = dp
             for_csv.append(item)
-    output_csv(OUTPUT_PATH,"row_datapoints.csv",for_csv)
-    output_json(OUTPUT_PATH,"row_datapoints",row_datapoints)
+    output_csv(OUTPUT_PATH,"row_datapoints_pilot.csv",for_csv)
+    output_json(OUTPUT_PATH,"row_datapoints_pilot",row_datapoints)
     # save_file(OUTPUT_PATH,"row_datapoints",row_datapoints)
 
     write_tmp("step-2-dc-debug.txt",debug)

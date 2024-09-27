@@ -4,7 +4,7 @@ import pandas as pd
 from pathlib import Path
 
 def create_subject_enrolment_load_file():
-    DM_DATA = Path.cwd() / "data" / "input"  / "dm.json"
+    DM_DATA = Path.cwd() / "data" / "input" / "pilot" / "dm.json"
     # print("Reading",DM_DATA)
     assert DM_DATA.exists(), f"DM_DATA not found"
     with open(DM_DATA) as f:
@@ -41,7 +41,7 @@ def create_subject_enrolment_load_file():
             writer.writeheader()
             writer.writerows(subjects)
         
-    save_file(OUTPUT_PATH,"enrolment")
+    save_file(OUTPUT_PATH,"enrolment_pilot")
     # print("Done")
 
 if __name__ == "__main__":
