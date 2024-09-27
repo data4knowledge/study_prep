@@ -36,13 +36,13 @@ def copy_file_to_db_import(source, import_directory):
     print("Written",target_file)
 
 def copy_files_to_db_import(import_directory):
-    enrolment_file = Path.cwd() / "data" / "output" / "enrolment.csv"
+    enrolment_file = Path.cwd() / "data" / "output" / "enrolment_pilot.csv"
     assert enrolment_file.exists(), f"enrolment_file does not exist: {enrolment_file}"
     copy_file_to_db_import(enrolment_file, import_directory)
-    datapoints_file = Path.cwd() / "data" / "output" / "datapoints.csv"
+    datapoints_file = Path.cwd() / "data" / "output" / "datapoints_pilot.csv"
     assert datapoints_file.exists(), f"datapoints_file does not exist: {datapoints_file}"
     copy_file_to_db_import(datapoints_file, import_directory)
-    row_datapoints_file = Path.cwd() / "data" / "output" / "row_datapoints.csv"
+    row_datapoints_file = Path.cwd() / "data" / "output" / "row_datapoints_pilot.csv"
     assert row_datapoints_file.exists(), f"row_datapoints_file does not exist: {row_datapoints_file}"
     copy_file_to_db_import(row_datapoints_file, import_directory)
 
@@ -50,7 +50,7 @@ def add_identifiers():
     db = Neo4jConnection()
     with db.session() as session:
         query = """
-            LOAD CSV WITH HEADERS FROM 'file:///enrolment.csv' AS site_row
+            LOAD CSV WITH HEADERS FROM 'file:///enrolment_pilot.csv' AS site_row
             MATCH (design:StudyDesign {name:'Study Design 1'})
             MERGE (s:Subject {identifier:site_row['USUBJID']})
             MERGE (site:StudySite {name:site_row['SITEID']})
@@ -68,7 +68,7 @@ def add_datapoints():
     db = Neo4jConnection()
     with db.session() as session:
         query = """
-            LOAD CSV WITH HEADERS FROM 'file:///datapoints.csv' AS data_row
+            LOAD CSV WITH HEADERS FROM 'file:///datapoints_pilot.csv' AS data_row
             MATCH (dc:DataContract {uri:data_row['DC_URI']})
             MATCH (design:StudyDesign {name:'Study Design 1'})
             MERGE (d:DataPoint {uri: data_row['DATAPOINT_URI'], value: data_row['VALUE']})
@@ -86,9 +86,9 @@ def add_identifiers_datapoints():
     db = Neo4jConnection()
     with db.session() as session:
         query = """
-            LOAD CSV WITH HEADERS FROM 'file:///datapoints.csv'  AS data_row
+            LOAD CSV WITH HEADERS FROM 'file:///datapoints_pilot.csv'  AS data_row
             WITH data_row
-            LOAD CSV WITH HEADERS FROM 'file:///enrolment.csv'  AS site_row 
+            LOAD CSV WITH HEADERS FROM 'file:///enrolment_pilot.csv'  AS site_row 
             with data_row, site_row
             MATCH (dc:DataContract {uri:data_row['DC_URI']})
             MATCH (design:StudyDesign {name:'Study Design 1'})-[:ORGANIZATIONS_REL]->(researchOrg)
@@ -109,7 +109,7 @@ def check_data_contracts():
     db = Neo4jConnection()
     with db.session() as session:
         query = """
-            LOAD CSV WITH HEADERS FROM 'file:///datapoints.csv' AS data_row
+            LOAD CSV WITH HEADERS FROM 'file:///datapoints_pilot.csv' AS data_row
             RETURN distinct data_row['DC_URI'] as data_contract
         """
         results = session.run(query)
@@ -139,7 +139,7 @@ def link_row_datapoints():
     db = Neo4jConnection()
     with db.session() as session:
         query = """
-            LOAD CSV WITH HEADERS FROM 'file:///row_datapoints.csv'  AS data_row
+            LOAD CSV WITH HEADERS FROM 'file:///row_datapoints_pilot.csv'  AS data_row
             WITH data_row
             MATCH (dp:DataPoint {uri:data_row['datapoint_uri']})
             MERGE (record:Record {key:data_row['key']})
