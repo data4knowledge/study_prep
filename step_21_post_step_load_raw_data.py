@@ -581,6 +581,7 @@ def load_datapoints():
     print("\load to db")
     clear_created_nodes()
     import_directory = get_import_directory()
+    print("\n neo4j import directory", import_directory)
     copy_files_to_db_import(import_directory)
 
     print("\nadd identifiers")
