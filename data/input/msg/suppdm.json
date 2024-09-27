@@ -1,0 +1,38 @@
+[
+  {
+    "STUDYID": "CDISCPILOT01",
+    "RDOMAIN": "DM",
+    "USUBJID": "CDISC008",
+    "IDVAR": "",
+    "IDVARVAL": "",
+    "QNAM": "RACE1",
+    "QLABEL": "Race 1",
+    "QVAL": "ASIAN",
+    "QORIG": "CRF",
+    "QEVAL": ""
+  },
+  {
+    "STUDYID": "CDISCPILOT01",
+    "RDOMAIN": "DM",
+    "USUBJID": "CDISC008",
+    "IDVAR": "",
+    "IDVARVAL": "",
+    "QNAM": "RACE2",
+    "QLABEL": "Race 2",
+    "QVAL": "BLACK OR AFRICAN AMERICAN",
+    "QORIG": "CRF",
+    "QEVAL": ""
+  },
+  {
+    "STUDYID": "CDISCPILOT01",
+    "RDOMAIN": "DM",
+    "USUBJID": "CDISC008",
+    "IDVAR": "",
+    "IDVARVAL": "",
+    "QNAM": "RACE3",
+    "QLABEL": "Race 3",
+    "QVAL": "WHITE",
+    "QORIG": "CRF",
+    "QEVAL": ""
+  }
+]

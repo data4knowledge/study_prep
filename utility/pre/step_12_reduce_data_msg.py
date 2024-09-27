@@ -9,7 +9,7 @@ def get_xpt_data(file):
     return data
 
 def get_subjects():
-    DM_DATA = Path.cwd() / "data" / "input" / "dm.json"
+    DM_DATA = Path.cwd() / "data" / "input" / "msg" / "dm.json"
     print("Reading DM_DATA:",DM_DATA)
     assert DM_DATA.exists(), "DM_DATA not found"
     with open(DM_DATA) as f:
@@ -38,8 +38,7 @@ def reduce_dataset_tests(data, subjects, test_labels, var):
     return data
 
 def save_data(data,domain):
-    OUTPUT_JSON = Path.cwd() / "data" / "input" / f"{domain}.json"
-    # OUTPUT_JSON = Path.cwd() / "data" / "input" / f"{domain}.json"
+    OUTPUT_JSON = Path.cwd() / "data" / "input" / "msg" / f"{domain}.json"
     with open(OUTPUT_JSON, 'w') as f:
         f.write(json.dumps(data, indent = 2))
     print("saved json: ",OUTPUT_JSON)

@@ -27,7 +27,7 @@ def reduce_dm():
 
     print("reduced len(dm_data)",len(dm_data))
 
-    DM_JSON = Path.cwd() / "data" / "input" / "dm.json"
+    DM_JSON = Path.cwd() / "data" / "input" / "msg" / "dm.json"
     print("Saving",DM_JSON)
     with open(DM_JSON, 'w') as f:
         f.write(json.dumps(dm_data, indent = 2))
