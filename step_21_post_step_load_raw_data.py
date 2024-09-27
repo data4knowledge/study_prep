@@ -205,77 +205,6 @@ def get_bc_properties_ae():
 def test_datapoints():
     db = Neo4jConnection()
     with db.session() as session:
-        query = """
-            LOAD CSV WITH HEADERS FROM 'file:///datapoints.csv' AS data_row
-            MATCH (dc:DataContract {uri:data_row['DC_URI']})
-            MATCH (design:StudyDesign {name:'Study Design 1'})
-            MERGE (d:DataPoint {uri: data_row['DATAPOINT_URI'], value: data_row['VALUE']})
-            MERGE (s:Subject {identifier:data_row['USUBJID']})
-            MERGE (dc)<-[:FOR_DC_REL]-(d)
-            MERGE (d)-[:FOR_SUBJECT_REL]->(s)
-            RETURN count(*) as count
-        """
-        # {'ROW_NO': '1.0', 'VARIABLE': 'VSORRES', 'VALUE': '64', 'LABEL': 'Diastolic Blood Pressure', 'VISIT': 'Screening 1', 'TIMEPOINT': 'PT5M', 'SUBJID': '01-701-1015'}}
-        # SUBJID,ROW_NO,VISIT,VARIABLE,LABEL,TIMEPOINT,VALUE
-
-        query = """
-            match (msai:ScheduledActivityInstance)<-[:INSTANCES_REL]-(dc:DataContract)-[:INSTANCES_REL]-(ssai:ScheduledActivityInstance)
-            match (msai)-[:ENCOUNTER_REL]->(enc:Encounter)
-            match (ssai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
-            match (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)<-[:PROPERTIES_REL]-(bc:BiomedicalConcept)
-            return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, enc.label as ENCOUNTER_LABEL, t.value as TIMEPOINT_VALUE, dc.uri as DC_URI
-        """ % ()
-        # From study service create data contract sub timeline
-        query = """
-            MATCH(study:Study{name:'Study_CDISC PILOT - LZZT'})-[r1:VERSIONS_REL]->(StudyVersion)-[r2:STUDY_DESIGNS_REL]->(sd:StudyDesign)
-            MATCH(sd)-[r3:SCHEDULE_TIMELINES_REL]->(tl:ScheduleTimeline)<-[r4:TIMELINE_REL]-(act_main)<-[r5:ACTIVITY_REL]-(act_inst_main:ScheduledActivityInstance)
-            MATCH(tl)-[r6:INSTANCES_REL]->(act_inst:ScheduledActivityInstance)-[r7:ACTIVITY_REL]->(act:Activity)-[r8:BIOMEDICAL_CONCEPT_REL]->(bc:BiomedicalConcept)-[r9:PROPERTIES_REL]->(bc_prop:BiomedicalConceptProperty) 
-            where bc.label = "Diastolic Blood Pressure"
-            and   bc_prop.name = "VSORRES"
-            return distinct study, sd, tl, act, act_inst_main, act_inst_main.uuid+'/'+ act_inst.uuid as act_inst_uuid, act_inst, bc,bc_prop
-        """ % ()
-        query = """
-call apoc.cypher.run("MATCH(study:Study{name:$s})-[r1:VERSIONS_REL]->(StudyVersion)-[r2:STUDY_DESIGNS_REL]->(sd:StudyDesign)
-MATCH(sd)-[r3:SCHEDULE_TIMELINES_REL]->(tl:ScheduleTimeline) where not (tl)<-[:TIMELINE_REL]-()
-MATCH(tl)-[r4:INSTANCES_REL]->(act_inst_main:ScheduledActivityInstance)-[r5:ACTIVITY_REL]->(act:Activity)-[r6:BIOMEDICAL_CONCEPT_REL]->(bc:BiomedicalConcept)-[r7:PROPERTIES_REL]->(bc_prop:BiomedicalConceptProperty) 
-WHERE bc.name = 'Diastolic Blood Pressure'
-and   bc_prop.name = 'VSORRES'
-return distinct study, 
-sd, 
-tl, 
-act, 
-act_inst_main,
-act_inst_main.uuid as act_inst_uuid,
-null as act_inst,  
-bc,
-bc_prop
-      UNION
-MATCH(study:Study{name:$s})-[r1:VERSIONS_REL]->(StudyVersion)-[r2:STUDY_DESIGNS_REL]->(sd:StudyDesign)
-MATCH(sd)-[r3:SCHEDULE_TIMELINES_REL]->(tl:ScheduleTimeline)<-[r4:TIMELINE_REL]-(act_main)<-[r5:ACTIVITY_REL]-(act_inst_main:ScheduledActivityInstance)
-MATCH(tl)-[r6:INSTANCES_REL]->(act_inst:ScheduledActivityInstance)-[r7:ACTIVITY_REL]->(act:Activity)-[r8:BIOMEDICAL_CONCEPT_REL]->(bc:BiomedicalConcept)-[r9:PROPERTIES_REL]->(bc_prop:BiomedicalConceptProperty) 
-WHERE bc.name = 'Diastolic Blood Pressure'
-and   bc_prop.name = 'VSORRES'
-return distinct study, 
-sd, 
-tl, 
-act, 
-act_inst_main,
-act_inst_main.uuid+'/'+ act_inst.uuid as act_inst_uuid,
-act_inst,  
-bc,
-bc_prop",{s:'Study_CDISC PILOT - LZZT'}) YIELD value
-WITH value.study as study, 
-value.sd as sd, 
-value.tl as tl, 
-value.act as act, 
-value.act_inst_main as act_inst_main, 
-value.act_inst as act_inst, 
-value.bc as bc, 
-value.bc_prop as bc_prop, 
-value. act_inst_uuid as  act_inst_uuid
-WITH study, sd, tl,act,act_inst_main,act_inst,bc,bc_prop,act_inst_uuid
-return study.name as study_name, sd.name as sd_name, tl.name as tl_name, act.name as act_name, act_inst_main.name as act_inst_main_name, act_inst.name as act_inst_name, bc.name as bc_name, bc_prop.name as bc_prop_name, act_inst_uuid
-        """ % ()
         # My new fantastic
         query = """
 match (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
@@ -489,7 +418,7 @@ def create_datapoint_file(raw_data):
     for r in properties_sub_timeline[0:4]:
         debug.append(r)
     
-    properties_sub_timeline = [r for r in properties_sub_timeline if r['BC_LABEL'] == "Diastolic Blood Pressure"]
+    # properties_sub_timeline = [r for r in properties_sub_timeline if r['BC_LABEL'] == "Diastolic Blood Pressure"]
     debug.append(f"len(properties_sub_timeline): {len(properties_sub_timeline)}")
     debug.append("------- properties")
 
