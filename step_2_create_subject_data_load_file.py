@@ -479,7 +479,7 @@ def create_subject_data_load_file():
         print("No data has been found")
         exit()
 
-    save_file(OUTPUT_PATH,"datapoints",data)
+    save_file(OUTPUT_PATH,"datapoints_pilot",data)
     # check_dc_in_file(OUTPUT_PATH,"datapoints")
 
     # row datapoints
