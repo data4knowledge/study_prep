@@ -23,6 +23,8 @@ DATA_LABELS_TO_BC_LABELS = {
     # 'Study Treatment': 'Exposure Unblinded',
     'XANOMELINE': 'Exposure Unblinded',
     'PLACEBO': 'Exposure Unblinded',
+    'ZANOMALINE': 'Exposure Unblinded',
+    # 'PLACEBO': 'Exposure Unblinded',
 }
 
 # Unknown visits

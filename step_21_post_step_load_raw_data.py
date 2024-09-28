@@ -142,7 +142,7 @@ def get_bc_properties():
     query = """
         MATCH(study:Study{name:'Study_CDISC PILOT - LZZT'})-[r1:VERSIONS_REL]->(StudyVersion)-[r2:STUDY_DESIGNS_REL]->(sd:StudyDesign)
         MATCH(sd)-[r3:SCHEDULE_TIMELINES_REL]->(tl:ScheduleTimeline) where not (tl)<-[:TIMELINE_REL]-()
-        MATCH(tl)-[r4:INSTANCES_REL]->(act_inst_main:ScheduledActivityInstance)-[r5:ACTIVITY_REL]->(act:Activity)-[r6:BIOMEDICAL_CONCEPT_REL]->(bc:BiomedicalConcept)-[r7:PROPERTIES_REL]->(bc_prop:BiomedicalConceptProperty)
+        MATCH(tl)-[r4:INSTANCES_REL]->(act_inst_main:ScheduledActivityInstance)-[r5:ACTIVITY_REL]->(act:Activity)-[r6:BIOMEDICAL_CONCEPT_REL]->(bc:BiomedicalConcept)-[r7:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
         MATCH (bcp)<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(act_inst_main)-[:ENCOUNTER_REL]-(enc)
         return distinct bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, enc.label as ENCOUNTER_LABEL, dc.uri as DC_URI
     """
@@ -410,6 +410,8 @@ def create_datapoint_file(raw_data):
     print("\ncreate datapoint file")
     properties = get_bc_properties()
     debug.append(f"\n------- properties ({len(properties)})")
+    for r in properties:
+        debug.append(r)
 
     # NOTE: Not all blood pressure measurements are repeated, so data contracts for SCREENING 1, SCREENING 2, BASELINEWEEK 2, WEEK 4, WEEK 6, WEEK 8
     # All records marked as baseline are STANDING VSREPNUM = 3 -> PT2M. So I'll use that for them
@@ -424,9 +426,11 @@ def create_datapoint_file(raw_data):
 
     write_tmp("step-21-post_step.txt",debug)
 
-    print("\get unique activities from raw_data")
+    print("\--get unique activities from raw_data")
     unique_activities = get_unique_activities(raw_data)
     debug.append(f"\n------- unique_activities ({len(unique_activities)})")
+    for r in unique_activities:
+        debug.append(r)
     # Reducing when debugging
     # unique_activities = dict(list(unique_activities.items())[0:4])
 
@@ -466,10 +470,19 @@ def create_datapoint_file(raw_data):
             # debug.append(f"len(rows) {len(rows)}")
 
         else:
-            # dc = [i for i in properties if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable']]
-            dc = next((i for i in properties if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable']),[])
-        # debug.append(f"len(dc): {len(dc)}")
+            # dcs = [i for i in properties if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable']]
+            # debug.append(f'\n------- test {v}')
+            # for r in dcs:
+            #    debug.append(r)
+            dc = next((i['DC_URI'] for i in properties if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable']),[])
+            # NOTE: There is a mismatches within the BC specializations, So sometimes label matches, sometimes the name
+            if not dc:
+                dc = next((i['DC_URI'] for i in properties if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_NAME'] == v['variable']),[])
+            if dc:
+                rows = [r for r in raw_data if r['LABEL'] == v['label'] and r['VISIT'] == v['visit'] and r['VARIABLE'] == v['variable']]
+        # debug.append('------- looping rows')
         for row in rows:
+            # debug.append(f"-- {row}")
             item = {}
             item['USUBJID'] = row['SUBJID']
             thing = f"{row['LABEL']}/{row['VARIABLE']}".replace(" ","").replace("-","")

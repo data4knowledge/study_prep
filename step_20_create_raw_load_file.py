@@ -297,34 +297,27 @@ def get_dm_variable(data, row, data_label, data_property, sdtm_variable):
     if property_name:
         if data_contract:
             if row[sdtm_variable]:
-                item['USUBJID'] = row['USUBJID']
-                item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
+                item['SUBJID'] = row['USUBJID']
+                item['ROW_NO'] = "1"
+                item['LABEL'] = bc_label
+                item['VARIABLE'] = property_name
+                item['VISIT'] = dm_visit
+                item['TIMEPOINT'] = ""
                 item['VALUE'] = f"{row[sdtm_variable]}"
                 data.append(item)
-                add_row_dp('DM',['USUBJID'], row, item['DATAPOINT_URI'])
-                # Faking multipe race for one subject
-                if row['USUBJID'] == '01-701-1028' and data_label == 'Race':
-                    item2 = {}
-                    item2['USUBJID'] = row['USUBJID']
-                    item2['DC_URI'] = data_contract
-                    item2['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}"
-                    item2['VALUE'] = "ASIAN"
-                    data.append(item2)
-                    add_row_dp('DM',['USUBJID'], row, item['DATAPOINT_URI']+"race_supp")
         else:
             add_issue(f"No dc RESULT bc_label: {bc_label} - property_name: {property_name} - encounter: {dm_visit}")
     else:
         add_issue("Add property_name for DM",data_label,'value',row[sdtm_variable])
 
 def get_dm_data(data):
-    # print("\nGetting DM data")
-    # DM_DATA = DATA_PATH / "dm.json"
-    # assert DM_DATA.exists(), "DM_DATA not found"
-    # with open(DM_DATA) as f:
-    #     dm_data = json.load(f)
+    print("\nGetting DM data")
+    DM_DATA = DATA_PATH / "dm.json"
+    assert DM_DATA.exists(), "DM_DATA not found"
+    with open(DM_DATA) as f:
+        dm_data = json.load(f)
 
-    for row in data:
+    for row in dm_data:
         add_row_dp('DM',['USUBJID'],row)
         get_dm_variable(data, row, 'Sex', 'value', 'SEX')
         get_dm_variable(data, row, 'Race', 'value', 'RACE')
@@ -332,7 +325,7 @@ def get_dm_data(data):
         # NB: Faking Informed consent date
         get_dm_variable(data, row, 'Informed Consent', 'date', 'RFICDTC')
         get_dm_variable(data, row, 'Date of Birth', 'value', 'BRTHDTC')
-        get_dm_variable(data, row, 'Sex', 'date', 'DMDTC')
+        # get_dm_variable(data, row, 'Sex', 'date', 'DMDTC')
         # Ethnicity. No BC
    
 def get_ae_variable(data, row, bc_label, data_label, sdtm_variable):
@@ -418,12 +411,22 @@ def get_ex_variable(data, row, data_property, sdtm_variable):
             data_contract = get_data_contract(encounter, bc_label, property,tpt)
             if data_contract:
                 if row[sdtm_variable]:
-                    item['USUBJID'] = row['USUBJID']
-                    item['DC_URI'] = data_contract
-                    item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['EXSEQ']}"
+                    item['SUBJID'] = row['USUBJID']
+                    item['ROW_NO'] = str(row['VSSEQ'])
+                    item['LABEL'] = bc_label
+                    item['VARIABLE'] = property
+                    item['VISIT'] = encounter
+                    item['TIMEPOINT'] = tpt
+                    # item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['VSSEQ']}"
                     item['VALUE'] = f"{row[sdtm_variable]}"
                     data.append(item)
-                    add_row_dp('EX',['USUBJID','EXSEQ'],row, item['DATAPOINT_URI'])
+
+                    # item['USUBJID'] = row['USUBJID']
+                    # item['DC_URI'] = data_contract
+                    # item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['EXSEQ']}"
+                    # item['VALUE'] = f"{row[sdtm_variable]}"
+                    # data.append(item)
+                    # add_row_dp('EX',['USUBJID','EXSEQ'],row, item['DATAPOINT_URI'])
             else:
                 add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
         else:
@@ -473,14 +476,16 @@ def create_raw_data_load_file():
     print("\nCreating datapoint and value")
     data = []
 
-    get_vs_data(data)
-    print("\n -- vs")
+    # get_vs_data(data)
+    # get_dm_data(data)
+    get_ex_data(data)
+    print("\n -- ex")
     for r in data:
         debug.append(r)
 
+    write_tmp("step-20-dc-debug.txt",debug)
+
     # get_lb_data(data)
-    # get_dm_data(data)
-    # get_ex_data(data)
     # # Must fix data contracts for event driven
     # get_ae_data(data)
 
