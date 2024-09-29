@@ -222,10 +222,8 @@ def get_vs_variable(data, row, data_property, sdtm_variable):
                 item['VARIABLE'] = property
                 item['VISIT'] = encounter
                 item['TIMEPOINT'] = tpt
-                # item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['VSSEQ']}"
                 item['VALUE'] = f"{row[sdtm_variable]}"
                 data.append(item)
-                # add_row_dp('VS',['USUBJID','VSSEQ'], row, item['DATAPOINT_URI'])
         else:
             # add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
             add_issue(f"Ignoring {data_property} for:", bc_label)
@@ -261,12 +259,14 @@ def get_lb_variable(data, row, data_property, sdtm_variable):
             data_contract = get_data_contract(encounter,bc_label,property,tpt)
             if data_contract:
                 if row[sdtm_variable]:
-                    item['USUBJID'] = row['USUBJID']
-                    item['DC_URI'] = data_contract
-                    item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['LBSEQ']}"
+                    item['SUBJID'] = row['USUBJID']
+                    item['ROW_NO'] = str(row['LBSEQ'])
+                    item['LABEL'] = bc_label
+                    item['VARIABLE'] = property
+                    item['VISIT'] = encounter
+                    item['TIMEPOINT'] = tpt
                     item['VALUE'] = f"{row[sdtm_variable]}"
                     data.append(item)
-                    add_row_dp('LB',['USUBJID','LBSEQ'], row, item['DATAPOINT_URI'])
             else:
                 add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
         else:
@@ -528,19 +528,16 @@ def create_raw_data_load_file():
     print("\nCreating datapoint and value")
     data = []
 
-    # get_vs_data(data)
+    get_vs_data(data)
     get_dm_data(data)
-    # get_ex_data(data)
+    get_ex_data(data)
     get_ae_data(data)
-    print("\n -- ae")
-    for r in data:
-        debug.append(r)
+    get_lb_data(data)
+    # print("\n -- lb")
+    # for r in data:
+    #     debug.append(r)
 
     write_tmp("step-20-dc-debug.txt",debug)
-
-    # get_lb_data(data)
-    # # Must fix data contracts for event driven
-
 
     print("\n---Datapoint - Data contract matches:",len(matches))
     print("---Non matching Datapoints (e.g. visit not defined)",len(issues))

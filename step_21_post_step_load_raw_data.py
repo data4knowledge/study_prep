@@ -106,34 +106,6 @@ def add_identifiers():
     db.close()
     print("results datapoints",res)
 
-def create_data_contracts1():
-    query = """
-        MATCH(study:Study{name:'Study_CDISC PILOT - LZZT'})-[r1:VERSIONS_REL]->(StudyVersion)-[r2:STUDY_DESIGNS_REL]->(sd:StudyDesign)
-        MATCH(sd)-[r3:SCHEDULE_TIMELINES_REL]->(tl:ScheduleTimeline) where not (tl)<-[:TIMELINE_REL]-()
-        MATCH(tl)-[r4:INSTANCES_REL]->(act_inst_main:ScheduledActivityInstance)-[r5:ACTIVITY_REL]->(act:Activity)-[r6:BIOMEDICAL_CONCEPT_REL]->(bc:BiomedicalConcept)-[r7:PROPERTIES_REL]->(bc_prop:BiomedicalConceptProperty) 
-        return distinct study, sd, tl, act, act_inst_main, act_inst_main.uuid as act_inst_uuid, null as act_inst, bc,bc_prop
-    """
-    db = Neo4jConnection()
-    with db.session() as session:
-        results = session.run(query)
-        res = [result.data() for result in results]
-    db.close()
-    return res
-
-def create_data_contracts2():
-    query = """
-        MATCH(study:Study{name:'Study_CDISC PILOT - LZZT'})-[r1:VERSIONS_REL]->(StudyVersion)-[r2:STUDY_DESIGNS_REL]->(sd:StudyDesign)
-        MATCH(sd)-[r3:SCHEDULE_TIMELINES_REL]->(tl:ScheduleTimeline)<-[r4:TIMELINE_REL]-(act_main)<-[r5:ACTIVITY_REL]-(act_inst_main:ScheduledActivityInstance)
-        MATCH(tl)-[r6:INSTANCES_REL]->(act_inst:ScheduledActivityInstance)-[r7:ACTIVITY_REL]->(act:Activity)-[r8:BIOMEDICAL_CONCEPT_REL]->(bc:BiomedicalConcept)-[r9:PROPERTIES_REL]->(bc_prop:BiomedicalConceptProperty) 
-        return distinct study, sd, tl, act, act_inst_main, act_inst_main.uuid+'/'+ act_inst.uuid as act_inst_uuid, act_inst, bc,bc_prop
-    """
-    db = Neo4jConnection()
-    with db.session() as session:
-        results = session.run(query)
-        res = [result.data() for result in results]
-    db.close()
-    return res
-
 def get_bc_properties():
     query = f"""
         MATCH (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp)<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(act_inst:ScheduledActivityInstance)-[:ENCOUNTER_REL]-(enc)
@@ -152,20 +124,6 @@ def get_bc_properties():
         res = [result.data() for result in results]
     db.close()
     return res
-
-# def get_bc_properties_dm():
-#     query = f"""
-#         MATCH (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp)<-[:PROPERTIES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(act_inst)-[:ENCOUNTER_REL]-(enc)
-#         WHERE  bc.label = '{bc_label}'
-#         return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, enc.label as ENCOUNTER_LABEL, dc.uri as DC_URI
-#     """
-#     db = Neo4jConnection()
-#     with db.session() as session:
-#         results = session.run(query)
-#         res = [result.data() for result in results]
-#     db.close()
-#     return res
-
 
 def get_bc_properties_sub_timeline():
     query = """
@@ -208,15 +166,15 @@ def test_datapoints():
     with db.session() as session:
         # My new fantastic
         query = """
-match (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
-MATCH (bcp)<-[:PROPERTIES_REL]-(ignore_dc:DataContract)
-match (ignore_dc)-[:INSTANCES_REL]->(enc_msai:ScheduledActivityInstance)-[:ENCOUNTER_REL]->(enc:Encounter)
-with distinct bc.name as BC_NAME, bc.label as BC_LABEL, bcp.name as bcp_name, bcp.label as bcp_label, enc.label as ENCOUNTER_LABEL, enc_msai.uuid as enc_msai_uuid
-MATCH (msai:ScheduledActivityInstance {uuid: enc_msai_uuid})<-[:INSTANCES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(sub_sai:ScheduledActivityInstance)
-MATCH (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty {name: bcp_name})<-[:PROPERTIES_REL]-(bc:BiomedicalConcept {name: BC_NAME})
-MATCH (sub_sai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
-WITH BC_NAME, BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, sub_sai.name as sub_sai_name, ENCOUNTER_LABEL, t.value as TIMEPOINT_VALUE, dc.uri as DC_URI
-return BC_NAME, BCP_NAME, BCP_LABEL, sub_sai_name, ENCOUNTER_LABEL, TIMEPOINT_VALUE, DC_URI
+            match (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
+            MATCH (bcp)<-[:PROPERTIES_REL]-(ignore_dc:DataContract)
+            match (ignore_dc)-[:INSTANCES_REL]->(enc_msai:ScheduledActivityInstance)-[:ENCOUNTER_REL]->(enc:Encounter)
+            with distinct bc.name as BC_NAME, bc.label as BC_LABEL, bcp.name as bcp_name, bcp.label as bcp_label, enc.label as ENCOUNTER_LABEL, enc_msai.uuid as enc_msai_uuid
+            MATCH (msai:ScheduledActivityInstance {uuid: enc_msai_uuid})<-[:INSTANCES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(sub_sai:ScheduledActivityInstance)
+            MATCH (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty {name: bcp_name})<-[:PROPERTIES_REL]-(bc:BiomedicalConcept {name: BC_NAME})
+            MATCH (sub_sai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
+            WITH BC_NAME, BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, sub_sai.name as sub_sai_name, ENCOUNTER_LABEL, t.value as TIMEPOINT_VALUE, dc.uri as DC_URI
+            return BC_NAME, BCP_NAME, BCP_LABEL, sub_sai_name, ENCOUNTER_LABEL, TIMEPOINT_VALUE, DC_URI
         """ % ()
         print("test query\n",query)
         results = session.run(query)
@@ -239,60 +197,6 @@ def add_datapoints():
             MERGE (d)-[:SOURCE]->(record)
             RETURN count(*) as count
         """
-        results = session.run(query)
-        res = [result.data() for result in results]
-    db.close()
-    print("results datapoints",res)
-
-def add_datapoints_alternative(activity):
-    if 'timepoint' in activity:
-        # activity = {'visit':item['VISIT'],'label':item['LABEL'],'variable':item['VARIABLE'],'timepoint':item['TIMEPOINT']}
-        query = """
-            LOAD CSV WITH HEADERS FROM 'file:///datapoints.csv' AS row
-            with row
-            WHERE row['VISIT'] = '%s' and row['LABEL'] = '%s' and row['VARIABLE'] = '%s' and row['TIMEPOINT'] = '%s'
-            match (msai:ScheduledActivityInstance)<-[:INSTANCES_REL]-(dc:DataContract)-[:INSTANCES_REL]-(ssai:ScheduledActivityInstance)
-            match (msai)-[:ENCOUNTER_REL]->(enc:Encounter)
-            match (ssai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
-            match (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)<-[:PROPERTIES_REL]-(bc:BiomedicalConcept)
-            WHERE enc.label = row['VISIT']
-            and   t.value = row['TIMEPOINT']
-            AND   bc.label = row['LABEL']
-            WITH dc.uri as dc_uri, row['VALUE'] as value, row['SUBJID'] as subjid, dc.uri+'/'+row['SUBJID']+'/'+row['ROW_NO'] as dp_uri
-            MATCH (dc2 {uri: dc_uri})
-            MERGE (d:DataPoint {uri: dp_uri, value: value})
-            MERGE (s:Subject {identifier: subjid})
-            MERGE (dc)<-[:FOR_DC_REL]-(d)
-            MERGE (d)-[:FOR_SUBJECT_REL]->(s)
-            return count(*)
-        """ % (activity['visit'],activity['label'],activity['variable'],activity['timepoint'])
-    else:
-        # activity = {'visit':item['VISIT'],'label':item['LABEL'],'variable':item['VARIABLE']}
-        query = """
-            LOAD CSV WITH HEADERS FROM 'file:///datapoints.csv' AS row
-            WHERE row['VISIT'] = 'Screening 1' and row['LABEL'] = 'Diastolic Blood Pressure' and row['VARIABLE'] = 'VSORRES' and row['TIMEPOINT'] = 'PT5M'
-            match (msai:ScheduledActivityInstance)<-[:INSTANCES_REL]-(dc:DataContract)-[:INSTANCES_REL]-(ssai:ScheduledActivityInstance)
-            match (msai)-[:ENCOUNTER_REL]->(enc:Encounter)
-            match (ssai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
-            match (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)<-[:PROPERTIES_REL]-(bc:BiomedicalConcept)
-            WHERE enc.label = row['VISIT']
-            and   t.value = row['TIMEPOINT']
-            AND   bc.label = row['LABEL']
-            WITH dc.uri as dc_uri, row['VALUE'] as value, row['SUBJID'] as subjid, dc.uri+'/'+row['SUBJID']+'/'+row['ROW_NO'] as dp_uri
-            MATCH (dc2 {uri: dc_uri})
-            MERGE (d:DataPoint {uri: dp_uri, value: value})
-            MERGE (s:Subject {identifier: subjid})
-            MERGE (dc)<-[:FOR_DC_REL]-(d)
-            MERGE (d)-[:FOR_SUBJECT_REL]->(s)
-            return count(*)
-        """
-        query = """MATCH (n:DataPoint) return count(*) as count"""
-    debug.append(str(activity))
-    debug.append(query)
-    print("datapoint query\n",query)
-
-    db = Neo4jConnection()
-    with db.session() as session:
         results = session.run(query)
         res = [result.data() for result in results]
     db.close()
