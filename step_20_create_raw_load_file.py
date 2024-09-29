@@ -240,6 +240,7 @@ def get_vs_data(data):
     for row in vs_data:
         add_row_dp('VS',['USUBJID','VSSEQ'], row)
         get_vs_variable(data, row, 'VSORRES', 'VSORRES')
+        get_vs_variable(data, row, 'VSORRESU', 'VSORRESU')
         get_vs_variable(data, row, 'date', 'VSDTC')
         get_vs_variable(data, row, 'position', 'VSPOS')
         get_vs_variable(data, row, 'location', 'VSLOC')
