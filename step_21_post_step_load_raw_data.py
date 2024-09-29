@@ -202,6 +202,7 @@ def get_bc_properties_ae():
     db.close()
     return res
 
+# DELETE: REMOVE
 def test_datapoints():
     db = Neo4jConnection()
     with db.session() as session:
@@ -342,6 +343,7 @@ def check_data_contracts():
             else:
                 print("\n---\ndata_contract MISSING :",item['data_contract'])
     db.close()
+
 def link_row_datapoints():
     # print("\nGetting row datapoints")
     # DP_FILE = Path.cwd() / "data" / "output" / "row_datapoints.json"
@@ -429,7 +431,7 @@ def create_datapoint_file(raw_data):
     print("\--get unique activities from raw_data")
     unique_activities = get_unique_activities(raw_data)
     debug.append(f"\n------- unique_activities ({len(unique_activities)})")
-    for r in unique_activities:
+    for r in unique_activities[0:5]:
         debug.append(r)
     # Reducing when debugging
     # unique_activities = dict(list(unique_activities.items())[0:4])
@@ -499,7 +501,7 @@ def create_datapoint_file(raw_data):
             missing.append(v)
 
     debug.append("\n------- building datapoints")
-    for r in datapoints:
+    for r in datapoints[0:5]:
         debug.append(r)
 
 

@@ -399,40 +399,64 @@ def get_ae_data(data):
 
 
 
-
+# NOTE: MSG EX data is very different from pilot. Below difference in variables
+# Pilot VISITNUM	VISIT	VISITDY
+# MSG   EXLOT	    EPOCH
+# So MSG does not have visit, which was they way to find data contracts in pilot
+# Faking 
+# Day no Visit
 def get_ex_variable(data, row, data_property, sdtm_variable):
     item = {}
-    encounter = get_encounter(row)
-    if encounter != "":
-        bc_label = get_bc_label(row['EXTRT'])
-        tpt = ""
-        property = get_property_for_variable(bc_label, data_property)
-        if property:
-            data_contract = get_data_contract(encounter, bc_label, property,tpt)
-            if data_contract:
-                if row[sdtm_variable]:
-                    item['SUBJID'] = row['USUBJID']
-                    item['ROW_NO'] = str(row['VSSEQ'])
-                    item['LABEL'] = bc_label
-                    item['VARIABLE'] = property
-                    item['VISIT'] = encounter
-                    item['TIMEPOINT'] = tpt
-                    # item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['VSSEQ']}"
-                    item['VALUE'] = f"{row[sdtm_variable]}"
-                    data.append(item)
+    day_to_visit = {
+        "1.0":"Baseline",
+        "14.0":"Week 2",
+        # "28.0":"Week 4",
+        # "42.0":"Week 6",
+        # "56.0":"Week 8",
+        # "84.0":"Week 12",
+        # "112.0":"Week 16",
+        # "140.0":"Week 20",
+        # "168.0":"Week 24",
+        "182.0":"Week 26"
+    }
+    # encounter = get_encounter(row)
+    encounter = None
+    day_no = next((e for e in day_to_visit.keys() if str(row['EXSTDY']) == e),None)
+    if day_no:
+        encounter = day_to_visit[day_no]
+        if encounter != "":
+            bc_label = get_bc_label(row['EXTRT'])
+            tpt = ""
+            property = get_property_for_variable(bc_label, data_property)
+            if property:
+                data_contract = get_data_contract(encounter, bc_label, property,tpt)
+                if data_contract:
+                    if row[sdtm_variable]:
+                        item['SUBJID'] = row['USUBJID']
+                        item['ROW_NO'] = str(row['EXSEQ'])
+                        item['LABEL'] = bc_label
+                        item['VARIABLE'] = property
+                        item['VISIT'] = encounter
+                        item['TIMEPOINT'] = tpt
+                        # item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['VSSEQ']}"
+                        item['VALUE'] = f"{row[sdtm_variable]}"
+                        data.append(item)
 
-                    # item['USUBJID'] = row['USUBJID']
-                    # item['DC_URI'] = data_contract
-                    # item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['EXSEQ']}"
-                    # item['VALUE'] = f"{row[sdtm_variable]}"
-                    # data.append(item)
-                    # add_row_dp('EX',['USUBJID','EXSEQ'],row, item['DATAPOINT_URI'])
+                        # item['USUBJID'] = row['USUBJID']
+                        # item['DC_URI'] = data_contract
+                        # item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['EXSEQ']}"
+                        # item['VALUE'] = f"{row[sdtm_variable]}"
+                        # data.append(item)
+                        # add_row_dp('EX',['USUBJID','EXSEQ'],row, item['DATAPOINT_URI'])
+                else:
+                    add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
             else:
-                add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
+                add_issue("Add property for EX",row['EXTRT'], data_property)
         else:
-            add_issue("Add property for EX",row['EXTRT'], data_property)
+            add_issue("Add encounter for EX",row['EXTRT'],row['VISIT'])
     else:
-        add_issue("Add encounter for EX",row['EXTRT'],row['VISIT'])
+        # add_issue("Ignoring",row['EXTRT'],str(row['EXSTDY']))
+        add_issue("Ignoring day",row['EXTRT'])
 
 def get_ex_data(data):
     print("\nGetting EX data")
@@ -476,8 +500,8 @@ def create_raw_data_load_file():
     print("\nCreating datapoint and value")
     data = []
 
-    # get_vs_data(data)
-    # get_dm_data(data)
+    get_vs_data(data)
+    get_dm_data(data)
     get_ex_data(data)
     print("\n -- ex")
     for r in data:
