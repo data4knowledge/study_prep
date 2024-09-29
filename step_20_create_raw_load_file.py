@@ -558,7 +558,7 @@ def create_raw_data_load_file():
         print("No data has been found")
         exit()
 
-    save_file(OUTPUT_PATH,"raw_data",data)
+    save_file(OUTPUT_PATH,"raw_data_msg",data)
     # check_dc_in_file(OUTPUT_PATH,"datapoints")
 
     write_tmp("step-20-dc-debug.txt",debug)
