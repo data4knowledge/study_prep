@@ -297,14 +297,42 @@ def get_dm_variable(data, row, data_label, data_property, sdtm_variable):
     if property_name:
         if data_contract:
             if row[sdtm_variable]:
-                item['SUBJID'] = row['USUBJID']
-                item['ROW_NO'] = "1"
-                item['LABEL'] = bc_label
-                item['VARIABLE'] = property_name
-                item['VISIT'] = dm_visit
-                item['TIMEPOINT'] = ""
-                item['VALUE'] = f"{row[sdtm_variable]}"
-                data.append(item)
+                if row['USUBJID'] == "CDISC008" and sdtm_variable == "RACE":
+                    item['SUBJID'] = row['USUBJID']
+                    item['ROW_NO'] = "1"
+                    item['LABEL'] = bc_label
+                    item['VARIABLE'] = property_name
+                    item['VISIT'] = dm_visit
+                    item['TIMEPOINT'] = ""
+                    item['VALUE'] = "ASIAN"
+                    data.append(item)
+                    item = {}
+                    item['SUBJID'] = row['USUBJID']
+                    item['ROW_NO'] = "1"
+                    item['LABEL'] = bc_label
+                    item['VARIABLE'] = property_name
+                    item['VISIT'] = dm_visit
+                    item['TIMEPOINT'] = ""
+                    item['VALUE'] = "BLACK OR AFRICAN AMERICAN"
+                    data.append(item)
+                    item = {}
+                    item['SUBJID'] = row['USUBJID']
+                    item['ROW_NO'] = "1"
+                    item['LABEL'] = bc_label
+                    item['VARIABLE'] = property_name
+                    item['VISIT'] = dm_visit
+                    item['TIMEPOINT'] = ""
+                    item['VALUE'] = "WHITE"
+                    data.append(item)
+                else:
+                    item['SUBJID'] = row['USUBJID']
+                    item['ROW_NO'] = "1"
+                    item['LABEL'] = bc_label
+                    item['VARIABLE'] = property_name
+                    item['VISIT'] = dm_visit
+                    item['TIMEPOINT'] = ""
+                    item['VALUE'] = f"{row[sdtm_variable]}"
+                    data.append(item)
         else:
             add_issue(f"No dc RESULT bc_label: {bc_label} - property_name: {property_name} - encounter: {dm_visit}")
     else:
@@ -501,7 +529,7 @@ def create_raw_data_load_file():
     data = []
 
     # get_vs_data(data)
-    # get_dm_data(data)
+    get_dm_data(data)
     # get_ex_data(data)
     get_ae_data(data)
     print("\n -- ae")
