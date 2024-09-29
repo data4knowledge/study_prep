@@ -84,9 +84,6 @@ def copy_files_to_db_import(import_directory):
     datapoints_file = Path.cwd() / "data" / "output" / "datapoints_msg.csv"
     assert datapoints_file.exists(), f"datapoints_file does not exist: {datapoints_file}"
     copy_file_to_db_import(datapoints_file, import_directory)
-    # row_datapoints_file = Path.cwd() / "data" / "output" / "row_datapoints.csv"
-    # assert row_datapoints_file.exists(), f"row_datapoints_file does not exist: {row_datapoints_file}"
-    # copy_file_to_db_import(row_datapoints_file, import_directory)
 
 def add_identifiers():
     db = Neo4jConnection()
@@ -145,38 +142,17 @@ def get_bc_properties_sub_timeline():
     return res
 
 def get_bc_properties_ae():
-        # WHERE bc.label = '{bc_label}'
-    query = f"""
-        match (msai:ScheduledActivityInstance)<-[:INSTANCES_REL]-(dc:DataContract)-[:INSTANCES_REL]-(ssai:ScheduledActivityInstance)
-        match (ssai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
+    query = """
+        MATCH (study:Study{name:'Study_CDISC PILOT - LZZT'})-[r1:VERSIONS_REL]->(StudyVersion)-[r2:STUDY_DESIGNS_REL]->(sd:StudyDesign)
+        WITH sd
+        match (sd)-[:SCHEDULE_TIMELINES_REL]->(tl:ScheduleTimeline {name:'Adverse Event Timeline'})-[:INSTANCES_REL]->(sai:ScheduledActivityInstance)
+        match (sai:ScheduledActivityInstance)<-[:INSTANCES_REL]-(dc:DataContract)
         match (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)<-[:PROPERTIES_REL]-(bc:BiomedicalConcept)
         return bc.label as BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, dc.uri as DC_URI,"" as ENCOUNTER_LABEL
     """
     # print("ae query", query)
     db = Neo4jConnection()
     with db.session() as session:
-        results = session.run(query)
-        res = [result.data() for result in results]
-    db.close()
-    return res
-
-# DELETE: REMOVE
-def test_datapoints():
-    db = Neo4jConnection()
-    with db.session() as session:
-        # My new fantastic
-        query = """
-            match (bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
-            MATCH (bcp)<-[:PROPERTIES_REL]-(ignore_dc:DataContract)
-            match (ignore_dc)-[:INSTANCES_REL]->(enc_msai:ScheduledActivityInstance)-[:ENCOUNTER_REL]->(enc:Encounter)
-            with distinct bc.name as BC_NAME, bc.label as BC_LABEL, bcp.name as bcp_name, bcp.label as bcp_label, enc.label as ENCOUNTER_LABEL, enc_msai.uuid as enc_msai_uuid
-            MATCH (msai:ScheduledActivityInstance {uuid: enc_msai_uuid})<-[:INSTANCES_REL]-(dc:DataContract)-[:INSTANCES_REL]->(sub_sai:ScheduledActivityInstance)
-            MATCH (dc)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty {name: bcp_name})<-[:PROPERTIES_REL]-(bc:BiomedicalConcept {name: BC_NAME})
-            MATCH (sub_sai)<-[:RELATIVE_FROM_SCHEDULED_INSTANCE_REL]-(t:Timing)
-            WITH BC_NAME, BC_LABEL, bcp.name as BCP_NAME, bcp.label as BCP_LABEL, sub_sai.name as sub_sai_name, ENCOUNTER_LABEL, t.value as TIMEPOINT_VALUE, dc.uri as DC_URI
-            return BC_NAME, BCP_NAME, BCP_LABEL, sub_sai_name, ENCOUNTER_LABEL, TIMEPOINT_VALUE, DC_URI
-        """ % ()
-        print("test query\n",query)
         results = session.run(query)
         res = [result.data() for result in results]
     db.close()
@@ -250,28 +226,6 @@ def check_data_contracts():
                 print("\n---\ndata_contract MISSING :",item['data_contract'])
     db.close()
 
-def link_row_datapoints():
-    # print("\nGetting row datapoints")
-    # DP_FILE = Path.cwd() / "data" / "output" / "row_datapoints.json"
-    # assert DP_FILE.exists(), "DP_FILE not found"
-    # with open(DP_FILE) as f:
-    #     data = json.load(f)
-
-    db = Neo4jConnection()
-    with db.session() as session:
-        query = """
-            LOAD CSV WITH HEADERS FROM 'file:///row_datapoints.csv'  AS data_row
-            WITH data_row
-            MATCH (dp:DataPoint {uri:data_row['datapoint_uri']})
-            MERGE (record:Record {key:data_row['key']})
-            MERGE (dp)-[:SOURCE]->(record)
-            RETURN count(*)
-        """
-        print("query",query)
-        results = session.run(query)
-        print("results row datapoints",[result.data() for result in results])
-    db.close()
-
 def get_raw_data_file(file):
     df = pd.read_csv(file)
     df = df.fillna("")
@@ -279,10 +233,8 @@ def get_raw_data_file(file):
     return data
 
 def get_unique_activities(data):
-    # SUBJID,ROW_NO,VISIT,VARIABLE,LABEL,TIMEPOINT,VALUE
     unique_activities = {}
     for item in data:
-        # if item['TIMEPOINT'] != "":
         if item['TIMEPOINT'] != "":
             activity = {'visit':item['VISIT'],'label':item['LABEL'],'variable':item['VARIABLE'],'timepoint':item['TIMEPOINT']}
             key = str(activity)
@@ -318,25 +270,19 @@ def create_datapoint_file(raw_data):
     print("\ncreate datapoint file")
     properties = get_bc_properties()
     debug.append(f"\n------- properties ({len(properties)})")
-    for r in properties:
-        debug.append(r)
+    # for r in properties: debug.append(r)
 
     # NOTE: Not all blood pressure measurements are repeated, so data contracts for SCREENING 1, SCREENING 2, BASELINEWEEK 2, WEEK 4, WEEK 6, WEEK 8
     # All records marked as baseline are STANDING VSREPNUM = 3 -> PT2M. So I'll use that for them
     properties_sub_timeline = get_bc_properties_sub_timeline()
     debug.append(f"\n------- properties_sub_timeline ({len(properties_sub_timeline)})")
-    for r in properties_sub_timeline[0:4]:
-        debug.append(r)
+    # for r in properties_sub_timeline[0:4]: debug.append(r)
 
     properties_ae = get_bc_properties_ae()
     debug.append(f"\n------- properties_ae ({len(properties_ae)})")
-    for r in properties_ae[0:10]:
-        debug.append(r)
+    # for r in properties_ae[0:10]: debug.append(r)
+    for r in properties_ae: debug.append(r)
     
-    # properties_sub_timeline = [r for r in properties_sub_timeline if r['BC_LABEL'] == "Diastolic Blood Pressure"]
-    debug.append(f"len(properties_sub_timeline): {len(properties_sub_timeline)}")
-    debug.append("------- properties")
-
     write_tmp("step-21-post_step.txt",debug)
 
     print("\--get unique activities from raw_data")
@@ -344,43 +290,16 @@ def create_datapoint_file(raw_data):
     debug.append(f"\n------- unique_activities ({len(unique_activities)})")
     # Reducing when debugging
     # unique_activities = dict(list(unique_activities.items())[0:4])
-    for r in unique_activities:
-        debug.append(r)
-
-
-    # encounter = 'Baseline'
-    # encounter = 'Screening 1'
-    # bcp_label = 'Date Time'
-    # tpt = 'PT1M'
-    # # acts_for_dia_sub = [i for i in properties_sub_timeline if i['BC_LABEL'] == 'Diastolic Blood Pressure' and i['ENCOUNTER_LABEL'] == encounter and i['BCP_LABEL'] == bcp_label and i['TIMEPOINT_VALUE'] == tpt]
-    # acts_for_dia_sub = [i for i in properties_sub_timeline if i['BC_LABEL'] == 'Diastolic Blood Pressure' and i['BCP_LABEL'] == bcp_label]
-    # debug.append("\n------- acts_for_dia_sub")
-    # for r in acts_for_dia_sub:
-    #     debug.append(r)
-
-
-    # acts_for_dia = [i for i in properties if i['BC_LABEL'] == 'Diastolic Blood Pressure' and i['ENCOUNTER_LABEL'] == encounter and i['BCP_LABEL'] == bcp_label]
-    # # acts_for_dia = [i for i in properties if i['BC_LABEL'] == 'Diastolic Blood Pressure' and i['ENCOUNTER_LABEL'] == encounter]
-    # debug.append("\n------- acts_for_dia")
-    # for r in acts_for_dia:
-    #     debug.append(r)
-
 
     missing = []
-    matches = []
     datapoints = []
-    # # res =               dict(list(test_dict.items())[0: K])
     debug.append("\n------- looping unique_activities")
     for k,v in unique_activities.items():
         rows = []
         if 'timepoint' in v:
-            # dc = [i for i in properties_sub_timeline if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable'] and i['TIMEPOINT_VALUE'] == v['timepoint']]
-            # dc = next((i for i in properties_sub_timeline if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable'] and i['TIMEPOINT_VALUE'] == v['timepoint']),[])
             dc = next((i['DC_URI'] for i in properties_sub_timeline if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_NAME'] == v['variable'] and i['TIMEPOINT_VALUE'] == v['timepoint']),[])
-            # d = [r for r in raw_data if r['BC_LABEL'] == v['label'] and r['ENCOUNTER_LABEL'] == v['visit'] and r['BCP_NAME'] == v['variable'] and r['TIMEPOINT_VALUE'] == v['timepoint']]
             if dc:
                 rows = [r for r in raw_data if r['LABEL'] == v['label'] and r['VISIT'] == v['visit'] and r['VARIABLE'] == v['variable'] and r['TIMEPOINT'] == v['timepoint']]
-            # debug.append(f"len(rows) {len(rows)}")
         elif 'visit' in v:
             dc = next((i['DC_URI'] for i in properties if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable']),[])
             # NOTE: There is a mismatches within the BC specializations, So sometimes label matches, sometimes the name
@@ -388,21 +307,18 @@ def create_datapoint_file(raw_data):
                 dc = next((i['DC_URI'] for i in properties if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_NAME'] == v['variable']),[])
             if dc:
                 rows = [r for r in raw_data if r['LABEL'] == v['label'] and r['VISIT'] == v['visit'] and r['VARIABLE'] == v['variable']]
-        # AE is the only thing that is not visit bound at the moment
         else:
+            # AE is the only thing that is not visit bound at the moment
             dc = next((i['DC_URI'] for i in properties_ae if i['BC_LABEL'] == v['label'] and i['BCP_NAME'] == v['variable']),[])
             if dc:
                 rows = [r for r in raw_data if r['LABEL'] == v['label'] and r['VARIABLE'] == v['variable']]
 
-        # debug.append('------- looping rows')
         for row in rows:
-            # debug.append(f"-- {row}")
             item = {}
             item['USUBJID'] = row['SUBJID']
             fixed_label = row['LABEL'].replace(" ","").replace("-","")
             fixed_variable = row['VARIABLE'].replace(" ","").replace("-","")
             thing = f"{fixed_label}/{fixed_variable}"
-            # debug.append(f"working on: {row}")
             if 'TIMEPOINT' in row and row['TIMEPOINT']:
                 dp_uri = f"{dc}{row['SUBJID']}/{thing}/{row['ROW_NO']}/{row['TIMEPOINT']}"
                 record_key = f"{fixed_label}/{row['SUBJID']}/{row['ROW_NO']}/{row['TIMEPOINT']}"
@@ -412,8 +328,6 @@ def create_datapoint_file(raw_data):
             else:
                 dp_uri = f"{dc}{row['SUBJID']}/{thing}/{row['ROW_NO']}"
                 record_key = f"{fixed_label}/{row['SUBJID']}/{row['ROW_NO']}"
-                debug.append(f"dp_uri: {row['SUBJID']}/{thing}/{row['ROW_NO']}")
-                debug.append(f"record_key: {record_key}")
             item['DATAPOINT_URI'] = dp_uri
             item['VALUE'] = row['VALUE']
             item['DC_URI'] = dc
@@ -437,15 +351,15 @@ def create_datapoint_file(raw_data):
         else:
             metadata[key] = [f"{r['label']}.{r['variable']}"]
 
-    # for r in metadata.items():
-    #     debug.append(r)
+    for r in metadata.items():
+        debug.append(r)
 
     write_tmp("step-21-post_step.txt",debug)
 
     save_file(OUTPUT_PATH,"datapoints_msg",datapoints)
 
 def load_datapoints():
-    print("\load to db")
+    print("\nload to db")
     clear_created_nodes()
     import_directory = get_import_directory()
     print("\n neo4j import directory", import_directory)
@@ -456,12 +370,9 @@ def load_datapoints():
 
     print("\nadd datapoints")
     add_datapoints()
-    # # check_data_contracts()
-    # print("\nlink row datatpoints")
-    # link_row_datapoints()
-    # c = Configuration()
-    # # ConfigurationNode.delete()
-    # ConfigurationNode.create(c._configuration)
+    c = Configuration()
+    # ConfigurationNode.delete()
+    ConfigurationNode.create(c._configuration)
 
 
 OUTPUT_PATH = Path.cwd() / "data" / "output"
