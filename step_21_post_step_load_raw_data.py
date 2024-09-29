@@ -51,10 +51,10 @@ def clear_created_nodes():
     with db.session() as session:
         query = "match (n:Datapoint|DataPoint) detach delete n return count(n)"
         results = session.run(query)
-        print("Removing Datapoint/DataPoint",results)
+        print("Removing Datapoint/DataPoint",results.data())
         query = "match (n:Subject) detach delete n return count(n)"
         results = session.run(query)
-        print("Removing Subject",results)
+        print("Removing Subject",results.data())
     db.close()
     
 def get_import_directory():
@@ -498,7 +498,7 @@ def create_datapoint_file(raw_data):
             fixed_label = row['LABEL'].replace(" ","").replace("-","")
             fixed_variable = row['VARIABLE'].replace(" ","").replace("-","")
             thing = f"{fixed_label}/{fixed_variable}"
-            debug.append(f"working on: {row}")
+            # debug.append(f"working on: {row}")
             if 'TIMEPOINT' in row and row['TIMEPOINT']:
                 dp_uri = f"{dc}{row['SUBJID']}/{thing}/{row['ROW_NO']}/{row['TIMEPOINT']}"
                 record_key = f"{fixed_label}/{row['SUBJID']}/{row['ROW_NO']}/{row['TIMEPOINT']}"
@@ -506,7 +506,6 @@ def create_datapoint_file(raw_data):
                 dp_uri = f"{dc}{row['SUBJID']}/{thing}/{row['ROW_NO']}"
                 record_key = f"{fixed_label}/{row['SUBJID']}/{row['ROW_NO']}"
             else:
-                print("working on ae")
                 dp_uri = f"{dc}{row['SUBJID']}/{thing}/{row['ROW_NO']}"
                 record_key = f"{fixed_label}/{row['SUBJID']}/{row['ROW_NO']}"
                 debug.append(f"dp_uri: {row['SUBJID']}/{thing}/{row['ROW_NO']}")
