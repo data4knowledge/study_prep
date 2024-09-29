@@ -232,9 +232,11 @@ def add_datapoints():
             MATCH (dc:DataContract {uri:data_row['DC_URI']})
             MATCH (design:StudyDesign {name:'Study Design 1'})
             MERGE (d:DataPoint {uri: data_row['DATAPOINT_URI'], value: data_row['VALUE']})
+            MERGE (record:Record {key:data_row['RECORD_KEY']})
             MERGE (s:Subject {identifier:data_row['USUBJID']})
             MERGE (dc)<-[:FOR_DC_REL]-(d)
             MERGE (d)-[:FOR_SUBJECT_REL]->(s)
+            MERGE (d)-[:SOURCE]->(record)
             RETURN count(*) as count
         """
         results = session.run(query)
@@ -380,17 +382,17 @@ def get_unique_activities(data):
         if item['TIMEPOINT'] != "":
             activity = {'visit':item['VISIT'],'label':item['LABEL'],'variable':item['VARIABLE'],'timepoint':item['TIMEPOINT']}
             key = str(activity)
-        else:
+        elif item['VISIT'] != "":
             activity = {'visit':item['VISIT'],'label':item['LABEL'],'variable':item['VARIABLE']}
+            key = str(activity)
+        else:
+            activity = {'label':item['LABEL'],'variable':item['VARIABLE']}
             key = str(activity)
         if not key in unique_activities:
             unique_activities[key] = activity
     return unique_activities
 
 debug = []
-matches = []
-issues = []
-
 
 def create_enrolment_file(raw_data):
     print("\ncreate enrolment file")
@@ -421,6 +423,11 @@ def create_datapoint_file(raw_data):
     debug.append(f"\n------- properties_sub_timeline ({len(properties_sub_timeline)})")
     for r in properties_sub_timeline[0:4]:
         debug.append(r)
+
+    properties_ae = get_bc_properties_ae()
+    debug.append(f"\n------- properties_ae ({len(properties_ae)})")
+    for r in properties_ae[0:10]:
+        debug.append(r)
     
     # properties_sub_timeline = [r for r in properties_sub_timeline if r['BC_LABEL'] == "Diastolic Blood Pressure"]
     debug.append(f"len(properties_sub_timeline): {len(properties_sub_timeline)}")
@@ -431,10 +438,10 @@ def create_datapoint_file(raw_data):
     print("\--get unique activities from raw_data")
     unique_activities = get_unique_activities(raw_data)
     debug.append(f"\n------- unique_activities ({len(unique_activities)})")
-    for r in unique_activities[0:5]:
-        debug.append(r)
     # Reducing when debugging
     # unique_activities = dict(list(unique_activities.items())[0:4])
+    for r in unique_activities:
+        debug.append(r)
 
 
     # encounter = 'Baseline'
@@ -470,31 +477,44 @@ def create_datapoint_file(raw_data):
             if dc:
                 rows = [r for r in raw_data if r['LABEL'] == v['label'] and r['VISIT'] == v['visit'] and r['VARIABLE'] == v['variable'] and r['TIMEPOINT'] == v['timepoint']]
             # debug.append(f"len(rows) {len(rows)}")
-
-        else:
-            # dcs = [i for i in properties if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable']]
-            # debug.append(f'\n------- test {v}')
-            # for r in dcs:
-            #    debug.append(r)
+        elif 'visit' in v:
             dc = next((i['DC_URI'] for i in properties if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_LABEL'] == v['variable']),[])
             # NOTE: There is a mismatches within the BC specializations, So sometimes label matches, sometimes the name
             if not dc:
                 dc = next((i['DC_URI'] for i in properties if i['BC_LABEL'] == v['label'] and i['ENCOUNTER_LABEL'] == v['visit'] and i['BCP_NAME'] == v['variable']),[])
             if dc:
                 rows = [r for r in raw_data if r['LABEL'] == v['label'] and r['VISIT'] == v['visit'] and r['VARIABLE'] == v['variable']]
+        # AE is the only thing that is not visit bound at the moment
+        else:
+            dc = next((i['DC_URI'] for i in properties_ae if i['BC_LABEL'] == v['label'] and i['BCP_NAME'] == v['variable']),[])
+            if dc:
+                rows = [r for r in raw_data if r['LABEL'] == v['label'] and r['VARIABLE'] == v['variable']]
+
         # debug.append('------- looping rows')
         for row in rows:
             # debug.append(f"-- {row}")
             item = {}
             item['USUBJID'] = row['SUBJID']
-            thing = f"{row['LABEL']}/{row['VARIABLE']}".replace(" ","").replace("-","")
-            if 'TIMEPOINT' in row:
+            fixed_label = row['LABEL'].replace(" ","").replace("-","")
+            fixed_variable = row['VARIABLE'].replace(" ","").replace("-","")
+            thing = f"{fixed_label}/{fixed_variable}"
+            debug.append(f"working on: {row}")
+            if 'TIMEPOINT' in row and row['TIMEPOINT']:
                 dp_uri = f"{dc}{row['SUBJID']}/{thing}/{row['ROW_NO']}/{row['TIMEPOINT']}"
-            else:
+                record_key = f"{fixed_label}/{row['SUBJID']}/{row['ROW_NO']}/{row['TIMEPOINT']}"
+            elif 'VISIT' in row and row['VISIT']:
                 dp_uri = f"{dc}{row['SUBJID']}/{thing}/{row['ROW_NO']}"
+                record_key = f"{fixed_label}/{row['SUBJID']}/{row['ROW_NO']}"
+            else:
+                print("working on ae")
+                dp_uri = f"{dc}{row['SUBJID']}/{thing}/{row['ROW_NO']}"
+                record_key = f"{fixed_label}/{row['SUBJID']}/{row['ROW_NO']}"
+                debug.append(f"dp_uri: {row['SUBJID']}/{thing}/{row['ROW_NO']}")
+                debug.append(f"record_key: {record_key}")
             item['DATAPOINT_URI'] = dp_uri
             item['VALUE'] = row['VALUE']
             item['DC_URI'] = dc
+            item['RECORD_KEY'] = record_key
             datapoints.append(item)
 
         if not dc:

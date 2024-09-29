@@ -337,12 +337,14 @@ def get_ae_variable(data, row, bc_label, data_label, sdtm_variable):
         data_contract = get_data_contract_ae(bc_label,property)
         if data_contract:
             if row[sdtm_variable]:
-                item['USUBJID'] = row['USUBJID']
-                item['DC_URI'] = data_contract
-                item['DATAPOINT_URI'] = f"{data_contract}/{row['USUBJID']}/{row['AESEQ']}"
+                item['SUBJID'] = row['USUBJID']
+                item['ROW_NO'] = row['AESEQ']
+                item['LABEL'] = bc_label
+                item['VARIABLE'] = property
+                item['VISIT'] = ""
+                item['TIMEPOINT'] = ""
                 item['VALUE'] = f"{row[sdtm_variable]}"
                 data.append(item)
-                add_row_dp('AE',['USUBJID','AESEQ'],row, item['DATAPOINT_URI'])
             else:
                 add_issue(f"Ignoring missing value value is missing: {sdtm_variable}")
         else:
@@ -354,14 +356,12 @@ def get_ae_variable(data, row, bc_label, data_label, sdtm_variable):
 def get_ae_data(data):
     print("\nGetting AE data")
     AE_DATA = DATA_PATH / "ae.json"
-    assert AE_DATA.exists(), "EX_DATA not found"
+    assert AE_DATA.exists(), "AE_DATA not found"
     with open(AE_DATA) as f:
         ae_data = json.load(f)
 
     bc_label = get_bc_label("AE")
     for row in ae_data:
-        add_row_dp('AE',['USUBJID','AESEQ'],row)
-        get_ae_variable(data, row, bc_label, 'date','AEDTC'),
         get_ae_variable(data, row, bc_label, 'start', 'AESTDTC')
         get_ae_variable(data, row, bc_label, 'endtc','AEENDTC'),
         get_ae_variable(data, row, bc_label, 'term', 'AETERM')
@@ -500,10 +500,11 @@ def create_raw_data_load_file():
     print("\nCreating datapoint and value")
     data = []
 
-    get_vs_data(data)
-    get_dm_data(data)
-    get_ex_data(data)
-    print("\n -- ex")
+    # get_vs_data(data)
+    # get_dm_data(data)
+    # get_ex_data(data)
+    get_ae_data(data)
+    print("\n -- ae")
     for r in data:
         debug.append(r)
 
@@ -511,7 +512,6 @@ def create_raw_data_load_file():
 
     # get_lb_data(data)
     # # Must fix data contracts for event driven
-    # get_ae_data(data)
 
 
     print("\n---Datapoint - Data contract matches:",len(matches))
@@ -534,19 +534,6 @@ def create_raw_data_load_file():
 
     save_file(OUTPUT_PATH,"raw_data",data)
     # check_dc_in_file(OUTPUT_PATH,"datapoints")
-
-    # # row datapoints
-    # print("\nCreating datapoints relation to row")
-    # for_csv = []
-    # for key,dps in row_datapoints.items():
-    #     for dp in dps:
-    #         item = {}
-    #         item["key"] = key
-    #         item['datapoint_uri'] = dp
-    #         for_csv.append(item)
-    # output_csv(OUTPUT_PATH,"row_datapoints.csv",for_csv)
-    # output_json(OUTPUT_PATH,"row_datapoints",row_datapoints)
-    # # save_file(OUTPUT_PATH,"row_datapoints",row_datapoints)
 
     write_tmp("step-20-dc-debug.txt",debug)
 
