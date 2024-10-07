@@ -64,15 +64,19 @@ if __name__ == "__main__":
 
   # response = ct.index()
   # response = ct.codelist_index()
-  response = ct.find_notation("SYSBP")
-  print("respons[0]['parent'].keys()",response[0]['parent'].keys())
-  # sdtm_cl = [cli for cli in response if 'SDTM' in cli['parent']['pref_label']]
-  first_sdtm_term = next((cli for cli in response if 'SDTM' in cli['parent']['pref_label']),[])
-  print(f"term found {first_sdtm_term['parent']['identifier']}.{first_sdtm_term['child']['identifier']}")
 
-  response = ct.find_by_identifier(first_sdtm_term['child']['identifier'])
-  first_sdtm_label = next((cli for cli in response if 'Test Name' in cli['parent']['pref_label']),[])
-  print("first_sdtm_label",first_sdtm_label['child']['pref_label'])
+  # response = ct.find_notation("SYSBP")
+  # print("respons[0]['parent'].keys()",response[0]['parent'].keys())
+  # # sdtm_cl = [cli for cli in response if 'SDTM' in cli['parent']['pref_label']]
+  # first_sdtm_term = next((cli for cli in response if 'SDTM' in cli['parent']['pref_label']),[])
+  # print(f"term found {first_sdtm_term['parent']['identifier']}.{first_sdtm_term['child']['identifier']}")
+
+  # response = ct.find_by_identifier(first_sdtm_term['child']['identifier'])
+  # C49487
+  response = ct.find_by_identifier("C49487")
+  print(response)
+  # first_sdtm_label = next((cli for cli in response if 'Test Name' in cli['parent']['pref_label']),[])
+  # print("first_sdtm_label",first_sdtm_label['child']['pref_label'])
 
   # for cl in sdtm_cl:
   #   print("parent:",[y for (x,y) in cl['parent'].items() if x in ['identifier','notation','pref_label']])
