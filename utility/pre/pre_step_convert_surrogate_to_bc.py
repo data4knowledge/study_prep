@@ -135,6 +135,35 @@ def copy_bc_properties_from_bc(db, new_bc_name,copy_bc_name, bc_uuid):
             """
             # print(query)
             results = session.run(query)
+        # Add code relationship to BC
+        query = f"""
+            MATCH (bc:BiomedicalConcept {{name:"{new_bc_name}"}})
+            with bc
+            CREATE (ac:AcliasCode {{uuid: '{str(uuid4())}', instanceType: 'AliasCode', id: 'AliasCode_BD'}})
+            CREATE (c:Code {{code: 'S000001', codeSystem: 'http://www.example.org', codeSystemVersion: '0.1', decode: 'Date of Birth', id: 'Code_436', instanceType: 'Code', uuid: '{str(uuid4())}'}})
+            CREATE (bc)-[:CODE_REL]->(ac)-[:STANDARD_CODE_REL]->(c)
+            return count(*) as count
+        """
+        print(query)
+        results = session.run(query)
+
+        # Add property BRTHDTC IS_A_REL to CRM
+        query = f"""
+            MATCH (bcp:BiomedicalConceptProperty {{name:'BRTHDTC'}})-[rel:IS_A_REL]->(crm_remove:CRMNode {{uri:'https://crm.d4k.dk/dataset/common/date_time/date_time/value'}})
+            DELETE rel
+            return "done" as result
+        """
+        print(query)
+        results = session.run(query)
+        query = f"""
+            MATCH (bcp:BiomedicalConceptProperty {{name:'BRTHDTC'}})
+            MATCH (crm_add:CRMNode {{uri:'https://crm.d4k.dk/dataset/common/period/period_start/date_time/value'}})
+            MERGE (bcp)-[:IS_A_REL]->(crm_add)
+            return "done" as result
+        """
+        print(query)
+        results = session.run(query)
+
 
 
 def link_birthdtc_to_crm(db):
@@ -151,7 +180,7 @@ def link_birthdtc_to_crm(db):
             set r.fake_relationship = "yes"
             return *
         """
-        print(query)
+        # print(query)
         results = session.run(query)
 
 
