@@ -1,4 +1,5 @@
 import requests
+import json
 from pathlib import Path
 from d4kms_generic import ServiceEnvironment
 from d4kms_service import Neo4jConnection
@@ -8,7 +9,7 @@ print("\033[H\033[J") # Clears terminal window in vs code
 def write_tmp(name, data):
     TMP_PATH = Path.cwd() / "tmp" / "saved_debug"
     OUTPUT_FILE = TMP_PATH / name
-    print("Writing file...",OUTPUT_FILE.name,OUTPUT_FILE, end="")
+    print("\nWriting tmp file...",OUTPUT_FILE.name,OUTPUT_FILE, end="")
     with open(OUTPUT_FILE, 'w') as f:
         for it in data:
             f.write(str(it))
@@ -38,66 +39,158 @@ class CTService():
     # print(f"URL: {url}")
     return self.api_get(url)
 
-def execute_query(queryPath):
+def execute_query(base_url, queryPath):
+    # https://api.library.cdisc.org/api/cosmos/v2/mdr/bc/biomedicalconcepts/{biomedicalconcept}
     # baseURL = "http://library.cdisc.org/api"
-    baseURL = "https://api.library.cdisc.org/api"
-    query = baseURL + queryPath
-    print("query", query)
+    query = base_url + queryPath
+    # print("query", query)
     response = requests.get(query, headers={'api-key': '51603f88b0784ac9aaba4e9c4f26e9ac', 'Accept': 'application/json'})
     try:
         print("parsing json")
         # json_data = json.loads(response.text)
         json_data = response.json()
-        return {'json': json_data, 'response': response}
+        return json_data
+        # return {'json': json_data, 'response': response}
     except:
         print("Error in parsing json")
 
+def make_bc_spz_ref_name(identifier):
+  return f"bc_spz_ref_{identifier}"
 
-def get_bcs():
+def get_specializations_for_bc_id(identifier):
     bcs = []
-    json_data = execute_query("/mdr/bc/packages/2022-10-26/biomedicalconcepts")
-    if '_links' in json_data.keys():
-        print("json_data['_links'].keys()",json_data['_links'].keys())
-        if 'biomedicalConcepts' in json_data['_links'].keys():
-            # print("BiomedicalConcepts",json_data['_links']['biomedicalConcepts'])
-            for item in json_data['_links']['biomedicalConcepts']:
-                # print(item)
-                bcs.append(item['href'])    
-    return bcs
-
-def get_specialization_package():
-    bcs = []
-    # baseURL = "https://api.library.cdisc.org/api"
-    # https://api.library.cdisc.org/api/cosmos/v2/mdr/specializations/sdtm/packages/{package}/datasetspecializations/{datasetspecialization}
-    data = execute_query("/cosmos/v2/mdr/specializations/sdtm/packages/2023-07-06/datasetspecializations")
-    print(len(data['json'])
-    return json_data
-
-def get_specialization():
-    bcs = []
-    # baseURL = "https://api.library.cdisc.org/api"
-    # https://api.library.cdisc.org/api/cosmos/v2/mdr/specializations/sdtm/datasetspecializations/{dataset_specialization_id}
-    # json_data = execute_query("/cosmos/v2/mdr/specializations/sdtm/datasetspecializations/C64433")
-    data = execute_query("/cosmos/v2/mdr/specializations/sdtm/datasetspecializations/SYSBP")
-    print(len(data['json']))
+    # base:https://api.library.cdisc.org/api url:/cosmos/v2/mdr/specializations/datasetspecializations?biomedicalconcept=C64433
+    base_url = "https://api.library.cdisc.org/api"
+    url = f"/cosmos/v2/mdr/specializations/datasetspecializations?biomedicalconcept={identifier}"
+    # debug.append(f"url: {url}")
+    file_name = make_bc_spz_ref_name(identifier)
+    full_name = save_path / f"{file_name}.json"
+    # debug.append(f"full_name: {full_name}");print("full_name", full_name)
+    if full_name.exists():
+      # debug.append(f"file already exists {full_name}");print(f"file already exists {full_name}")
+      with open(full_name) as f:
+          data = json.load(f)
+      return data
+    data = execute_query(base_url, url)
+    with open(full_name, 'w') as f:
+      f.write(json.dumps(data, indent = 2))
     return data
 
-    if '_links' in json_data.keys():
-        print("json_data['_links'].keys()",json_data['_links'].keys())
-        if 'biomedicalConcepts' in json_data['_links'].keys():
-            # print("BiomedicalConcepts",json_data['_links']['biomedicalConcepts'])
-            for item in json_data['_links']['biomedicalConcepts']:
-                # print(item)
-                bcs.append(item['href'])    
-    return bcs
+def make_bc_name(identifier):
+  return f"bc_{identifier}"
 
+def get_bc_with_identifier(identifier):
+    bcs = []
+    # base:https://api.library.cdisc.org/api url:/mdr/bc/biomedicalconcepts/C64431
+    base_url = "https://api.library.cdisc.org/api/cosmos/v2"
+    url = f"/mdr/bc/biomedicalconcepts/{identifier}"
+    # debug.append(f"url: {url}")
+    file_name = make_bc_name(identifier)
+    full_name = save_path / f"{file_name}.json"
+    # debug.append(f"full_name: {full_name}");print("full_name", full_name)
+    if full_name.exists():
+      # debug.append(f"file already exists {full_name}");print(f"file already exists {full_name}")
+      with open(full_name) as f:
+          data = json.load(f)
+      return data
+    data = execute_query(base_url, url)
+    with open(full_name, 'w') as f:
+      f.write(json.dumps(data, indent = 2))
+    return data
+
+def make_bc_spz_name(identifier, title):
+  return f"bc_{identifier}_spz_{title.replace(' ','_').replace('/','_')}"
+
+def get_bc_spz_from_url(identifier, url, title):
+    bcs = []
+    # base:https://api.library.cdisc.org/api url:/mdr/bc/biomedicalconcepts/C64431
+    base_url = "https://api.library.cdisc.org/api/cosmos/v2"
+    # url = f"/mdr/bc/biomedicalconcepts/{identifier}"
+    # debug.append(f"url: {url}")
+    file_name = make_bc_spz_name(identifier, title)
+    # debug.append(f"file_name: {file_name}");print("file_name", file_name)
+    full_name = save_path / f"{file_name}.json"
+    # debug.append(f"full_name: {full_name}");print("full_name", full_name)
+    if full_name.exists():
+      # debug.append(f"file already exists {full_name}");print(f"file already exists {full_name}")
+      with open(full_name) as f:
+          data = json.load(f)
+      return data
+    data = execute_query(base_url, url)
+    with open(full_name, 'w') as f:
+      f.write(json.dumps(data, indent = 2))
+    return data
+    return
+
+debug = []
+save_path = Path('/Users/johannes/Library/CloudStorage/OneDrive-data4knowledge/shared_mac/standards/api/bc')
 
 def do():
-  debug = []
+  # Download files with BC identifiers to get actual specialization file
+  bcs = [
+    'C64433',
+    'C64431',
+    'C64432',
+    'C64467',
+    'C64547',
+    'C64853',
+    'C64809',
+    'C64849',
+  ]
+  bcs = [
+    'C64433',
+    'C64431',
+    'C64432',
+  ]
+  ct = CTService()
+  clis = []
+  for bc in bcs:
+    # Download bc file
+    debug.append(f"\n--bc {bc}--")
+    data = get_bc_with_identifier(bc)
 
-  json_data = get_specialization()
-  # json_data = get_specialization_package()
-  debug .append(json_data)
+    # Get specializations for bc
+    data = get_specializations_for_bc_id(bc)
+    debug.append("--sdtm specialization--")
+    for link in data['_links']['datasetSpecializations']['sdtm']:
+      # print("\n--sdtm--")
+      # debug.append(f"len(links): {len(links)}")
+      # debug.append(f"link['href']: {link['href']}")
+
+      # Download specialization files
+      spz = get_bc_spz_from_url(bc, link['href'], link['title'])
+      spec = next((i for i in spz['variables'] if i['name'] == 'LBSPEC'),[])
+      # debug.append(f"spec: {spec}")
+      # debug.append(f"spec['assignedTerm']: {spec['assignedTerm']}")
+      debug.append(f"spec['assignedTerm']['conceptId']: {spec['assignedTerm']['conceptId']}")
+      # for v in spec['codelist'].items():
+      #   debug.append(f"{v}")
+      e = next((i for i in clis if i['code'] == spec['assignedTerm']['conceptId']), None)
+      if e:
+         pass
+      else:
+        response = ct.find_by_identifier(spec['assignedTerm']['conceptId'])
+        for x in response:
+          debug.append(f"x: {x}")
+          debug.append(f"x['child']: {x['child']}")
+          clis.append({'code': x['child']['identifier'],'notation': x['child']['notation'],'pref_label': x['child']['pref_label'],'decode': x['child']['name']})
+      # first_sdtm_label = next((cli for cli in response if 'Test Name' in cli['parent']['pref_label']),[])
+      # if first_sdtm_label:
+      #   test_labels[item['identifier']] = first_sdtm_label['child']['pref_label']
+      # else:
+      #   print(f" {item} z not found")
+
+  debug.append(f"\n--clis --")
+  for x in clis:
+     debug.append(x)
+
+    # debug.append("\n--parentBiomedicalConcept--")
+    # debug.append(f"data['_links']['parentBiomedicalConcept'].keys(): {data['_links']['parentBiomedicalConcept'].keys()}")
+    # debug.append(f"data['_links']['parentBiomedicalConcept']['href']: {data['_links']['parentBiomedicalConcept']['href']}")
+    # debug.append(f"data['_links']['parentBiomedicalConcept']['title']: {data['_links']['parentBiomedicalConcept']['title']}")
+
+
+
   write_tmp('lbspec_debug.txt', debug)
 
   return
@@ -116,7 +209,6 @@ def do():
   for x in result:
       debug.append(x)
       test_identifiers.append(x)
-  write_tmp('lbspec_debug.txt', debug)
 
   return
   ct = CTService()
