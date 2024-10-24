@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from d4kms_generic import ServiceEnvironment
 from d4kms_service import Neo4jConnection
+from uuid import uuid4
 
 print("\033[H\033[J") # Clears terminal window in vs code
 
@@ -38,6 +39,23 @@ class CTService():
     url = f"{path}?identifier={identifier}&page={page}&size={size}&filter={filter}"
     # print(f"URL: {url}")
     return self.api_get(url)
+
+def get_bcs_in_study_service(ids):
+  db = Neo4jConnection()
+  with db.session() as session:
+    query = """
+      match (bc:BiomedicalConcept)-[:CODE_REL]->(ac)-[:STANDARD_CODE_REL]-(c:Code)
+      where c.code in %s
+      match (bc)-[:PROPERTIES_REL]-(bcp:BiomedicalConceptProperty)
+      where bcp.name = 'LBSPEC'
+      return distinct bc.name as name, c.code as code, bcp.name as bcp_name
+    """ % (ids)
+    print("query", query)
+    response = session.run(query)
+    result = [x.data() for x in response]
+  db.close()
+  return result
+
 
 def execute_query(base_url, queryPath):
     # https://api.library.cdisc.org/api/cosmos/v2/mdr/bc/biomedicalconcepts/{biomedicalconcept}
@@ -123,109 +141,114 @@ def get_bc_spz_from_url(identifier, url, title):
 debug = []
 save_path = Path('/Users/johannes/Library/CloudStorage/OneDrive-data4knowledge/shared_mac/standards/api/bc')
 
-def main():
+def download_and_get_terms_for_lbspec():
+  # Get BCs lacking LBSPEC terminology
   # Download files with BC identifiers to get actual specialization file
-  bcs = [
-    'C64433',
-    'C64431',
-    'C64432',
-    'C64467',
-    'C64547',
-    'C64853',
-    'C64809',
-    'C64849',
-  ]
-  bcs = [
-    'C64433',
-    'C64431',
-    'C64432',
-  ]
+  bc_ids = ['C64433','C64431','C64432','C64467','C64547','C64853','C64809','C64849']
+  # bc_ids = bc_ids[0:2]
+  bcs = get_bcs_in_study_service(bc_ids)
+  for x in bcs:
+      debug.append(x)
+
   ct = CTService()
-  clis = []
+  clis = {}
   for bc in bcs:
     # Download bc file
-    debug.append(f"\n--bc {bc}--")
-    data = get_bc_with_identifier(bc)
+    debug.append(f"\n--bc {bc['code']}--")
+    data = get_bc_with_identifier(bc['code'])
 
     # Get specializations for bc
-    data = get_specializations_for_bc_id(bc)
+    data = get_specializations_for_bc_id(bc['code'])
     debug.append("--sdtm specialization--")
+    # bc_clis[bc['code']] = []
+    bc['clis'] = []
     for link in data['_links']['datasetSpecializations']['sdtm']:
-      # print("\n--sdtm--")
-      # debug.append(f"len(links): {len(links)}")
-      # debug.append(f"link['href']: {link['href']}")
-
       # Download specialization files
-      spz = get_bc_spz_from_url(bc, link['href'], link['title'])
-      spec = next((i for i in spz['variables'] if i['name'] == 'LBSPEC'),[])
-      # debug.append(f"spec: {spec}")
-      # debug.append(f"spec['assignedTerm']: {spec['assignedTerm']}")
-      debug.append(f"spec['assignedTerm']['conceptId']: {spec['assignedTerm']['conceptId']}")
-      # for v in spec['codelist'].items():
-      #   debug.append(f"{v}")
-      e = next((i for i in clis if i['code'] == spec['assignedTerm']['conceptId']), None)
-      if e:
-         pass
+      spz = get_bc_spz_from_url(bc['code'], link['href'], link['title'])
+      specimen = next((i for i in spz['variables'] if i['name'] == 'LBSPEC'),[])
+      debug.append(f"specimen['assignedTerm']['conceptId']: {specimen['assignedTerm']['conceptId']}")
+      if specimen['assignedTerm']['conceptId'] in clis:
+        bc['clis'].append(clis[x['child']['identifier']])
       else:
-        response = ct.find_by_identifier(spec['assignedTerm']['conceptId'])
+        response = ct.find_by_identifier(specimen['assignedTerm']['conceptId'])
         for x in response:
           debug.append(f"x: {x}")
           debug.append(f"x['child']: {x['child']}")
-          clis.append({'code': x['child']['identifier'],'notation': x['child']['notation'],'pref_label': x['child']['pref_label'],'decode': x['child']['name']})
-      # first_sdtm_label = next((cli for cli in response if 'Test Name' in cli['parent']['pref_label']),[])
-      # if first_sdtm_label:
-      #   test_labels[item['identifier']] = first_sdtm_label['child']['pref_label']
-      # else:
-      #   print(f" {item} z not found")
+          cli = {'code': x['child']['identifier'],'notation': x['child']['notation'],'pref_label': x['child']['pref_label'],'decode': x['child']['name']}
+          clis[x['child']['identifier']] = cli
+          bc['clis'].append(cli)
 
-  debug.append(f"\n--clis --")
-  for x in clis:
+  # debug.append(f"\n--clis --")
+  # for x in clis:
+  #    debug.append(x)
+
+  debug.append(f"\n--bc with cli --")
+  for x in bcs:
      debug.append(x)
-
-    # debug.append("\n--parentBiomedicalConcept--")
-    # debug.append(f"data['_links']['parentBiomedicalConcept'].keys(): {data['_links']['parentBiomedicalConcept'].keys()}")
-    # debug.append(f"data['_links']['parentBiomedicalConcept']['href']: {data['_links']['parentBiomedicalConcept']['href']}")
-    # debug.append(f"data['_links']['parentBiomedicalConcept']['title']: {data['_links']['parentBiomedicalConcept']['title']}")
-
-
 
   write_tmp('lbspec_debug.txt', debug)
 
   return
+
+def add_lbspec_codes():
+  bc_lbspec_codes = [
+    {'name': 'Alanine Aminotransferase Concentration in Serum/Plasma', 'code': 'C64433', 'bcp_name': 'LBSPEC', 'clis': [{'code': 'C105706', 'notation': 'SERUM OR PLASMA', 'pref_label': 'Serum or Plasma', 'decode': 'Serum or Plasma'}]},
+    {'name': 'Albumin Presence in Urine', 'code': 'C64431', 'bcp_name': 'LBSPEC', 'clis': [{'code': 'C105706', 'notation': 'SERUM OR PLASMA', 'pref_label': 'Serum or Plasma', 'decode': 'Serum or Plasma'}, {'code': 'C13283', 'notation': 'URINE', 'pref_label': 'Urine', 'decode': 'Urine'}, {'code': 'C13283', 'notation': 'URINE', 'pref_label': 'Urine', 'decode': 'Urine'}, {'code': 'C13283', 'notation': 'URINE', 'pref_label': 'Urine', 'decode': 'Urine'}]},
+    {'name': 'Alkaline Phosphatase Concentration in Serum/Plasma', 'code': 'C64432', 'bcp_name': 'LBSPEC', 'clis': [{'code': 'C13283', 'notation': 'URINE', 'pref_label': 'Urine', 'decode': 'Urine'}]},
+    {'name': 'Aspartate Aminotransferase in Serum/Plasma', 'code': 'C64467', 'bcp_name': 'LBSPEC', 'clis': [{'code': 'C13283', 'notation': 'URINE', 'pref_label': 'Urine', 'decode': 'Urine'}]},
+    {'name': 'Creatinine Concentration in Urine', 'code': 'C64547', 'bcp_name': 'LBSPEC', 'clis': [{'code': 'C13283', 'notation': 'URINE', 'pref_label': 'Urine', 'decode': 'Urine'}, {'code': 'C13283', 'notation': 'URINE', 'pref_label': 'Urine', 'decode': 'Urine'}]},
+    {'name': 'Potassium Concentration in Urine', 'code': 'C64853', 'bcp_name': 'LBSPEC', 'clis': [{'code': 'C12434', 'notation': 'BLOOD', 'pref_label': 'Blood', 'decode': 'Blood'}, {'code': 'C12434', 'notation': 'BLOOD', 'pref_label': 'Blood', 'decode': 'Blood'}, {'code': 'C12434', 'notation': 'BLOOD', 'pref_label': 'Blood', 'decode': 'Blood'}, {'code': 'C12434', 'notation': 'BLOOD', 'pref_label': 'Blood', 'decode': 'Blood'}, {'code': 'C12434', 'notation': 'BLOOD', 'pref_label': 'Blood', 'decode': 'Blood'}]},
+    {'name': 'Sodium Concentration in Urine', 'code': 'C64809', 'bcp_name': 'LBSPEC', 'clis': [{'code': 'C12434', 'notation': 'BLOOD', 'pref_label': 'Blood', 'decode': 'Blood'}, {'code': 'C12434', 'notation': 'BLOOD', 'pref_label': 'Blood', 'decode': 'Blood'}, {'code': 'C12434', 'notation': 'BLOOD', 'pref_label': 'Blood', 'decode': 'Blood'}]},
+    {'name': 'Hemoglobin A1C Concentration in Blood', 'code': 'C64849', 'bcp_name': 'LBSPEC', 'clis': [{'code': 'C12434', 'notation': 'BLOOD', 'pref_label': 'Blood', 'decode': 'Blood'}]}
+  ]
+
   db = Neo4jConnection()
-  test_identifiers = []
-  test_labels = {}
   with db.session() as session:
-      query = """
-        match (bc:BiomedicalConcept)-[:CODE_REL]->(ac)-[:STANDARD_CODE_REL]-(c:Code)
-        return distinct bc.name as name, c.code as code
-      """
-      response = session.run(query)
-      result = [x.data() for x in response]
-      print("result[0].keys()",result[0].keys())
+    query = "match (n) where n.lbspec = 'y' detach delete n return count(n) as n"
+    debug.append(f"query: {query}")
+    response = session.run(query)
+    result = [x.data() for x in response]
+    debug.append(f"deleted old nodes: {result}");print(f"deleted old nodes: {result}")
+    
+
+    for i, item in enumerate(bc_lbspec_codes):
+      debug.append(f"\n{item['name']}")
+      for j, cli in enumerate(item['clis']):
+        rc_uuid = str(uuid4())
+        c_uuid = str(uuid4())
+        c_params = [f"c.{k}='{v}'" for k,v in cli.items()]
+        # debug.append(f"c_params: {c_params}")#;print("c_params", c_params)
+        c_params_str = ", ".join(c_params)
+        # debug.append(f"c_params_str: {c_params_str}")#;print("c_params_str", c_params_str)
+        query = """
+          match (bc:BiomedicalConcept)-[:PROPERTIES_REL]-(bcp:BiomedicalConceptProperty)
+          where bc.name = '%s' and bcp.name = '%s'
+          with bcp
+          create (rc:ResponseCode {uuid:'%s'})
+          SET rc.id = 'LBSPEC_%s_%s'
+          SET rc.instanceType = 'ResponseCode'
+          SET rc.isEnabled = True
+          SET rc.lbspec = "y"
+          create (c:Code {uuid:'%s'})
+          SET c.lbspec = "y"
+          SET %s
+          create (bcp)-[r1:RESPONSE_CODES_REL]->(rc)-[r2:CODE_REL]->(c)
+          set r1.fake_relationship = "yes"
+          set r2.fake_relationship = "yes"
+          return count(rc) as count_rc, count(c) as count_c
+        """ % (item['name'], item['bcp_name'], rc_uuid, i, j , c_uuid, c_params_str)
+        # debug.append(f"query: {query}")
+        response = session.run(query)
+        result = [x.data() for x in response]
+        debug.append(f"added item: {item['name']} - {cli['pref_label']}")
+        for x in result:
+          debug.append(f"--: {x}")
   db.close()
-  for x in result:
-      debug.append(x)
-      test_identifiers.append(x)
 
-  return
-  ct = CTService()
-  # for x in test_identifiers:
-  #   print("x",x)
 
-  for item in test_identifiers:
-    response = ct.find_by_identifier(item['identifier'])
-    first_sdtm_label = next((cli for cli in response if 'Test Name' in cli['parent']['pref_label']),[])
-    if first_sdtm_label:
-      test_labels[item['identifier']] = first_sdtm_label['child']['pref_label']
-    else:
-      print(f" {item} z not found")
 
-  for identifier, label in test_labels.items():
-    print("identifier",identifier, label)
-#   print("klar")
-#   print(response)
-#   print("respons[0]['parent'].keys()",response[0]['parent'].keys())
 
 if __name__ == "__main__":
-  main()
+  # download_and_get_terms_for_lbspec()
+  add_lbspec_codes()
+  write_tmp('lbspec_debug.txt', debug)
