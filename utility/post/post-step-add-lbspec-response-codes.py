@@ -103,9 +103,7 @@ def make_bc_spz_name(identifier, title):
 
 def get_bc_spz_from_url(identifier, url, title):
     bcs = []
-    # base:https://api.library.cdisc.org/api url:/mdr/bc/biomedicalconcepts/C64431
     base_url = "https://api.library.cdisc.org/api/cosmos/v2"
-    # url = f"/mdr/bc/biomedicalconcepts/{identifier}"
     # debug.append(f"url: {url}")
     file_name = make_bc_spz_name(identifier, title)
     # debug.append(f"file_name: {file_name}");print("file_name", file_name)
@@ -125,7 +123,7 @@ def get_bc_spz_from_url(identifier, url, title):
 debug = []
 save_path = Path('/Users/johannes/Library/CloudStorage/OneDrive-data4knowledge/shared_mac/standards/api/bc')
 
-def do():
+def main():
   # Download files with BC identifiers to get actual specialization file
   bcs = [
     'C64433',
@@ -230,31 +228,4 @@ def do():
 #   print("respons[0]['parent'].keys()",response[0]['parent'].keys())
 
 if __name__ == "__main__":
-  do()
-  # print(f"ct._url: {ct._url}")
-
-
-if __name__ == "banan":
-  ct = CTService()
-  # response = ct.index()
-  # response = ct.codelist_index()
-  response = ct.find_notation("SYSBP")
-  print("respons[0]['parent'].keys()",response[0]['parent'].keys())
-  # sdtm_cl = [cli for cli in response if 'SDTM' in cli['parent']['pref_label']]
-  first_sdtm_term = next((cli for cli in response if 'SDTM' in cli['parent']['pref_label']),[])
-  print(f"term found {first_sdtm_term['parent']['identifier']}.{first_sdtm_term['child']['identifier']}")
-
-  response = ct.find_by_identifier(first_sdtm_term['child']['identifier'])
-  first_sdtm_label = next((cli for cli in response if 'Test Name' in cli['parent']['pref_label']),[])
-  print("first_sdtm_label",first_sdtm_label['child']['pref_label'])
-
-  # for cl in sdtm_cl:
-  #   print("parent:",[y for (x,y) in cl['parent'].items() if x in ['identifier','notation','pref_label']])
-  #   print("  child:",[y for (x,y) in cl['child'].items() if x in ['identifier','notation','pref_label']])
-  #   break
-  # for cl in response:
-  #   # print("parent:",[(x,y) for (x,y) in cl['parent'].items() if x in ['identifier']])
-  #   # print(x['parent'].keys())
-  #   # print(x['child'].keys())
-  # # print(len(response['items']))
-  print("klart")
+  main()
