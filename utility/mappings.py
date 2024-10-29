@@ -200,3 +200,16 @@ TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME = {
         'date': "Date Time",
     },
 }
+
+USUBJID_TO_SUBJID = {
+    'CDISC001':'1115',
+    'CDISC002':'1211',
+    'CDISC003':'1302',
+    'CDISC004':'1345',
+    'CDISC005':'1383',
+    'CDISC006':'1429',
+    'CDISC007':'1444',
+    'CDISC008':'1445',
+    'CDISC009':'1087',
+    'CDISC010':'1236'
+}

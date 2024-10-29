@@ -4,7 +4,7 @@ import csv
 import pandas as pd
 from pathlib import Path
 from d4kms_service import Neo4jConnection
-from utility.mappings import DATA_LABELS_TO_BC_LABELS, DATA_VISITS_TO_ENCOUNTER_LABELS, DATA_REPNUM_TO_TIMING_VALUE, TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME
+from utility.mappings import DATA_LABELS_TO_BC_LABELS, DATA_VISITS_TO_ENCOUNTER_LABELS, DATA_REPNUM_TO_TIMING_VALUE, TEST_ROW_VARIABLE_TO_BC_PROPERTY_NAME, USUBJID_TO_SUBJID
 
 def write_tmp(name, data):
     TMP_PATH = Path.cwd() / "tmp" / "saved_debug"
@@ -216,7 +216,7 @@ def get_vs_variable(data, row, data_property, sdtm_variable):
         data_contract = get_data_contract(encounter,bc_label,property,tpt)
         if data_contract:
             if row[sdtm_variable]:
-                item['SUBJID'] = row['USUBJID']
+                item['SUBJID'] = USUBJID_TO_SUBJID[row['USUBJID']]
                 item['ROW_NO'] = str(row['VSSEQ'])
                 item['LABEL'] = bc_label
                 item['VARIABLE'] = property
@@ -260,7 +260,7 @@ def get_lb_variable(data, row, data_property, sdtm_variable):
             data_contract = get_data_contract(encounter,bc_label,property,tpt)
             if data_contract:
                 if row[sdtm_variable]:
-                    item['SUBJID'] = row['USUBJID']
+                    item['SUBJID'] = USUBJID_TO_SUBJID[row['USUBJID']]
                     item['ROW_NO'] = str(row['LBSEQ'])
                     item['LABEL'] = bc_label
                     item['VARIABLE'] = property
@@ -299,7 +299,7 @@ def get_dm_variable(data, row, data_label, data_property, sdtm_variable):
         if data_contract:
             if row[sdtm_variable]:
                 if row['USUBJID'] == "CDISC008" and sdtm_variable == "RACE":
-                    item['SUBJID'] = row['USUBJID']
+                    item['SUBJID'] = USUBJID_TO_SUBJID[row['USUBJID']]
                     item['ROW_NO'] = "1"
                     item['LABEL'] = bc_label
                     item['VARIABLE'] = property_name
@@ -308,7 +308,7 @@ def get_dm_variable(data, row, data_label, data_property, sdtm_variable):
                     item['VALUE'] = "ASIAN"
                     data.append(item)
                     item = {}
-                    item['SUBJID'] = row['USUBJID']
+                    item['SUBJID'] = USUBJID_TO_SUBJID[row['USUBJID']]
                     item['ROW_NO'] = "1"
                     item['LABEL'] = bc_label
                     item['VARIABLE'] = property_name
@@ -317,7 +317,7 @@ def get_dm_variable(data, row, data_label, data_property, sdtm_variable):
                     item['VALUE'] = "BLACK OR AFRICAN AMERICAN"
                     data.append(item)
                     item = {}
-                    item['SUBJID'] = row['USUBJID']
+                    item['SUBJID'] = USUBJID_TO_SUBJID[row['USUBJID']]
                     item['ROW_NO'] = "1"
                     item['LABEL'] = bc_label
                     item['VARIABLE'] = property_name
@@ -326,7 +326,7 @@ def get_dm_variable(data, row, data_label, data_property, sdtm_variable):
                     item['VALUE'] = "WHITE"
                     data.append(item)
                 else:
-                    item['SUBJID'] = row['USUBJID']
+                    item['SUBJID'] = USUBJID_TO_SUBJID[row['USUBJID']]
                     item['ROW_NO'] = "1"
                     item['LABEL'] = bc_label
                     item['VARIABLE'] = property_name
@@ -366,7 +366,7 @@ def get_ae_variable(data, row, bc_label, data_label, sdtm_variable):
         data_contract = get_data_contract_ae(bc_label,property)
         if data_contract:
             if row[sdtm_variable]:
-                item['SUBJID'] = row['USUBJID']
+                item['SUBJID'] = USUBJID_TO_SUBJID[row['USUBJID']]
                 item['ROW_NO'] = row['AESEQ']
                 item['LABEL'] = bc_label
                 item['VARIABLE'] = property
@@ -461,7 +461,7 @@ def get_ex_variable(data, row, data_property, sdtm_variable):
                 data_contract = get_data_contract(encounter, bc_label, property,tpt)
                 if data_contract:
                     if row[sdtm_variable]:
-                        item['SUBJID'] = row['USUBJID']
+                        item['SUBJID'] = USUBJID_TO_SUBJID[row['USUBJID']]
                         item['ROW_NO'] = str(row['EXSEQ'])
                         item['LABEL'] = bc_label
                         item['VARIABLE'] = property
