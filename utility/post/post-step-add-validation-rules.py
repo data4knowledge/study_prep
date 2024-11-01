@@ -38,6 +38,39 @@ class CTService():
     # print(f"URL: {url}")
     return self.api_get(url)
 
+def add_age_range():
+  debug = []
+  db = Neo4jConnection()
+  bcp_validation_rules = [
+     {'bc_name': 'Age', 'range': {'min': 18, 'max':45}},
+  ]
+  with db.session() as session:
+    for rule in bcp_validation_rules:
+      params = [f"r.{k}='{v}'" for k,v in rule['rule'].items()]
+      print("params", params)
+      params_str = ", ".join(params)
+      print("params_str", params_str)
+
+      query = """
+        match (bc:BiomedicalConcept)
+        where bc.name = '%s'
+        match (bcp)<-[:DATA_ENTRY_CONFIG]-(dec:DataEntryConfig)
+        with dec
+        MERGE (r:Rule {identifier: '%s/%s'})
+        SET %s
+        MERGE (dec)<-[:HAS_RULE]-(r)
+        return *
+      """ % (rule['bc_name'], rule['bcp_name'], rule['bc_name'], rule['bcp_name'], params_str)
+      print("query", query)
+      response = session.run(query)
+      result = [x.data() for x in response]
+      print("result[0].keys()",result[0].keys())
+  db.close()
+  for x in result:
+     debug.append(x)
+
+  write_tmp('debug_add_validation.txt', debug)
+
 def do():
   debug = []
   db = Neo4jConnection()
