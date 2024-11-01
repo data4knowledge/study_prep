@@ -74,6 +74,11 @@ def reduce_lb(subjects):
     print("tests",test_labels)
     data = get_dataset(domain)
     data = reduce_dataset_tests(data, subjects, test_labels, 'LBTEST')
+    for x in data:
+        if x['LBORRES'].startswith('0'):
+            old_value = x['LBORRES']
+            x['LBORRES'] = x['LBORRES'][1:]
+            print("x['LBORRES']",old_value,'->', x['LBORRES'])
     save_data(data,domain)
 
 def reduce_vs(subjects):
@@ -89,6 +94,11 @@ def reduce_vs(subjects):
     print("tests",test_labels)
     data = get_dataset(domain)
     data = reduce_dataset_tests(data, subjects, test_labels, 'VSTEST')
+    for x in data:
+        if x['VSORRES'].startswith('0'):
+            old_value = x['VSORRES']
+            x['VSORRES'] = x['VSORRES'][1:]
+            print("x['VSORRES']",old_value,'->', x['VSORRES'])
     save_data(data,domain)
 
 IMPORT_PATH = Path('/Users/johannes/Library/CloudStorage/OneDrive-data4knowledge/shared_mac/standards/metadata-submission-guidelines/SDTM-MSG_v2.0_Sample_Submission_Package/m5/datasets/cdiscpilot01/tabulations/sdtm/')
