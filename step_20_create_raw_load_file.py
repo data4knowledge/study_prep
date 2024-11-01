@@ -223,6 +223,8 @@ def get_vs_variable(data, row, data_property, sdtm_variable):
                 item['VISIT'] = encounter
                 item['TIMEPOINT'] = tpt
                 item['VALUE'] = f"{row[sdtm_variable]}"
+                if row[sdtm_variable].startswith("0"):
+                    print(f"orres: {row[sdtm_variable]}")
                 data.append(item)
         else:
             # add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
@@ -252,8 +254,8 @@ def get_lb_variable(data, row, data_property, sdtm_variable):
     if encounter != "":
         bc_label = get_bc_label(row['LBTEST'])
         tpt = ""
-        if 'LBTPT' in row and row['LBTPT'] != "":
-            tpt = DATA_TPT_TO_TIMING_LABELS[row['LBTPT']]
+        # if 'LBTPT' in row and row['LBTPT'] != "":
+        #     tpt = DATA_TPT_TO_TIMING_LABELS[row['LBTPT']]
 
         property = get_property_for_variable(row['LBTEST'],data_property)
         if property:
@@ -267,6 +269,8 @@ def get_lb_variable(data, row, data_property, sdtm_variable):
                     item['VISIT'] = encounter
                     item['TIMEPOINT'] = tpt
                     item['VALUE'] = f"{row[sdtm_variable]}"
+                    if row[sdtm_variable].startswith("0"):
+                        print(f"orres: {row[sdtm_variable]}")
                     data.append(item)
             else:
                 add_issue(f"No dc RESULT bc_label: {bc_label} - property: {property} - encounter: {encounter}")
