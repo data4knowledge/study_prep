@@ -313,7 +313,7 @@ def get_dm_variable(data, row, data_label, data_property, sdtm_variable):
                     data.append(item)
                     item = {}
                     item['SUBJID'] = USUBJID_TO_SUBJID[row['USUBJID']]
-                    item['ROW_NO'] = "1"
+                    item['ROW_NO'] = "2"
                     item['LABEL'] = bc_label
                     item['VARIABLE'] = property_name
                     item['VISIT'] = dm_visit
@@ -322,7 +322,7 @@ def get_dm_variable(data, row, data_label, data_property, sdtm_variable):
                     data.append(item)
                     item = {}
                     item['SUBJID'] = USUBJID_TO_SUBJID[row['USUBJID']]
-                    item['ROW_NO'] = "1"
+                    item['ROW_NO'] = "3"
                     item['LABEL'] = bc_label
                     item['VARIABLE'] = property_name
                     item['VISIT'] = dm_visit
