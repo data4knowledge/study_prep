@@ -4,3 +4,4 @@ openpyxl
 xmltodict
 xmlschema
 # dicttoxml2
+locust
