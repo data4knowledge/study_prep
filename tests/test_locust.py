@@ -21,11 +21,3 @@ class my_user(HttpUser):
     def forms(self):
         print("get /cdisc_pilot")
         self.client.get("/studyDesigns/096047c3-8954-4a96-a075-3a750b929ea8/forms")
-
-# def hello_world(self):
-#     print("get root")
-#     self.client.get("/")
-
-
-# class user(User):
-#     tasks = [hello_world]
