@@ -39,7 +39,7 @@ def study_info_query():
     #       debug.append(f"  {k1}: {v1}")
     query = """
     MATCH (sd:StudyDesign)<-[:STUDY_DESIGNS_REL]-(sv:StudyVersion)
-    MATCH (sv)-[:STUDY_IDENTIFIERS_REL]->(si:StudyIdentifier)-[:STUDY_IDENTIFIER_SCOPE_REL]->(:Organization {name:'Eli Lilly'})
+    MATCH (sv)-[:STUDY_IDENTIFIERS_REL]->(si:StudyIdentifier {studyIdentifier: 'H2Q-MC-LZZT'})
     MATCH (sv)-[:DOCUMENT_VERSION_REL]->(spdv:StudyProtocolDocumentVersion)<-[:VERSIONS_REL]->(spd:StudyProtocolDocument)
     return 
     sd.uuid as uuid,
@@ -189,13 +189,27 @@ def find_ct_query(identifiers):
     return query
 
 def get_activities_query(sd_uuid):
+    # query = """
+    #   MATCH (sd:StudyDesign {uuid:'%s'})-[:ACTIVITIES_REL]->(act:Activity)
+    #   OPTIONAL MATCH (act)<-[:ACTIVITY_REL]-(sai:ScheduledActivityInstance)
+    #   OPTIONAL MATCH (act)-[:BIOMEDICAL_CONCEPT_REL]->(bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
+    #   OPTIONAL MATCH (sai)<-[:INSTANCES_REL]-(dc:DataContract)-[:PROPERTIES_REL]->(bcp)
+    #   RETURN toInteger(split(act.id,'_')[1]) as order, act.id as id, act.name as activity_name, bc.name as bc_name, collect({bcp:bcp.name,dc:dc.uri}) as bcps
+    #   order by order
+    # """ % (sd_uuid)
     query = """
       MATCH (sd:StudyDesign {uuid:'%s'})-[:ACTIVITIES_REL]->(act:Activity)
-      OPTIONAL MATCH (act)<-[:ACTIVITY_REL]-(sai:ScheduledActivityInstance)
-      OPTIONAL MATCH (act)-[:BIOMEDICAL_CONCEPT_REL]->(bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
-      OPTIONAL MATCH (sai)<-[:INSTANCES_REL]-(dc:DataContract)-[:PROPERTIES_REL]->(bcp)
-      RETURN toInteger(split(act.id,'_')[1]) as order, act.id as id, act.name as activity_name, bc.name as bc_name, collect({bcp:bcp.name,dc:dc.uri}) as bcps
+OPTIONAL MATCH (act)<-[:ACTIVITY_REL]-(sai:ScheduledActivityInstance)
+OPTIONAL MATCH (act)-[:BIOMEDICAL_CONCEPT_REL]->(bc:BiomedicalConcept)-[:PROPERTIES_REL]->(bcp:BiomedicalConceptProperty)
+OPTIONAL MATCH (sai)<-[:INSTANCES_REL]-(dc:DataContract)-[:PROPERTIES_REL]->(bcp)
+OPTIONAL MATCH (bcp)-[:CODE_REL]->(:AliasCode)-[:STANDARD_CODE_REL]->(alias:Code)
+OPTIONAL MATCH (bcp)-[:RESPONSE_CODES_REL]->(:ResponseCode)-[:CODE_REL]->(rc:Code)
+OPTIONAL MATCH (bcp)-[:IS_A_REL]->(crm:CRMNode)
+WITH distinct toInteger(split(act.id,'_')[1]) as order, act.id as id, act.name as activity_name, bc.name as bc_name, dc.uri as data_contract, crm.datatype as datatype, coalesce(alias.decode, bcp.name, 'missing') as label, collect(rc.pref_label) as responses
+RETURN order, id, activity_name, bc_name, collect({data_contract: data_contract, datatype: datatype, label: label, responses: responses}) as properties
       order by order
     """ % (sd_uuid)
+# WITH distinct toInteger(split(act.id,'_')[1]) as order, act.id as id, act.name as activity_name, bc.name as bc_name, bcp.name as property, dc.uri as data_contract, crm.datatype as datatype, alias.decode as decode, collect(rc.pref_label) as responses
+
     print(query)
     return query

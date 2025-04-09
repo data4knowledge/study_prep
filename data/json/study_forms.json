@@ -1,124 +1,71 @@
 [
   {
-    "order": 1,
-    "id": "Activity_1",
-    "name": "Informed consent",
-    "items": [
-      {
-        "order": 1,
-        "id": "Activity_1",
-        "activity_name": "Informed consent",
-        "bc_name": "Informed Consent Obtained",
-        "bcps": [
-          {
-            "dc": "https://study.d4k.dk/study-cdisc-pilot-lzzt/0f57cd7a-45bf-4c17-ac6e-a85c9213b81c/0bbd4458-31c7-4658-a9df-fd46f32f24b0",
-            "bcp": "--DTC"
-          },
-          {
-            "dc": "https://study.d4k.dk/study-cdisc-pilot-lzzt/0f57cd7a-45bf-4c17-ac6e-a85c9213b81c/abb09e25-3c87-4d4b-9a5d-1f0646ee2ab8",
-            "bcp": "DSTERM"
-          },
-          {
-            "dc": "https://study.d4k.dk/study-cdisc-pilot-lzzt/0f57cd7a-45bf-4c17-ac6e-a85c9213b81c/f062bfda-af9c-491b-8035-1bb6fc7c4970",
-            "bcp": "DSSTDTC"
-          },
-          {
-            "dc": "https://study.d4k.dk/study-cdisc-pilot-lzzt/0f57cd7a-45bf-4c17-ac6e-a85c9213b81c/201ba6d4-2196-46a3-bcc4-5d46f2535931",
-            "bcp": "DSDECOD"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "order": 2,
-    "id": "Activity_2",
-    "name": "Inclusion/exclusion criteria",
-    "items": []
-  },
-  {
-    "order": 3,
-    "id": "Activity_3",
-    "name": "Patient number assigned",
-    "items": []
-  },
-  {
     "order": 4,
     "id": "Activity_4",
     "name": "Demographics",
     "items": [
       {
-        "order": 4,
-        "id": "Activity_4",
-        "activity_name": "Demographics",
         "bc_name": "Date of Birth",
-        "bcps": [
+        "properties": [
           {
-            "dc": "https://study.d4k.dk/study-cdisc-pilot-lzzt/0f57cd7a-45bf-4c17-ac6e-a85c9213b81c/a9e45f7e-a221-4618-9116-ae4d80db396b",
-            "bcp": "--DTC"
+            "data_contract": "https://study.d4k.dk/study-cdisc-pilot-lzzt/0f57cd7a-45bf-4c17-ac6e-a85c9213b81c/a9e45f7e-a221-4618-9116-ae4d80db396b",
+            "label": "Collection date",
+            "datatype": "date_time",
+            "responses": []
           },
           {
-            "dc": "https://study.d4k.dk/study-cdisc-pilot-lzzt/0f57cd7a-45bf-4c17-ac6e-a85c9213b81c/b8047d38-090c-4798-a600-1196b0217822",
-            "bcp": "BRTHDTC"
+            "data_contract": "https://study.d4k.dk/study-cdisc-pilot-lzzt/0f57cd7a-45bf-4c17-ac6e-a85c9213b81c/b8047d38-090c-4798-a600-1196b0217822",
+            "label": "BRTHDTC",
+            "datatype": "date_time",
+            "responses": []
           }
         ]
       },
       {
-        "order": 4,
-        "id": "Activity_4",
-        "activity_name": "Demographics",
         "bc_name": "Sex",
-        "bcps": [
+        "properties": [
           {
-            "dc": "https://study.d4k.dk/study-cdisc-pilot-lzzt/0f57cd7a-45bf-4c17-ac6e-a85c9213b81c/1b9c93de-563f-45b1-9fc1-160e4e4913de",
-            "bcp": "--DTC"
+            "data_contract": "https://study.d4k.dk/study-cdisc-pilot-lzzt/0f57cd7a-45bf-4c17-ac6e-a85c9213b81c/1b9c93de-563f-45b1-9fc1-160e4e4913de",
+            "label": "Collection date",
+            "datatype": "date_time",
+            "responses": []
           },
           {
-            "dc": "https://study.d4k.dk/study-cdisc-pilot-lzzt/0f57cd7a-45bf-4c17-ac6e-a85c9213b81c/c366d792-fb74-47c4-8824-3c581d5ad8c7",
-            "bcp": "Sex"
+            "data_contract": "https://study.d4k.dk/study-cdisc-pilot-lzzt/0f57cd7a-45bf-4c17-ac6e-a85c9213b81c/c366d792-fb74-47c4-8824-3c581d5ad8c7",
+            "label": "Sex",
+            "datatype": "coding",
+            "responses": [
+              "Male",
+              "Female"
+            ]
           }
         ]
       },
       {
-        "order": 4,
-        "id": "Activity_4",
-        "activity_name": "Demographics",
         "bc_name": "Race",
-        "bcps": [
+        "properties": [
           {
-            "dc": "https://study.d4k.dk/study-cdisc-pilot-lzzt/0f57cd7a-45bf-4c17-ac6e-a85c9213b81c/4a435a16-17d7-4081-b154-f34d75dae0aa",
-            "bcp": "--DTC"
+            "data_contract": "https://study.d4k.dk/study-cdisc-pilot-lzzt/0f57cd7a-45bf-4c17-ac6e-a85c9213b81c/4a435a16-17d7-4081-b154-f34d75dae0aa",
+            "label": "Collection date",
+            "datatype": "date_time",
+            "responses": []
           },
           {
-            "dc": "https://study.d4k.dk/study-cdisc-pilot-lzzt/0f57cd7a-45bf-4c17-ac6e-a85c9213b81c/7900d247-6b6e-4474-bd8f-44f7cd8ecb07",
-            "bcp": "Race"
+            "data_contract": "https://study.d4k.dk/study-cdisc-pilot-lzzt/0f57cd7a-45bf-4c17-ac6e-a85c9213b81c/7900d247-6b6e-4474-bd8f-44f7cd8ecb07",
+            "label": "Race",
+            "datatype": "coding",
+            "responses": [
+              "White",
+              "Unknown",
+              "Other",
+              "Not Stated",
+              "Native Hawaiian or Other Pacific Islander",
+              "Black or African American",
+              "Asian"
+            ]
           }
         ]
       }
     ]
-  },
-  {
-    "order": 5,
-    "id": "Activity_5",
-    "name": "Hachinski",
-    "items": []
-  },
-  {
-    "order": 6,
-    "id": "Activity_6",
-    "name": "MMSE",
-    "items": []
-  },
-  {
-    "order": 7,
-    "id": "Activity_7",
-    "name": "Physical examination",
-    "items": []
-  },
-  {
-    "order": 8,
-    "id": "Activity_8",
-    "name": "Medical history",
-    "items": []
   }
 ]

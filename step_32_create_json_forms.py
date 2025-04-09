@@ -261,17 +261,17 @@ def get_activities(domain_uuid):
     order_numbers = list(set([x['order'] for x in activities_list]))
     activities = []
     for order in order_numbers:
-       item = {}
-       item['order'] = order
-       acts = [activity for activity in activities_list if activity['order'] == order]
-       item['id'] = acts[0]['id']
-       item['name'] = acts[0]['activity_name']
-       if acts[0]['bc_name'] == None:
-         item['items'] = []
-       else:
-         item['items'] = acts if acts else []
-
-       activities.append(item)
+        item = {}
+        item['order'] = order
+        acts = [activity for activity in activities_list if activity['order'] == order]
+        item['id'] = acts[0]['id']
+        item['name'] = acts[0]['activity_name']
+        if acts[0]['bc_name'] == None:
+            item['items'] = []
+        else:
+            item['items'] = acts if acts else []
+        if item['items']:
+            activities.append(item)
     return activities
 
 def pretty_string(text):
@@ -317,11 +317,21 @@ def generate_json():
   try:
     root = {}
     study_info = get_study_info()
+    if study_info['study_name'] != 'H2Q-MC-LZZT':
+        print("Print: Not using the right study")
+        return 
     debug.append(f"study_info {study_info}")
     activities = get_activities(study_info['uuid'])
-    activities = activities[0:8]
+    # activities = activities[0:8]
+    activities = [activity for activity in activities if activity['name'] == "Demographics"]
     for activity in activities:
-       debug.append(activity)
+        for item in activity['items']:
+            item.pop('order')
+            item.pop('id')
+            item.pop('activity_name')
+            debug.append(item)
+        # debug.append(activity)
+
 
     with open(JSON_FILE, 'w') as f:
         f.write(json.dumps(activities, indent = 2))
@@ -384,13 +394,15 @@ def generate_json():
 
 def main():
     json = generate_json()
-    if json:
-      print("done with json, time to save json")
-      save_json(json)
-      print("done with json")
+    # if json:
+    #   print("done with json, time to save json")
+    #   save_json(json)
+    #   print("done with json")
 
 if __name__ == "__main__":
+    print("startar")
     # check_crm_links()
     # _add_missing_links_to_crm()
     main()
     # check_odm()
+    print("klar")
